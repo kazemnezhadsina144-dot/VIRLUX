@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd ../.. && npm run build -w @virlux/shared && npm run build -w @virlux/web",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "installCommand": "cd ../.. && npm install"
+}

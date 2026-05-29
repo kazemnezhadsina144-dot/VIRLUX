@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: virlux
+      POSTGRES_PASSWORD: virlux
+      POSTGRES_DB: virlux
+    ports:
+      - "5432:5432"
+    volumes:
+      - virlux_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U virlux -d virlux"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://virlux:virlux@postgres:5432/virlux
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-prod}
+      PORT: "3002"
+      NODE_ENV: production
+      TELEGRAM_MODE: ${TELEGRAM_MODE:-polling}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      CIRCLE_API_KEY: ${CIRCLE_API_KEY:-}
+      CIRCLE_SANDBOX: ${CIRCLE_SANDBOX:-true}
+      AUTO_SETTLE: ${AUTO_SETTLE:-false}
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3002
+      NEXT_PUBLIC_APP_URL: http://localhost:3001
+      PORT: "3100"
+    ports:
+      - "3100:3100"
+    depends_on:
+      - api
+
+  app:
+    build:
+      context: .
+      dockerfile: apps/app/Dockerfile
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3002
+      NEXT_PUBLIC_WEB_URL: http://localhost:3100
+      PORT: "3001"
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+
+volumes:
+  virlux_pg:

@@ -1,0 +1,22 @@
+{
+  "name": "virlux",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n web,app,api -c cyan,magenta,green \"npm run dev:safe -w @virlux/web\" \"npm run dev -w @virlux/app\" \"npm run dev -w @virlux/api\"",
+    "dev:web": "npm run dev:safe -w @virlux/web",
+    "build": "npm run build -w @virlux/shared && npm run build -w @virlux/api && npm run build -w @virlux/web && npm run build -w @virlux/app",
+    "test": "npm run test -w @virlux/api && npm run test -w @virlux/shared",
+    "db:generate": "npm run db:generate -w @virlux/api",
+    "db:push": "npm run db:push -w @virlux/api",
+    "db:migrate": "npm run db:migrate -w @virlux/api",
+    "db:seed": "npm run db:seed -w @virlux/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.7.3"
+  }
+}

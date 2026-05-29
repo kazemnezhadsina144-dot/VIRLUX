@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  owner
+  admin
+  approver
+  viewer
+}
+
+enum KycStatus {
+  pending
+  in_review
+  approved
+  rejected
+}
+
+enum TransactionStatus {
+  pending
+  awaiting_approval
+  processing
+  confirmed
+  failed
+  cancelled
+}
+
+enum NetworkId {
+  ethereum
+  polygon
+  solana
+}
+
+enum LedgerType {
+  credit
+  debit
+}
+
+enum PaymentIntentStatus {
+  pending
+  processing
+  completed
+  failed
+  expired
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  legalName   String?
+  country     String   @default("CA")
+  fintracMsb  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+  invites     TeamInvite[]
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  passwordHash   String
+  fullName       String
+  phone          String?
+  role           UserRole     @default(owner)
+  kycStatus      KycStatus    @default(pending)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  wallet         Wallet?
+  transactions   Transaction[]
+  auditLogs      AuditLog[]
+  kycSubmissions KycSubmission[]
+  refreshTokens  RefreshToken[]
+  quotes         Quote[]
+  paymentIntents PaymentIntent[]
+  ledgerEntries  LedgerEntry[]
+  telegramLink   TelegramLink?
+  telegramLinkToken          String?
+  telegramLinkTokenExpiresAt DateTime?
+
+  @@index([organizationId])
+}
+
+model TelegramLink {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatId     String   @unique
+  username   String?
+  linkedAt   DateTime @default(now())
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Wallet {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usdcBalance Decimal  @default(0)
+  cadBalance  Decimal  @default(0)
+  usdBalance  Decimal  @default(0)
+  address     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Quote {
+  id              String    @id @default(cuid())
+  userId          String?
+  user            User?     @relation(fields: [userId], references: [id])
+  amountIn        Decimal
+  fromCurrency    String
+  toStablecoin    String
+  network         NetworkId
+  midMarketRate   Decimal
+  feeAmount       Decimal
+  gasEstimateUsd  Decimal
+  amountOut       Decimal
+  expiresAt       DateTime
+  consumedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  transactions    Transaction[]
+}
+
+model Transaction {
+  id               String            @id @default(cuid())
+  userId           String
+  user             User              @relation(fields: [userId], references: [id])
+  quoteId          String?           @unique
+  quote            Quote?            @relation(fields: [quoteId], references: [id])
+  idempotencyKey   String?
+  status           TransactionStatus @default(pending)
+  amountIn         Decimal
+  fromCurrency     String
+  toStablecoin     String
+  network          NetworkId
+  midMarketRate    Decimal
+  feeAmount        Decimal
+  gasEstimateUsd   Decimal
+  amountOut        Decimal
+  recipientCountry String?
+  recipientName    String?
+  recipientWallet  String?
+  memo             String?
+  txHash           String?
+  circleTransferId String?
+  failureReason    String?
+  needsApproval    Boolean           @default(false)
+  approvedBy       String?
+  approvedAt       DateTime?
+  settledAt        DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([userId, idempotencyKey])
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+model PaymentIntent {
+  id            String              @id @default(cuid())
+  userId        String
+  user          User                @relation(fields: [userId], references: [id])
+  method        String              @default("interac_e_transfer")
+  amountCad     Decimal
+  reference     String              @unique
+  status        PaymentIntentStatus @default(pending)
+  failureReason String?
+  completedAt   DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([userId, createdAt])
+}
+
+model KycSubmission {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  documentType   String
+  documentNumber String
+  country        String    @default("CA")
+  status         KycStatus @default(in_review)
+  reviewNotes    String?
+  reviewedAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model LedgerEntry {
+  id            String     @id @default(cuid())
+  userId        String
+  user          User       @relation(fields: [userId], references: [id])
+  type          LedgerType
+  currency      String
+  amount        Decimal
+  balanceAfter  Decimal
+  referenceType String
+  referenceId   String
+  description   String?
+  createdAt     DateTime   @default(now())
+
+  @@unique([referenceType, referenceId, type])
+  @@index([userId, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  metadata  Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model TeamInvite {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           UserRole     @default(viewer)
+  token          String       @unique
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  invitedById    String
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId])
+  @@index([email])
+}
