@@ -30,6 +30,16 @@ ENOENT: .../apps/web/.next/routes-manifest.json
 | `npm run dev` | Full stack; web uses `dev:safe` |
 | `npm run dev:clean -w @virlux/web` | Wipe `.next` and restart |
 
+### Staging deploy (2026-05-29)
+
+| Symptom | Fix |
+|---------|-----|
+| GitHub push rejects `.github/workflows/` | Run `bash scripts/restore-github-workflows.sh` after `gh auth refresh -s repo,workflow` |
+| Railway/Vercel deploy | `RAILWAY_TOKEN=... npm run staging:railway` then `VERCEL_TOKEN=... npm run staging:vercel` |
+| Cookie auth fails on Vercel | App uses `app/api/[...path]/route.ts` to forward Set-Cookie; confirm `NEXT_PUBLIC_API_URL` on Vercel |
+| CORS errors on staging | Update Railway `CORS_ORIGINS` with exact Vercel URLs (no trailing slash) |
+| Logout cookies persist in prod | Fixed: `clearAuthCookies` uses SameSite=None + Secure in production |
+
 ### If 3100 breaks again
 
 ```bash
