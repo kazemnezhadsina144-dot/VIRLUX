@@ -12,8 +12,8 @@ Status key: `open` | `in-progress` | `done`
 |--------|------|-------|
 | in-progress | **Interac confirmation** | Owner/admin can manually confirm via dashboard (`POST /api/wallet/deposits/:id/confirm`). Real banking webhook still needed for scale. |
 | done | **KYC review UI** | Owner/admin queue at `GET /api/kyc/review/queue` + approve/reject on dashboard KYC page. |
-| open | **httpOnly cookie auth** | JWTs still in `localStorage` (XSS risk). Move to BFF or httpOnly, Secure, SameSite cookies for production. |
-| open | **Legal review** | Full Terms of Service; privacy policy beyond stub; **MSB registration claims only when actually registered** with published registration number. |
+| open | **httpOnly cookie auth** | Cookies + app `/api` proxy implemented; verify on staging Vercel |
+| open | **Legal review** | Drafts live — use [`counsel-review-brief.md`](./counsel-review-brief.md) |
 | open | **Circle production** | Sandbox skeleton exists; need prod keys, transfer status webhooks/polling, and runbook before live USDC settlement. |
 
 ---
@@ -37,6 +37,6 @@ Status key: `open` | `in-progress` | `done`
 | done | `AUTO_SETTLE` dev-only | Blocked in production startup. |
 | done | Maker-checker approvals | Org-scoped; no self-approval. |
 | done | Telegram link via one-time token | No email hijack via `/link`. |
-| open | Refresh token rotation / reuse detection | Stolen refresh family not fully revoked on reuse. |
+| done | Refresh token rotation / reuse detection | Revoke family on reuse in `services/auth.ts` |
 | open | Dual approval above higher threshold | Optional enterprise control. |
 | open | Real Interac provider integration | Beyond simulated dev completion. |

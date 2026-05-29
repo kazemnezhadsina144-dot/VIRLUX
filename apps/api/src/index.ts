@@ -18,6 +18,7 @@ import metaRoutes from "./routes/meta";
 import auditRoutes from "./routes/audit";
 import teamRoutes from "./routes/team";
 import accountRoutes from "./routes/account";
+import circleRoutes from "./routes/circle";
 import { botStatus } from "./telegram/polling";
 
 const FORBIDDEN = PORTS.forbidden;
@@ -34,6 +35,7 @@ app.use(helmet());
 app.use(cors({ origin: config.corsOrigins, credentials: true }));
 
 app.use("/api/telegram", telegramRoutes);
+app.use("/api/circle", circleRoutes);
 
 app.use(express.json({ limit: "1mb" }));
 

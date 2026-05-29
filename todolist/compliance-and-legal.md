@@ -14,8 +14,8 @@
 | open | Terms of Service — `/terms` | Draft live — **counsel review required** |
 | open | Full privacy policy — PIPEDA | Expanded draft live — **counsel review required** |
 | open | MSB registration number on site — **only when registered** |
-| open | Counsel review of all public copy before launch |
-| open | FINTRAC-ready record retention policy documented |
+| open | Counsel review of all public copy before launch | Brief: [`counsel-review-brief.md`](./counsel-review-brief.md) |
+| done | FINTRAC-ready record retention policy documented | [`fintrac-retention-policy.md`](./fintrac-retention-policy.md) |
 
 ## Boundaries
 

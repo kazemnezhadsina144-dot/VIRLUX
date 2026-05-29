@@ -13,6 +13,10 @@ This folder captures **launch blockers**, **dev runbooks**, **UI roadmap**, and 
 | [pilot-loi-template.md](./pilot-loi-template.md) | Design partner LOI template |
 | [interac-ops-sop.md](./interac-ops-sop.md) | Manual Interac confirmation SOP |
 | [circle-staging-checklist.md](./circle-staging-checklist.md) | Circle sandbox E2E checklist |
+| [counsel-review-brief.md](./counsel-review-brief.md) | Legal counsel review packet |
+| [pilot-outreach-pack.md](./pilot-outreach-pack.md) | Pilot GTM email + tracker |
+| [interac-partner-evaluation.md](./interac-partner-evaluation.md) | Post-pilot Interac partner RFP criteria |
+| [fintrac-retention-policy.md](./fintrac-retention-policy.md) | Record retention draft |
 | [compliance-and-legal.md](./compliance-and-legal.md) | Legal, MSB, privacy, TrustField boundary |
 | [backlog.md](./backlog.md) | Nice-to-haves and unscheduled ideas |
 

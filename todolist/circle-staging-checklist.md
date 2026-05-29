@@ -74,7 +74,7 @@ curl -s http://localhost:3002/health | jq .circle
 | Transfer initiate | `apps/api/src/integrations/circle/client.ts` → `transferUsdc` |
 | Status polling | `pollTransferComplete` |
 | Settlement | `apps/api/src/services/transactions.ts` → `settleTransaction` |
-| Refund on fail | `failTransaction` |
+| Webhook (prod) | `POST /api/circle/webhook` | Set `CIRCLE_WEBHOOK_SECRET` |
 
 ---
 

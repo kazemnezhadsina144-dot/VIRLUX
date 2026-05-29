@@ -17,9 +17,15 @@
     "db:seed": "npm run db:seed -w @virlux/api",
     "deploy:checklist": "bash scripts/deploy.sh",
     "deploy:smoke": "bash scripts/staging-smoke.sh",
-    "deploy:secrets": "bash scripts/generate-staging-secrets.sh"
+    "deploy:secrets": "bash scripts/generate-staging-secrets.sh",
+    "deploy:push-setup": "bash scripts/setup-github-push.sh",
+    "staging:e2e": "bash scripts/staging-e2e.sh",
+    "staging:circle": "bash scripts/circle-sandbox-check.sh",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "devDependencies": {
+    "@playwright/test": "^1.51.0",
     "concurrently": "^9.1.2",
     "typescript": "^5.7.3"
   }

@@ -142,8 +142,16 @@ Redeploy API if CORS was placeholder during first deploy.
 export NEXT_PUBLIC_API_URL=https://YOUR-API.up.railway.app
 export STAGING_WEB_URL=https://YOUR-WEB.vercel.app
 export STAGING_APP_URL=https://YOUR-APP.vercel.app
-./scripts/staging-smoke.sh
+npm run deploy:smoke
+npm run staging:e2e    # register → me → kyc → quote
+npm run staging:circle # Circle sandbox reachability
 ```
+
+**GitHub Actions (after push to GitHub):**
+
+- **Staging smoke:** Actions → "Staging smoke" → Run workflow → enter API URL
+- **Staging E2E:** Actions → "E2E staging API" → enter API URL
+- **Playwright:** runs on push to `main` via `.github/workflows/e2e.yml`
 
 ### Manual E2E (staging)
 

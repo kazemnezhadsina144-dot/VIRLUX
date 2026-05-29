@@ -58,6 +58,7 @@ export const config = {
   circleApiKey: process.env.CIRCLE_API_KEY ?? "",
   circleSandbox: process.env.CIRCLE_SANDBOX !== "false",
   circleWalletId: process.env.CIRCLE_WALLET_ID ?? "",
+  circleWebhookSecret: process.env.CIRCLE_WEBHOOK_SECRET ?? "",
 };
 
 export function telegramConfigured(): boolean {
