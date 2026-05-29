@@ -68,12 +68,17 @@ Official bot: **@VIRLUXBOT** only. TrustField / Virelux bots are separate.
 ## Deploy
 
 ```bash
-chmod +x scripts/deploy.sh && ./scripts/deploy.sh
+npm run deploy:checklist          # print Railway + Vercel steps
+npm run deploy:secrets            # generate JWT + webhook secrets
+npm run deploy:smoke              # after deploy (set NEXT_PUBLIC_API_URL)
 ```
 
+Full runbook: **[`todolist/staging-deploy.md`](./todolist/staging-deploy.md)**
+
 - **Railway:** API + Postgres, use `railway.toml`
-- **Vercel:** two projects — `apps/web`, `apps/app`
-- Set `NEXT_PUBLIC_API_URL` to Railway API URL on Vercel
+- **Vercel:** two projects — Root Directory `apps/web` and `apps/app`
+- Set `NEXT_PUBLIC_API_URL` to Railway API URL on both Vercel projects
+- Copy env from `.env.staging.example`
 
 ## Tests
 

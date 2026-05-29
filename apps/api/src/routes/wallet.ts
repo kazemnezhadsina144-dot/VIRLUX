@@ -59,4 +59,26 @@ router.get(
   })
 );
 
+router.get(
+  "/deposits/pending",
+  requireAuth,
+  attachFreshUser,
+  requireRole("owner", "admin"),
+  asyncHandler(async (req, res) => {
+    const pending = await depositService.listOrgPendingDeposits(req.auth!.userId);
+    res.json(pending);
+  })
+);
+
+router.post(
+  "/deposits/:id/confirm",
+  requireAuth,
+  attachFreshUser,
+  requireRole("owner", "admin"),
+  asyncHandler(async (req, res) => {
+    const intent = await depositService.confirmDepositAsAdmin(String(req.params.id), req.auth!.userId);
+    res.json(intent);
+  })
+);
+
 export default router;

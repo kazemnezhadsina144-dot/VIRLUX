@@ -4,10 +4,12 @@ This folder captures **launch blockers**, **dev runbooks**, **UI roadmap**, and 
 
 | File | Purpose |
 |------|---------|
+| **[NEXT-MOVES.md](./NEXT-MOVES.md)** | **Master prioritized action list — start here** |
 | [launch-blockers.md](./launch-blockers.md) | Must-have before real customer money |
 | [local-dev.md](./local-dev.md) | Postgres, env, demo login, verify locally |
 | [ui-roadmap.md](./ui-roadmap.md) | Marketing + dashboard UI (done & next) |
 | [ops-and-debugging.md](./ops-and-debugging.md) | Ports, stale Next.js, dev scripts |
+| [staging-deploy.md](./staging-deploy.md) | **Railway + Vercel staging runbook** |
 | [compliance-and-legal.md](./compliance-and-legal.md) | Legal, MSB, privacy, TrustField boundary |
 | [backlog.md](./backlog.md) | Nice-to-haves and unscheduled ideas |
 

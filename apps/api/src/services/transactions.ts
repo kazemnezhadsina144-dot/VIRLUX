@@ -162,6 +162,57 @@ export async function approveTransaction(txId: string, approverId: string) {
   return result;
 }
 
+export async function rejectTransaction(txId: string, actorId: string, reason: string) {
+  const actor = await prisma.user.findUnique({ where: { id: actorId } });
+  if (!actor || !["owner", "admin", "approver"].includes(actor.role)) {
+    throw new AppError(403, "Insufficient permissions", "FORBIDDEN");
+  }
+
+  const tx = await prisma.transaction.findFirst({
+    where: { id: txId, status: "awaiting_approval" },
+  });
+  if (!tx) throw new AppError(404, "Transaction not found or not awaiting approval");
+
+  if (tx.userId === actorId) {
+    throw new AppError(403, "Use cancel for your own payment", "SELF_REJECT");
+  }
+
+  if (!(await sameOrganization(actorId, tx.userId))) {
+    throw new AppError(403, "Transaction is outside your organization", "FORBIDDEN");
+  }
+
+  const updated = await failTransaction(txId, reason || "Rejected by approver");
+
+  await prisma.auditLog.create({
+    data: {
+      userId: actorId,
+      action: "transaction.rejected",
+      metadata: { transactionId: txId, reason },
+    },
+  });
+
+  return updated;
+}
+
+export async function cancelTransaction(txId: string, userId: string) {
+  const tx = await prisma.transaction.findFirst({
+    where: { id: txId, userId, status: "awaiting_approval" },
+  });
+  if (!tx) throw new AppError(404, "Transaction not found or cannot be cancelled");
+
+  const updated = await failTransaction(txId, "Cancelled by sender");
+
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: "transaction.cancelled",
+      metadata: { transactionId: txId },
+    },
+  });
+
+  return updated;
+}
+
 export function scheduleSettlement(txId: string) {
   setTimeout(async () => {
     try {
@@ -259,23 +310,29 @@ export async function failTransaction(txId: string, reason: string) {
   return prisma.transaction.findUniqueOrThrow({ where: { id: txId } });
 }
 
-export async function listTransactionsForUser(userId: string) {
+export async function listTransactionsForUser(userId: string, statusFilter?: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user?.organizationId) {
-    return prisma.transaction.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      take: 100,
-    });
-  }
+  const whereBase =
+    user?.organizationId
+      ? {
+          userId: {
+            in: (
+              await prisma.user.findMany({
+                where: { organizationId: user.organizationId },
+                select: { id: true },
+              })
+            ).map((u) => u.id),
+          },
+        }
+      : { userId };
 
-  const orgUserIds = await prisma.user.findMany({
-    where: { organizationId: user.organizationId },
-    select: { id: true },
-  });
+  const where =
+    statusFilter && statusFilter !== "all"
+      ? { ...whereBase, status: statusFilter as "awaiting_approval" }
+      : whereBase;
 
   return prisma.transaction.findMany({
-    where: { userId: { in: orgUserIds.map((u) => u.id) } },
+    where,
     orderBy: { createdAt: "desc" },
     take: 100,
   });

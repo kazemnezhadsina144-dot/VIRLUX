@@ -26,7 +26,8 @@ router.get(
   requireAuth,
   attachFreshUser,
   asyncHandler(async (req, res) => {
-    const txs = await txService.listTransactionsForUser(req.auth!.userId);
+    const status = typeof req.query.status === "string" ? req.query.status : undefined;
+    const txs = await txService.listTransactionsForUser(req.auth!.userId, status);
     res.json(txs);
   })
 );
@@ -79,6 +80,28 @@ router.post(
   requireRole("owner", "admin", "approver"),
   asyncHandler(async (req, res) => {
     const updated = await txService.approveTransaction(String(req.params.id), req.auth!.userId);
+    res.json(updated);
+  })
+);
+
+router.post(
+  "/:id/reject",
+  requireAuth,
+  attachFreshUser,
+  requireRole("owner", "admin", "approver"),
+  asyncHandler(async (req, res) => {
+    const reason = (req.body as { reason?: string }).reason ?? "Rejected by approver";
+    const updated = await txService.rejectTransaction(String(req.params.id), req.auth!.userId, reason);
+    res.json(updated);
+  })
+);
+
+router.post(
+  "/:id/cancel",
+  requireAuth,
+  attachFreshUser,
+  asyncHandler(async (req, res) => {
+    const updated = await txService.cancelTransaction(String(req.params.id), req.auth!.userId);
     res.json(updated);
   })
 );

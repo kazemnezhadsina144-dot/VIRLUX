@@ -37,7 +37,10 @@ export const config = {
   jwtRefreshTtlDays: Number(process.env.JWT_REFRESH_TTL_DAYS ?? 30),
   approvalThresholdCad: Number(process.env.APPROVAL_THRESHOLD ?? 5000),
   autoSettle,
-  corsOrigins: (process.env.CORS_ORIGINS ?? "http://localhost:3100,http://localhost:3001").split(","),
+  corsOrigins: (process.env.CORS_ORIGINS ?? "http://localhost:3100,http://localhost:3001")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
   rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS ?? 60_000),
   rateLimitMax: Number(process.env.RATE_LIMIT_MAX ?? 120),
   authRateLimitMax: Number(process.env.AUTH_RATE_LIMIT_MAX ?? 10),

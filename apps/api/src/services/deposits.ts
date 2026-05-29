@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma";
 import { AppError } from "../lib/errors";
 import { credit } from "./ledger";
 import { config } from "../lib/config";
+import { assertSameOrg, orgMemberIds } from "../lib/org";
 import { logger } from "../lib/logger";
 import { notifyDepositCompleted } from "../telegram/handlers";
 
@@ -90,4 +91,50 @@ export async function listDeposits(userId: string) {
     orderBy: { createdAt: "desc" },
     take: 50,
   });
+}
+
+export async function listOrgPendingDeposits(reviewerId: string) {
+  const memberIds = await orgMemberIds(reviewerId);
+  if (!memberIds) return [];
+
+  const intents = await prisma.paymentIntent.findMany({
+    where: { userId: { in: memberIds }, status: "pending" },
+    orderBy: { createdAt: "asc" },
+    include: { user: { select: { id: true, email: true, fullName: true } } },
+  });
+
+  return intents.map((i) => ({
+    id: i.id,
+    userId: i.userId,
+    userEmail: i.user.email,
+    userName: i.user.fullName,
+    amountCad: i.amountCad,
+    reference: i.reference,
+    status: i.status,
+    createdAt: i.createdAt,
+  }));
+}
+
+export async function confirmDepositAsAdmin(intentId: string, adminId: string) {
+  const intent = await prisma.paymentIntent.findUnique({
+    where: { id: intentId },
+    include: { user: { select: { id: true } } },
+  });
+  if (!intent) throw new AppError(404, "Deposit not found");
+  if (intent.status !== "pending") {
+    throw new AppError(409, "Deposit is not pending", "INVALID_STATUS");
+  }
+  await assertSameOrg(adminId, intent.userId);
+
+  const completed = await completeDeposit(intentId);
+
+  await prisma.auditLog.create({
+    data: {
+      userId: adminId,
+      action: "deposit.interac.confirmed",
+      metadata: { paymentIntentId: intentId, targetUserId: intent.userId, reference: intent.reference },
+    },
+  });
+
+  return completed;
 }

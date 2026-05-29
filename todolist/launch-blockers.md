@@ -10,8 +10,8 @@ Status key: `open` | `in-progress` | `done`
 
 | Status | Item | Notes |
 |--------|------|-------|
-| open | **Interac confirmation** | No banking webhook yet; deposits stay `pending` in prod until a real confirmation path is wired (admin or bank webhook → `completeDeposit`). |
-| open | **KYC review UI** | Admin approve/reject routes + dashboard for production compliance ops (API has `approveKyc`/`rejectKyc` services; no prod UI/routes exposed). |
+| in-progress | **Interac confirmation** | Owner/admin can manually confirm via dashboard (`POST /api/wallet/deposits/:id/confirm`). Real banking webhook still needed for scale. |
+| done | **KYC review UI** | Owner/admin queue at `GET /api/kyc/review/queue` + approve/reject on dashboard KYC page. |
 | open | **httpOnly cookie auth** | JWTs still in `localStorage` (XSS risk). Move to BFF or httpOnly, Secure, SameSite cookies for production. |
 | open | **Legal review** | Full Terms of Service; privacy policy beyond stub; **MSB registration claims only when actually registered** with published registration number. |
 | open | **Circle production** | Sandbox skeleton exists; need prod keys, transfer status webhooks/polling, and runbook before live USDC settlement. |

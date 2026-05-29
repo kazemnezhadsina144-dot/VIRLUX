@@ -15,6 +15,7 @@ Add ideas here; move to other files when prioritized.
 | open | Dual approval above $X CAD threshold | Fintech audit |
 | open | Refresh token reuse detection | Fintech audit |
 | open | README link to `todolist/` for founder tracking | This file |
+| done | Master action list `todolist/NEXT-MOVES.md` | 2026-05-29 |
 
 ---
 

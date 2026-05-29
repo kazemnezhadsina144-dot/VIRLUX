@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { prisma } from "../lib/prisma";
 import { AppError } from "../lib/errors";
 import { config } from "../lib/config";
+import { assertSameOrg, orgMemberIds } from "../lib/org";
 import { notifyKycUpdate } from "../telegram/handlers";
 
 export async function submitKyc(
@@ -103,4 +104,77 @@ export async function getKycStatus(userId: string) {
     take: 5,
   });
   return { ...user, submissions };
+}
+
+export async function listOrgKycQueue(reviewerId: string) {
+  const memberIds = await orgMemberIds(reviewerId);
+  if (!memberIds) return [];
+
+  const submissions = await prisma.kycSubmission.findMany({
+    where: { userId: { in: memberIds }, status: "in_review" },
+    orderBy: { createdAt: "asc" },
+    include: {
+      user: { select: { id: true, email: true, fullName: true, organizationId: true } },
+    },
+  });
+
+  return submissions.map((s) => ({
+    id: s.id,
+    userId: s.userId,
+    userEmail: s.user.email,
+    userName: s.user.fullName,
+    documentType: s.documentType,
+    documentNumberMasked: maskDocNumber(s.documentNumber),
+    country: s.country,
+    status: s.status,
+    createdAt: s.createdAt,
+  }));
+}
+
+function maskDocNumber(num: string) {
+  if (num.length <= 4) return "****";
+  return `${"*".repeat(Math.min(num.length - 4, 8))}${num.slice(-4)}`;
+}
+
+export async function approveKycAsReviewer(submissionId: string, reviewerId: string, notes?: string) {
+  const submission = await prisma.kycSubmission.findUnique({
+    where: { id: submissionId },
+    include: { user: { select: { id: true } } },
+  });
+  if (!submission || submission.status !== "in_review") {
+    throw new AppError(404, "Submission not found or not in review", "NOT_FOUND");
+  }
+  await assertSameOrg(reviewerId, submission.userId);
+
+  await approveKyc(submissionId, notes);
+
+  await prisma.auditLog.create({
+    data: {
+      userId: reviewerId,
+      action: "kyc.review.approved",
+      metadata: { submissionId, targetUserId: submission.userId, notes },
+    },
+  });
+
+  return prisma.kycSubmission.findUniqueOrThrow({ where: { id: submissionId } });
+}
+
+export async function rejectKycAsReviewer(submissionId: string, reviewerId: string, notes: string) {
+  const submission = await prisma.kycSubmission.findUnique({ where: { id: submissionId } });
+  if (!submission || submission.status !== "in_review") {
+    throw new AppError(404, "Submission not found or not in review", "NOT_FOUND");
+  }
+  await assertSameOrg(reviewerId, submission.userId);
+
+  const result = await rejectKyc(submissionId, notes);
+
+  await prisma.auditLog.create({
+    data: {
+      userId: reviewerId,
+      action: "kyc.review.rejected",
+      metadata: { submissionId, targetUserId: submission.userId, notes },
+    },
+  });
+
+  return result;
 }

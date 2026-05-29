@@ -13,7 +13,10 @@
     "db:generate": "npm run db:generate -w @virlux/api",
     "db:push": "npm run db:push -w @virlux/api",
     "db:migrate": "npm run db:migrate -w @virlux/api",
-    "db:seed": "npm run db:seed -w @virlux/api"
+    "db:seed": "npm run db:seed -w @virlux/api",
+    "deploy:checklist": "bash scripts/deploy.sh",
+    "deploy:smoke": "bash scripts/staging-smoke.sh",
+    "deploy:secrets": "bash scripts/generate-staging-secrets.sh"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

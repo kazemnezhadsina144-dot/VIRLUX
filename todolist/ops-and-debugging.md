@@ -48,7 +48,7 @@ Verify: `curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3100` → exp
 
 | Status | Item |
 |--------|------|
-| open | Document Railway + Vercel split deploy in runbook |
+| done | Document Railway + Vercel split deploy in runbook | See [staging-deploy.md](./staging-deploy.md) |
 | open | CI: ensure `prisma migrate deploy` matches prod |
 | open | Secret scanning in CI for `.env` leaks |
 | done | Remove debug middleware/instrumentation after 3100 fix verified |

@@ -50,9 +50,9 @@
 
 | Status | Item |
 |--------|------|
-| open | KYC admin review UI (approve/reject) |
-| open | Org-wide pending approval queue polish |
-| open | Approve/reject on transaction detail page |
+| done | KYC admin review UI (approve/reject) |
+| done | Org-wide pending approval queue polish |
+| done | Approve/reject/cancel on transaction detail page |
 | open | Next.js middleware server-side auth gate (beyond client `hasSession`) |
 | open | Security headers (CSP, HSTS) in `next.config` |
 
