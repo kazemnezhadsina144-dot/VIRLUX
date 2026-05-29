@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { clearSession } from "@/lib/api";
+import { logout } from "@/lib/api";
 import { useAuth, canSend, canManageTeam, canViewAudit } from "@/lib/auth-context";
 
 const ICONS: Record<string, string> = {
@@ -81,8 +81,8 @@ export function Sidebar() {
         </a>
         <button
           type="button"
-          onClick={() => {
-            clearSession();
+          onClick={async () => {
+            await logout();
             window.location.href = "/";
           }}
           className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left hover:bg-red-500/10 hover:text-red-400"

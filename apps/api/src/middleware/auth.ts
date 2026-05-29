@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
 import { config } from "../lib/config";
+import { ACCESS_COOKIE, parseCookies } from "../lib/cookies";
 
 export interface AuthPayload {
   userId: string;
@@ -22,11 +23,13 @@ declare global {
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
-  if (!header?.startsWith("Bearer ")) {
+  const cookies = parseCookies(req);
+  let token = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
+  if (!token) token = cookies[ACCESS_COOKIE];
+  if (!token) {
     return res.status(401).json({ error: "Unauthorized", code: "UNAUTHORIZED" });
   }
   try {
-    const token = header.slice(7);
     const payload = jwt.verify(token, config.jwtSecret) as AuthPayload;
     if (!payload.type || payload.type !== "access") {
       return res.status(401).json({ error: "Invalid token type", code: "INVALID_TOKEN" });

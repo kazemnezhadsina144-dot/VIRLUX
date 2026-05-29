@@ -26,8 +26,16 @@ export function Footer() {
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Product</p>
             <ul className="mt-4 space-y-2 text-sm text-slate-400">
               <li><a href="#product" className="hover:text-white">Features</a></li>
-              <li><a href="#pricing" className="hover:text-white">Pricing</a></li>
+              <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>
               <li><Link href={APP_URL} className="hover:text-white">Dashboard</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Legal</p>
+            <ul className="mt-4 space-y-2 text-sm text-slate-400">
+              <li><Link href="/terms" className="hover:text-white">Terms of service</Link></li>
+              <li><Link href="/privacy" className="hover:text-white">Privacy policy</Link></li>
             </ul>
           </div>
 
@@ -38,7 +46,6 @@ export function Footer() {
                 <a href={`mailto:${COMPANY.email}`} className="hover:text-white">{COMPANY.email}</a>
               </li>
               <li>{COMPANY.phone}</li>
-              <li><Link href="/privacy" className="hover:text-white">Privacy policy</Link></li>
             </ul>
           </div>
         </div>

@@ -1,18 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { hasSession } from "@/lib/api";
-import { Sidebar } from "@/components/Sidebar";
 import { AuthProvider } from "@/lib/auth-context";
+import { Sidebar } from "@/components/Sidebar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!hasSession()) router.replace("/");
-  }, [router]);
-
   return (
     <AuthProvider>
       <div className="flex min-h-screen bg-virlux-bg">

@@ -11,8 +11,8 @@
 
 | Status | Item |
 |--------|------|
-| open | Terms of Service — `/terms` |
-| open | Full privacy policy — PIPEDA, cookies, retention, subprocessors |
+| open | Terms of Service — `/terms` | Draft live — **counsel review required** |
+| open | Full privacy policy — PIPEDA | Expanded draft live — **counsel review required** |
 | open | MSB registration number on site — **only when registered** |
 | open | Counsel review of all public copy before launch |
 | open | FINTRAC-ready record retention policy documented |

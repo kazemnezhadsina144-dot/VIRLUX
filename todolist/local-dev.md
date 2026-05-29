@@ -27,7 +27,7 @@ unset DATABASE_URL
 docker compose up -d postgres
 npm install
 npm run db:migrate && npm run db:seed
-npm run dev
+npm run dev          # kills stale ports on 3100/3001/3002, then starts stack
 ```
 
 ---

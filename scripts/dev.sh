@@ -11,9 +11,7 @@ fi
 cd "$ROOT"
 [ -f .env ] || cp .env.example .env
 
-if [ ! -f apps/api/prisma/dev.db ]; then
-  npm run build -w @virlux/shared
-  (cd apps/api && npx prisma generate && npx prisma db push && npx tsx prisma/seed.ts)
-fi
+# Shell may override .env with old SQLite DATABASE_URL
+unset DATABASE_URL
 
-npm run dev
+exec bash scripts/dev-local.sh

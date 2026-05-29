@@ -1,60 +1,57 @@
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002";
+const API_INTERNAL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002";
+
+/** Browser uses same-origin /api proxy; SSR uses direct API URL */
+export function apiBase(): string {
+  if (typeof window !== "undefined") return "";
+  return API_INTERNAL;
+}
 
 export type ApiError = { error: string; code?: string };
 
-function tokens() {
-  if (typeof window === "undefined") return { access: "", refresh: "" };
-  return {
-    access: localStorage.getItem("virlux_access") ?? "",
-    refresh: localStorage.getItem("virlux_refresh") ?? "",
-  };
-}
-
-export function setSession(accessToken: string, refreshToken: string) {
-  localStorage.setItem("virlux_access", accessToken);
-  localStorage.setItem("virlux_refresh", refreshToken);
+export function setSession(_accessToken: string, _refreshToken: string) {
+  // Tokens live in httpOnly cookies set by API; keep for backward compat during migration
+  if (typeof window === "undefined") return;
+  localStorage.removeItem("virlux_access");
+  localStorage.removeItem("virlux_refresh");
 }
 
 export function clearSession() {
+  if (typeof window === "undefined") return;
   localStorage.removeItem("virlux_access");
   localStorage.removeItem("virlux_refresh");
 }
 
 export function hasSession(): boolean {
-  return typeof window !== "undefined" && !!localStorage.getItem("virlux_access");
+  // httpOnly cookies are not readable in JS — middleware + /api/auth/me are authoritative
+  return false;
 }
 
-async function refreshAccess(): Promise<string | null> {
-  const { refresh } = tokens();
-  if (!refresh) return null;
-  const res = await fetch(`${API}/api/auth/refresh`, {
+async function refreshAccess(): Promise<boolean> {
+  const res = await fetch(`${apiBase()}/api/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refreshToken: refresh }),
+    credentials: "include",
+    body: JSON.stringify({}),
   });
-  if (!res.ok) return null;
-  const data = (await res.json()) as { accessToken: string; refreshToken: string };
-  setSession(data.accessToken, data.refreshToken);
-  return data.accessToken;
+  return res.ok;
 }
 
 export async function api<T>(path: string, options?: RequestInit): Promise<T> {
-  const run = async (token: string) =>
-    fetch(`${API}${path}`, {
+  const run = async () =>
+    fetch(`${apiBase()}${path}`, {
       ...options,
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options?.headers,
       },
     });
 
-  let { access } = tokens();
-  let res = await run(access);
+  let res = await run();
 
-  if (res.status === 401 && tokens().refresh) {
-    const newToken = await refreshAccess();
-    if (newToken) res = await run(newToken);
+  if (res.status === 401 && path !== "/api/auth/refresh" && path !== "/api/auth/login") {
+    const ok = await refreshAccess();
+    if (ok) res = await run();
   }
 
   const data = await res.json();
@@ -62,4 +59,13 @@ export async function api<T>(path: string, options?: RequestInit): Promise<T> {
   return data as T;
 }
 
-export { API };
+export async function logout() {
+  try {
+    await api("/api/auth/logout", { method: "POST" });
+  } catch {
+    /* ignore */
+  }
+  clearSession();
+}
+
+export { API_INTERNAL as API };

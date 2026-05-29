@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { api, setSession, hasSession } from "@/lib/api";
+import { api, setSession } from "@/lib/api";
 
 const WEB = process.env.NEXT_PUBLIC_WEB_URL ?? "http://localhost:3100";
 
@@ -20,7 +20,9 @@ function LoginForm() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (hasSession()) router.replace("/dashboard");
+    api("/api/auth/me")
+      .then(() => router.replace("/dashboard"))
+      .catch(() => {});
   }, [router]);
 
   async function acceptInviteIfNeeded() {

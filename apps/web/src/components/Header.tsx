@@ -5,7 +5,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001";
 const NAV = [
   { href: "#product", label: "Product" },
   { href: "#how", label: "How it works" },
-  { href: "#pricing", label: "Pricing" },
+  { href: "/pricing", label: "Pricing" },
   { href: "#faq", label: "FAQ" },
 ];
 
@@ -21,11 +21,17 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {NAV.map((item) => (
-            <a key={item.href} href={item.href} className="nav-link">
-              {item.label}
-            </a>
-          ))}
+          {NAV.map((item) =>
+            item.href.startsWith("/") ? (
+              <Link key={item.href} href={item.href} className="nav-link">
+                {item.label}
+              </Link>
+            ) : (
+              <a key={item.href} href={item.href} className="nav-link">
+                {item.label}
+              </a>
+            )
+          )}
           <Link href="/privacy" className="nav-link">
             Privacy
           </Link>

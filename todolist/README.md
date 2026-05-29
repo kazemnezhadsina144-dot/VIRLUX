@@ -10,6 +10,9 @@ This folder captures **launch blockers**, **dev runbooks**, **UI roadmap**, and 
 | [ui-roadmap.md](./ui-roadmap.md) | Marketing + dashboard UI (done & next) |
 | [ops-and-debugging.md](./ops-and-debugging.md) | Ports, stale Next.js, dev scripts |
 | [staging-deploy.md](./staging-deploy.md) | **Railway + Vercel staging runbook** |
+| [pilot-loi-template.md](./pilot-loi-template.md) | Design partner LOI template |
+| [interac-ops-sop.md](./interac-ops-sop.md) | Manual Interac confirmation SOP |
+| [circle-staging-checklist.md](./circle-staging-checklist.md) | Circle sandbox E2E checklist |
 | [compliance-and-legal.md](./compliance-and-legal.md) | Legal, MSB, privacy, TrustField boundary |
 | [backlog.md](./backlog.md) | Nice-to-haves and unscheduled ideas |
 

@@ -30,10 +30,10 @@ Status: `🔴 blocker` | `🟠 high` | `🟡 medium` | `🟢 nice` | `✅ done`
 |-----|--------|--------|--------------|--------|
 | 🟠 | in-progress | **Interac deposit confirmation** — admin manual confirm done; bank webhook still needed | `wallet.ts`, `dashboard/deposits` | M |
 | ✅ | done | **KYC review** — API + dashboard queue for owner/admin | `routes/kyc.ts`, `dashboard/kyc` | M |
-| 🔴 | open | **httpOnly cookie auth** — remove JWT from `localStorage`; BFF or cookie session | `apps/app`, possibly `apps/api` | L |
-| 🔴 | open | **Circle production** — prod keys, transfer status polling/webhooks, runbook | `integrations/circle/`, env, docs | L |
-| 🔴 | open | **Legal pages** — `/terms`, full PIPEDA privacy policy | `apps/web` | M (legal review) |
-| 🟠 | open | **Refresh token reuse detection** — revoke token family on reuse | `services/auth.ts` | S |
+| 🔴 | in-progress | **httpOnly cookie auth** — cookies + app `/api` proxy; counsel review for prod cross-domain | `apps/api`, `apps/app` | M |
+| 🟠 | in-progress | **Circle production** — sandbox checklist + transfer polling added | `integrations/circle/` | L |
+| 🟠 | draft | **Legal pages** — `/terms`, expanded `/privacy` (counsel review required) | `apps/web` | M |
+| ✅ | done | **Refresh token reuse detection** — revoke token family on reuse | `services/auth.ts` | S |
 | 🟠 | open | **Real Interac provider** — replace dev auto-complete | New integration | XL |
 
 ### Infrastructure & deploy
@@ -54,8 +54,9 @@ Status: `🔴 blocker` | `🟠 high` | `🟡 medium` | `🟢 nice` | `✅ done`
 |-----|--------|--------|-------|--------|
 | ✅ | done | **Transaction detail** — Approve / Reject / Cancel on detail page | `dashboard/transactions/[id]` | S |
 | ✅ | done | **Pending approvals queue** — filter org-wide awaiting_approval | `dashboard/transactions` | S |
-| 🟠 | open | **Server-side auth gate** — Next.js middleware, not only `hasSession()` | `apps/app/middleware.ts` | M |
-| 🟡 | open | **Security headers** — CSP, HSTS on web + app | `next.config.ts` | S |
+| 🟠 | done | **Server-side auth gate** — Next.js middleware on `/dashboard/*` | `apps/app/src/middleware.ts` | M |
+| 🟡 | done | **Security headers** — CSP-adjacent headers on web + app | `next.config.ts` | S |
+| 🟡 | done | **`/pricing` page** for ads/conversion | `apps/web/pricing` | S |
 | ✅ | done | **Deposit admin confirm** — manual “mark Interac received” for ops | API + `dashboard/deposits` | M |
 
 ---
@@ -64,7 +65,7 @@ Status: `🔴 blocker` | `🟠 high` | `🟡 medium` | `🟢 nice` | `✅ done`
 
 | Pri | Status | Action | Effort |
 |-----|--------|--------|--------|
-| 🟡 | open | Dedicated **`/pricing`** page for paid ads | S |
+| 🟡 | open | Dedicated **`/pricing`** page for paid ads | ✅ done |
 | 🟡 | open | **Book a demo** → Calendly/HubSpot instead of mailto | S |
 | 🟢 | open | Light-mode variant | M |
 | 🟢 | open | Animated corridor map | M |
@@ -102,6 +103,7 @@ Status: `🔴 blocker` | `🟠 high` | `🟡 medium` | `🟢 nice` | `✅ done`
 | ✅ Demo seed gated from production Dockerfile |
 | ✅ Sprint B — KYC review queue, Interac admin confirm, tx approve/reject/cancel UI |
 | ✅ Sprint C prep — staging runbook, env template, smoke scripts, Vercel config |
+| ✅ Strategic build — legal drafts, GTM docs, cookie auth, Circle polling, middleware |
 
 ---
 

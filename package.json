@@ -6,7 +6,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n web,app,api -c cyan,magenta,green \"npm run dev:safe -w @virlux/web\" \"npm run dev -w @virlux/app\" \"npm run dev -w @virlux/api\"",
+    "dev": "bash scripts/dev-local.sh",
+    "dev:stack": "concurrently -n web,app,api -c cyan,magenta,green \"npm run dev:safe -w @virlux/web\" \"npm run dev -w @virlux/app\" \"npm run dev -w @virlux/api\"",
     "dev:web": "npm run dev:safe -w @virlux/web",
     "build": "npm run build -w @virlux/shared && npm run build -w @virlux/api && npm run build -w @virlux/web && npm run build -w @virlux/app",
     "test": "npm run test -w @virlux/api && npm run test -w @virlux/shared",

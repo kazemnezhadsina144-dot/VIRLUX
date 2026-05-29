@@ -6,7 +6,7 @@ import { debit, credit } from "./ledger";
 import { toCadEquivalent } from "./rates";
 import { logger } from "../lib/logger";
 import { notifyTransactionCreated } from "../telegram/handlers";
-import { isCircleEnabled, transferUsdc } from "../integrations/circle/client";
+import { isCircleEnabled, pollTransferComplete, transferUsdc } from "../integrations/circle/client";
 
 const SEND_ROLES = new Set(["owner", "admin", "approver"]);
 
@@ -243,8 +243,15 @@ export async function settleTransaction(txId: string) {
           network: chainMap[tx.network],
         });
         circleTransferId = circle.id;
-        txHash = circle.transactionHash;
-        logger.info("Circle transfer initiated", { txId, circleTransferId });
+        const final =
+          circle.status === "complete" ? circle : await pollTransferComplete(circle.id);
+        if (final.status === "failed" || final.status === "cancelled") {
+          logger.error("Circle transfer failed on chain", { txId, status: final.status });
+          return failTransaction(txId, `Circle transfer ${final.status}`);
+        }
+        txHash = final.transactionHash;
+        circleTransferId = final.id;
+        logger.info("Circle transfer completed", { txId, circleTransferId, status: final.status });
       } catch (e) {
         logger.error("Circle transfer failed", { txId, err: String(e) });
         return failTransaction(txId, "Circle settlement failed");

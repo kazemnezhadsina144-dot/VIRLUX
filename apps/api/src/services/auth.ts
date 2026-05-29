@@ -28,7 +28,14 @@ export async function createRefreshToken(userId: string) {
 export async function rotateRefreshToken(raw: string) {
   const hash = hashToken(raw);
   const record = await prisma.refreshToken.findUnique({ where: { tokenHash: hash } });
-  if (!record || record.revokedAt || record.expiresAt < new Date()) {
+  if (!record) {
+    throw new AppError(401, "Invalid refresh token", "INVALID_REFRESH");
+  }
+  if (record.revokedAt) {
+    await revokeAllRefreshTokens(record.userId);
+    throw new AppError(401, "Refresh token reuse detected — all sessions revoked", "TOKEN_REUSE");
+  }
+  if (record.expiresAt < new Date()) {
     throw new AppError(401, "Invalid refresh token", "INVALID_REFRESH");
   }
   await prisma.refreshToken.update({
@@ -39,6 +46,17 @@ export async function rotateRefreshToken(raw: string) {
   const accessToken = signAccessToken(user.id, user.email, user.role);
   const refreshToken = await createRefreshToken(user.id);
   return { accessToken, refreshToken, user: sanitizeUser(user) };
+}
+
+export async function revokeAllRefreshTokens(userId: string) {
+  await prisma.refreshToken.updateMany({
+    where: { userId, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+}
+
+export async function logoutUser(userId: string) {
+  await revokeAllRefreshTokens(userId);
 }
 
 export async function registerUser(input: {

@@ -41,6 +41,27 @@ export interface CircleTransferResult {
   transactionHash?: string;
 }
 
+export async function getTransfer(transferId: string): Promise<CircleTransferResult> {
+  const res = await circleFetch<{ data: CircleTransferResult }>(`/v1/transfers/${transferId}`);
+  return res.data;
+}
+
+const TERMINAL = new Set(["complete", "failed", "cancelled"]);
+
+/** Poll Circle until transfer reaches a terminal state (sandbox may be fast). */
+export async function pollTransferComplete(
+  transferId: string,
+  maxAttempts = 10,
+  delayMs = 2000
+): Promise<CircleTransferResult> {
+  let last = await getTransfer(transferId);
+  for (let i = 0; i < maxAttempts && !TERMINAL.has(last.status); i++) {
+    await new Promise((r) => setTimeout(r, delayMs));
+    last = await getTransfer(transferId);
+  }
+  return last;
+}
+
 /** Sandbox/production USDC transfer skeleton — requires CIRCLE_API_KEY + CIRCLE_WALLET_ID */
 export async function transferUsdc(input: {
   amount: string;
