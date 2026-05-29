@@ -12,6 +12,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@virlux/shared"],
+  // Auth cookies: Route Handler at app/api/[...path]/route.ts forwards Set-Cookie.
+  // Other /api paths still use rewrite fallback if needed.
   async rewrites() {
     return [{ source: "/api/:path*", destination: `${API}/api/:path*` }];
   },

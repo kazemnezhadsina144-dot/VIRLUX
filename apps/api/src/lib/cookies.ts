@@ -35,6 +35,9 @@ export function setAuthCookies(res: Response, accessToken: string, refreshToken:
 }
 
 export function clearAuthCookies(res: Response) {
-  res.append("Set-Cookie", `${ACCESS_COOKIE}=; Path=/; HttpOnly; Max-Age=0`);
-  res.append("Set-Cookie", `${REFRESH_COOKIE}=; Path=/; HttpOnly; Max-Age=0`);
+  const secure = config.isProd ? "; Secure" : "";
+  const sameSite = config.isProd ? "SameSite=None" : "SameSite=Lax";
+  const flags = `Path=/; HttpOnly; ${sameSite}${secure}; Max-Age=0`;
+  res.append("Set-Cookie", `${ACCESS_COOKIE}=; ${flags}`);
+  res.append("Set-Cookie", `${REFRESH_COOKIE}=; ${flags}`);
 }
