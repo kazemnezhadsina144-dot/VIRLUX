@@ -1,0 +1,38 @@
+name: Staging smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: Railway API base URL (no trailing slash)
+        required: true
+      web_url:
+        description: Vercel marketing URL
+        required: false
+      app_url:
+        description: Vercel dashboard URL
+        required: false
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: API health
+        run: |
+          curl -fsS "${{ inputs.api_url }}/health" | jq -e '.status == "ok"'
+
+      - name: API meta
+        run: curl -fsS "${{ inputs.api_url }}/api/meta/config" | jq -e '.company'
+
+      - name: Telegram status
+        run: curl -fsS "${{ inputs.api_url }}/api/telegram/status" | jq .
+
+      - name: Marketing site
+        if: inputs.web_url != ''
+        run: curl -fsS -o /dev/null -w "%{http_code}\n" "${{ inputs.web_url }}/" | grep -E '^200$'
+
+      - name: Dashboard
+        if: inputs.app_url != ''
+        run: curl -fsS -o /dev/null -w "%{http_code}\n" "${{ inputs.app_url }}/" | grep -E '^200$'

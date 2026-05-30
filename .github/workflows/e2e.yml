@@ -1,0 +1,66 @@
+name: Playwright E2E
+
+on:
+  push:
+    branches: [main, cursor/virlux-v2-platform-and-todolist]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: virlux
+          POSTGRES_PASSWORD: virlux
+          POSTGRES_DB: virlux
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://virlux:virlux@localhost:5432/virlux
+      JWT_SECRET: ci-test-secret-min-32-characters-long
+      TELEGRAM_MODE: polling
+      AUTO_SETTLE: "true"
+      NODE_ENV: development
+      PLAYWRIGHT_WEB_URL: http://localhost:3100
+      PLAYWRIGHT_APP_URL: http://localhost:3001
+      E2E_DEMO_LOGIN: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: DB setup
+        working-directory: apps/api
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+          npx tsx prisma/seed.ts
+
+      - name: Build
+        run: npm run build
+
+      - name: Start stack
+        run: |
+          npm run dev:stack &
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:3002/health && curl -sf http://localhost:3100/ && curl -sf http://localhost:3001/ && break
+            sleep 2
+          done
+
+      - name: Playwright
+        run: npx playwright test
