@@ -28,10 +28,12 @@ echo "3. KYC submit..."
 curl -fsS -X POST "$API/api/kyc/submit" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"documentType":"passport","documentNumber":"E2E123456"}' | jq -e '.id' >/dev/null
+  -d '{"documentType":"passport","documentNumber":"E2E123456"}' | jq -e '.submission.id' >/dev/null
 
 echo "4. Public quote..."
-curl -fsS "$API/api/quote/estimate?amountCad=1000&toCountry=US" | jq -e '.amountOut' >/dev/null
+curl -fsS -X POST "$API/api/quote/estimate" \
+  -H "Content-Type: application/json" \
+  -d '{"amount":1000,"fromCurrency":"CAD","toStablecoin":"USDC","network":"polygon"}' | jq -e '.amountOut' >/dev/null
 
 echo ""
 echo "Staging API E2E passed (register → me → kyc → quote)."

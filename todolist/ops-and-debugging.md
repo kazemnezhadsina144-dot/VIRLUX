@@ -40,6 +40,16 @@ ENOENT: .../apps/web/.next/routes-manifest.json
 | CORS errors on staging | Update Railway `CORS_ORIGINS` with exact Vercel URLs (no trailing slash) |
 | Logout cookies persist in prod | Fixed: `clearAuthCookies` uses SameSite=None + Secure in production |
 
+**Staging URLs (2026-05-30):**
+
+| Surface | URL |
+|---------|-----|
+| Marketing | https://web-three-livid-43.vercel.app |
+| Dashboard | https://virlux-app.vercel.app |
+| API (interim tunnel) | Set `NEXT_PUBLIC_API_URL` — use Railway when `RAILWAY_TOKEN` is available |
+
+Run smoke: `NEXT_PUBLIC_API_URL=<api> STAGING_WEB_URL=<web> STAGING_APP_URL=<app> npm run deploy:smoke`
+
 ### If 3100 breaks again
 
 ```bash
