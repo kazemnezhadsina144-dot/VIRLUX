@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { isPublicDemoMode, DEMO_LOGIN } from "@virlux/shared";
+import { trackEvent } from "@/lib/analytics";
 
 export function LoginForm() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export function LoginForm() {
           method: "POST",
           body: JSON.stringify({ email, password, fullName, organizationName: orgName }),
         });
+        trackEvent("register");
         setMsgType("success");
         setMsg("Account created. You can sign in now.");
         setMode("login");

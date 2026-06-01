@@ -1,6 +1,6 @@
 # Founder GTM checklist
 
-Public product parity must be live before submissions. Audience demo scripts: [DEMO-SCRIPTS.md](./DEMO-SCRIPTS.md). Internal playbooks live in `todolist/` (gitignored).
+Public product parity must be live before submissions. Audience demo scripts: [DEMO-SCRIPTS.md](./DEMO-SCRIPTS.md). Deploy: [LIVE-DEPLOY-RUNBOOK.md](./LIVE-DEPLOY-RUNBOOK.md). Media: [GTM-MEDIA-CHECKLIST.md](./GTM-MEDIA-CHECKLIST.md). Outreach: [ACCELERATOR-SUBMISSION-TEMPLATE.md](./ACCELERATOR-SUBMISSION-TEMPLATE.md), [PILOT-OUTREACH-TEMPLATE.md](./PILOT-OUTREACH-TEMPLATE.md).
 
 ## Prerequisites
 

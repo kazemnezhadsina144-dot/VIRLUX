@@ -30,6 +30,7 @@ jobs:
       TELEGRAM_MODE: polling
       AUTO_SETTLE: "true"
       SETTLEMENT_MODE: sandbox
+      DEMO_APPROVAL_THRESHOLD: "100"
       NODE_ENV: development
       PLAYWRIGHT_WEB_URL: http://localhost:3100
       PLAYWRIGHT_APP_URL: http://localhost:3001

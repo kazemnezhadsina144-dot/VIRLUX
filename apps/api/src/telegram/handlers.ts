@@ -19,6 +19,45 @@ export async function notifyUser(userId: string, html: string) {
   await sendMessage(link.chatId, html);
 }
 
+export async function notifyApproversPending(tx: {
+  id: string;
+  userId: string;
+  amountIn: unknown;
+  fromCurrency: string;
+  recipientName?: string | null;
+}) {
+  const sender = await prisma.user.findUnique({
+    where: { id: tx.userId },
+    include: { organization: { select: { id: true, name: true } } },
+  });
+  if (!sender?.organizationId) return;
+
+  const approvers = await prisma.user.findMany({
+    where: {
+      organizationId: sender.organizationId,
+      role: { in: ["owner", "admin", "approver"] },
+      id: { not: tx.userId },
+    },
+    select: { id: true, email: true },
+  });
+
+  const detailUrl = `${config.appPublicUrl}/dashboard/transactions/${tx.id}`;
+  const msg =
+    `<b>Approval needed</b>\n` +
+    `${tx.amountIn} ${esc(tx.fromCurrency)}` +
+    (tx.recipientName ? ` → ${esc(tx.recipientName)}` : "") +
+    `\nFrom: ${esc(sender.fullName)}\n` +
+    `<a href="${detailUrl}">Review payment</a>`;
+
+  for (const approver of approvers) {
+    await notifyUser(approver.id, msg);
+  }
+
+  await notifyAdmins(
+    `<b>Pending approval</b>\nOrg: ${esc(sender.organization?.name ?? "")}\n${msg.split("\n").slice(1).join("\n")}`
+  );
+}
+
 export async function notifyTransactionCreated(tx: {
   id: string;
   userId: string;

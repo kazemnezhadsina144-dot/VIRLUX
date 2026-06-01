@@ -1,15 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { logout } from "@/lib/api";
-import { useAuth, canSend, canManageTeam, canViewAudit } from "@/lib/auth-context";
+import { logout, api } from "@/lib/api";
+import { useAuth, canSend, canManageTeam, canViewAudit, canApprove } from "@/lib/auth-context";
+import { parseTransactionsResponse } from "@/lib/transactions";
 
 const ICONS: Record<string, string> = {
   Overview: "◉",
   Send: "↗",
   Deposits: "↓",
   Payments: "≡",
+  Approvals: "✓",
   Team: "👥",
   Verification: "✓",
   "Activity log": "📋",
@@ -26,6 +29,12 @@ const allLinks = [
   { href: "/dashboard/send", label: "Send", show: (me: ReturnType<typeof useAuth>) => canSend(me?.role) },
   { href: "/dashboard/deposits", label: "Deposits", show: (me: ReturnType<typeof useAuth>) => canSend(me?.role) },
   { href: "/dashboard/transactions", label: "Payments", show: () => true },
+  {
+    href: "/dashboard/approvals",
+    label: "Approvals",
+    show: (me: ReturnType<typeof useAuth>) => canApprove(me?.role),
+    badge: true,
+  },
   { href: "/dashboard/team", label: "Team", show: (me: ReturnType<typeof useAuth>) => canManageTeam(me?.role) },
   { href: "/dashboard/kyc", label: "Verification", show: () => true },
   { href: "/dashboard/audit", label: "Activity log", show: (me: ReturnType<typeof useAuth>) => canViewAudit(me?.role) },
@@ -38,6 +47,14 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const me = useAuth();
   const web = process.env.NEXT_PUBLIC_WEB_URL ?? "http://localhost:3100";
   const links = allLinks.filter((l) => l.show(me));
+  const [pendingApprovals, setPendingApprovals] = useState(0);
+
+  useEffect(() => {
+    if (!canApprove(me?.role)) return;
+    api<unknown>("/api/transactions?status=awaiting_approval")
+      .then((data) => setPendingApprovals(parseTransactionsResponse(data).length))
+      .catch(() => setPendingApprovals(0));
+  }, [me?.role, path]);
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-white/[0.06] bg-virlux-surface">
@@ -64,6 +81,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       <nav className="flex flex-1 flex-col gap-0.5 p-3">
         {links.map((l) => {
           const active = path === l.href || path.startsWith(l.href + "/");
+          const badge = "badge" in l && l.badge && pendingApprovals > 0 ? pendingApprovals : 0;
           return (
             <Link
               key={l.href}
@@ -76,7 +94,12 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               }`}
             >
               <span className="w-5 text-center text-xs opacity-70">{ICONS[l.label] ?? "·"}</span>
-              {l.label}
+              <span className="flex-1">{l.label}</span>
+              {badge > 0 && (
+                <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-300">
+                  {badge}
+                </span>
+              )}
             </Link>
           );
         })}

@@ -4,9 +4,9 @@ import { AppError } from "../lib/errors";
 import { debit } from "./ledger";
 import { toCadEquivalent } from "./rates";
 import { logger } from "../lib/logger";
-import { notifyTransactionCreated } from "../telegram/handlers";
+import { notifyTransactionCreated, notifyApproversPending } from "../telegram/handlers";
 import { getSettlementExecutor, scheduleSettlement } from "./settlement";
-import { assertPilotCorridor, assertPartnerAttestedFunding } from "./transaction-guards";
+import { assertPilotCorridor, assertPartnerAttestedFunding, assertPilotVolumeCap } from "./transaction-guards";
 import { failTransaction } from "./transaction-failure";
 
 export { failTransaction };
@@ -48,6 +48,15 @@ export async function createTransaction(input: {
 
   await assertPartnerAttestedFunding(input.userId);
   await assertPilotCorridor(input.userId, input.recipientCountry);
+
+  const quotePreview = await prisma.quote.findUnique({ where: { id: input.quoteId } });
+  if (quotePreview) {
+    const previewCad = await toCadEquivalent(
+      Number(quotePreview.amountIn),
+      quotePreview.fromCurrency as "CAD" | "USD"
+    );
+    await assertPilotVolumeCap(input.userId, previewCad);
+  }
 
   const tx = await prisma.$transaction(async (db) => {
     if (input.idempotencyKey) {
@@ -127,6 +136,9 @@ export async function createTransaction(input: {
   }
 
   notifyTransactionCreated(tx).catch((e) => logger.error("Telegram notify failed", { err: String(e) }));
+  if (tx.needsApproval) {
+    notifyApproversPending(tx).catch((e) => logger.error("Approver notify failed", { err: String(e) }));
+  }
 
   return tx;
 }

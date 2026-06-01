@@ -21,6 +21,7 @@ import accountRoutes from "./routes/account";
 import circleRoutes from "./routes/circle";
 import platformRoutes from "./routes/platform";
 import partnerRoutes from "./routes/partner";
+import demoRoutes from "./routes/demo";
 import { botStatus } from "./telegram/polling";
 
 const FORBIDDEN = PORTS.forbidden;
@@ -86,6 +87,7 @@ app.use("/api/team", teamRoutes);
 app.use("/api/account", accountRoutes);
 app.use("/api/platform", platformRoutes);
 app.use("/api/partner", partnerRoutes);
+app.use("/api/demo", demoRoutes);
 
 app.use(errorHandler);
 

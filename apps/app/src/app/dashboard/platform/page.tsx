@@ -57,6 +57,9 @@ export default function PlatformPage() {
   const [rejectNotes, setRejectNotes] = useState<Record<string, string>>({});
   const [newPartnerName, setNewPartnerName] = useState("");
   const [newPartnerSecret, setNewPartnerSecret] = useState("");
+  const [pilotOrgId, setPilotOrgId] = useState("seed-org-demo");
+  const [pilotCorridor, setPilotCorridor] = useState<"PH" | "US" | "">("PH");
+  const [pilotVolumeCap, setPilotVolumeCap] = useState("50000");
 
   function load() {
     api<KycQueueItem[]>("/api/platform/kyc/queue").then(setKycQueue).catch(() => setKycQueue([]));
@@ -136,6 +139,23 @@ export default function PlatformPage() {
     setNewPartnerSecret("");
     setMsg("Partner created.");
     load();
+  }
+
+  async function savePilotSettings(e: React.FormEvent) {
+    e.preventDefault();
+    if (!pilotOrgId.trim()) {
+      setMsg("Organization ID required.");
+      return;
+    }
+    await api(`/api/platform/organizations/${pilotOrgId.trim()}/pilot-corridor`, {
+      method: "PATCH",
+      body: JSON.stringify({ pilotCorridor: pilotCorridor || null }),
+    });
+    await api(`/api/platform/organizations/${pilotOrgId.trim()}/pilot-volume-cap`, {
+      method: "PATCH",
+      body: JSON.stringify({ pilotVolumeCapCad: pilotVolumeCap ? Number(pilotVolumeCap) : null }),
+    });
+    setMsg("Pilot corridor and volume cap updated.");
   }
 
   async function downloadFintrac() {
@@ -315,6 +335,45 @@ export default function PlatformPage() {
             ))}
           </ul>
         )}
+      </section>
+
+      <section className="mt-10 glass-panel p-6">
+        <h2 className="font-semibold text-white">Organization pilot settings</h2>
+        <p className="mt-1 text-sm text-slate-500">Lock corridor and 30-day volume cap for design partners</p>
+        <form onSubmit={savePilotSettings} className="mt-4 grid gap-3 sm:grid-cols-2">
+          <label className="block text-sm sm:col-span-2">
+            <span className="text-slate-400">Organization ID</span>
+            <input
+              value={pilotOrgId}
+              onChange={(e) => setPilotOrgId(e.target.value)}
+              className="input-field mt-1 font-mono text-xs"
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="text-slate-400">Pilot corridor</span>
+            <select
+              value={pilotCorridor}
+              onChange={(e) => setPilotCorridor(e.target.value as "PH" | "US" | "")}
+              className="input-field mt-1"
+            >
+              <option value="">None</option>
+              <option value="PH">Philippines (PH)</option>
+              <option value="US">United States (US)</option>
+            </select>
+          </label>
+          <label className="block text-sm">
+            <span className="text-slate-400">Volume cap (CAD / 30 days)</span>
+            <input
+              type="number"
+              value={pilotVolumeCap}
+              onChange={(e) => setPilotVolumeCap(e.target.value)}
+              className="input-field mt-1"
+            />
+          </label>
+          <button type="submit" className="btn-primary sm:col-span-2 sm:w-fit">
+            Save pilot settings
+          </button>
+        </form>
       </section>
     </div>
   );

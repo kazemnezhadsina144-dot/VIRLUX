@@ -75,6 +75,7 @@ model Organization {
   country       String         @default("CA")
   fintracMsb    Boolean        @default(false)
   pilotCorridor PilotCorridor?
+  pilotVolumeCapCad Decimal?
   partnerId     String?
   partner       Partner?       @relation(fields: [partnerId], references: [id])
   createdAt   DateTime @default(now())

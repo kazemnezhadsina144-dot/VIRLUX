@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ToastProvider } from "@/components/ui/Toast";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const trapRef = useFocusTrap(menuOpen, () => setMenuOpen(false));
 
   return (
     <ToastProvider>
@@ -16,6 +18,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           aria-hidden
         />
         <div
+          ref={menuOpen ? trapRef : undefined}
           className={`fixed inset-y-0 left-0 z-50 lg:static lg:z-auto ${
             menuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           } transition-transform duration-200`}

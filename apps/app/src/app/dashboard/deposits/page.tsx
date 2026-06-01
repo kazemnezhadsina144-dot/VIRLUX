@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth, canManageTeam } from "@/lib/auth-context";
-import { formatDepositStatus } from "@virlux/shared";
+import { formatDepositStatus, isPublicDemoMode } from "@virlux/shared";
 import { CopyButton } from "@/components/ui/CopyButton";
+import { useToast } from "@/components/ui/Toast";
 
 type Deposit = {
   id: string;
@@ -28,6 +29,8 @@ type PendingDeposit = {
 
 export default function DepositsPage() {
   const me = useAuth();
+  const toast = useToast();
+  const demoMode = isPublicDemoMode() || process.env.NODE_ENV === "development";
   const isAdmin = canManageTeam(me?.role);
   const [amount, setAmount] = useState("1000");
   const [deposits, setDeposits] = useState<Deposit[]>([]);
@@ -79,6 +82,20 @@ export default function DepositsPage() {
     load();
   }
 
+  async function demoFund() {
+    setMsg("");
+    try {
+      await api("/api/demo/fund", { method: "POST", body: JSON.stringify({}) });
+      setMsgType("success");
+      setMsg("Demo balance added.");
+      toast("Demo funds added");
+      setTimeout(load, 500);
+    } catch (e) {
+      setMsgType("error");
+      setMsg(e instanceof Error ? e.message : "Demo fund failed");
+    }
+  }
+
   return (
     <div className="max-w-3xl">
       <h1 className="text-2xl font-bold text-white">Add funds</h1>
@@ -97,6 +114,11 @@ export default function DepositsPage() {
         <button type="button" onClick={deposit} className="btn-primary mt-4">
           Generate Interac instructions
         </button>
+        {demoMode && (
+          <button type="button" onClick={demoFund} className="btn-secondary mt-4 ml-0 sm:ml-3">
+            Add demo funds instantly
+          </button>
+        )}
         {lastRef && (
           <div className="mt-4 rounded-xl bg-black/30 p-4 text-sm">
             <p className="text-slate-400">Reference (use in Interac message):</p>

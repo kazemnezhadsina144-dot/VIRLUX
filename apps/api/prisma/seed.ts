@@ -12,12 +12,14 @@ async function main() {
 
   const org = await prisma.organization.upsert({
     where: { id: "seed-org-demo" },
-    update: {},
+    update: { pilotCorridor: "PH", pilotVolumeCapCad: 50000 },
     create: {
       id: "seed-org-demo",
       name: "Virlux Demo Co",
       legalName: "Virlux Demo Co Ltd.",
       fintracMsb: false,
+      pilotCorridor: "PH",
+      pilotVolumeCapCad: 50000,
     },
   });
 

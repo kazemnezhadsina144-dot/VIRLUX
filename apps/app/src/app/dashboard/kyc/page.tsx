@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth, canManageTeam } from "@/lib/auth-context";
+import { formatKycStatus } from "@virlux/shared";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type Kyc = {
   kycStatus: string;
@@ -29,13 +31,21 @@ export default function KycPage() {
   const [docType, setDocType] = useState("passport");
   const [docNum, setDocNum] = useState("");
   const [msg, setMsg] = useState("");
+  const [msgType, setMsgType] = useState<"success" | "error">("success");
+  const [loading, setLoading] = useState(true);
   const [rejectNotes, setRejectNotes] = useState<Record<string, string>>({});
 
   function load() {
-    api<Kyc>("/api/kyc/status").then(setStatus);
-    if (isReviewer) {
-      api<KycQueueItem[]>("/api/kyc/review/queue").then(setQueue).catch(() => setQueue([]));
-    }
+    setLoading(true);
+    Promise.all([
+      api<Kyc>("/api/kyc/status"),
+      isReviewer ? api<KycQueueItem[]>("/api/kyc/review/queue").catch(() => [] as KycQueueItem[]) : Promise.resolve([]),
+    ])
+      .then(([s, q]) => {
+        setStatus(s);
+        setQueue(q);
+      })
+      .finally(() => setLoading(false));
   }
 
   useEffect(() => {
@@ -49,9 +59,11 @@ export default function KycPage() {
         method: "POST",
         body: JSON.stringify({ documentType: docType, documentNumber: docNum }),
       });
+      setMsgType("success");
       setMsg("Submitted for review.");
       setTimeout(load, 1500);
     } catch (e) {
+      setMsgType("error");
       setMsg(e instanceof Error ? e.message : "Failed");
     }
   }
@@ -64,6 +76,7 @@ export default function KycPage() {
   async function reject(id: string) {
     const notes = rejectNotes[id]?.trim();
     if (!notes || notes.length < 3) {
+      setMsgType("error");
       setMsg("Rejection requires notes (min 3 characters).");
       return;
     }
@@ -72,6 +85,15 @@ export default function KycPage() {
       body: JSON.stringify({ notes }),
     });
     load();
+  }
+
+  if (loading && !status) {
+    return (
+      <div className="max-w-3xl space-y-3">
+        <div className="h-8 w-48 animate-pulse rounded bg-white/[0.04]" />
+        <div className="h-40 animate-pulse rounded-xl bg-white/[0.04]" />
+      </div>
+    );
   }
 
   return (
@@ -83,17 +105,13 @@ export default function KycPage() {
         <p className="text-sm">
           Your status:{" "}
           <span className={status?.kycStatus === "approved" ? "text-emerald-400" : "text-amber-400"}>
-            {status?.kycStatus ?? "…"}
+            {formatKycStatus(status?.kycStatus ?? "pending")}
           </span>
         </p>
 
         {status?.kycStatus !== "approved" && (
           <div className="mt-4 space-y-3">
-            <select
-              value={docType}
-              onChange={(e) => setDocType(e.target.value)}
-              className="input-field text-sm"
-            >
+            <select value={docType} onChange={(e) => setDocType(e.target.value)} className="input-field text-sm">
               <option value="passport">Passport</option>
               <option value="drivers_license">Driver&apos;s license</option>
               <option value="national_id">National ID</option>
@@ -104,12 +122,16 @@ export default function KycPage() {
               onChange={(e) => setDocNum(e.target.value)}
               className="input-field text-sm"
             />
+            <label className="block text-xs text-slate-500">
+              Document upload (pilot): attach via email to support if counsel requires originals.
+              <input type="file" className="mt-2 block w-full text-sm text-slate-400" disabled title="Upload coming with counsel review" />
+            </label>
             <button type="button" onClick={submit} className="btn-primary">
               Submit documents
             </button>
           </div>
         )}
-        {msg && <p className="mt-3 text-sm text-amber-400">{msg}</p>}
+        {msg && <p className={`mt-3 text-sm ${msgType === "success" ? "text-emerald-400" : "text-red-400"}`}>{msg}</p>}
       </div>
 
       {status?.submissions && status.submissions.length > 0 && (
@@ -119,7 +141,7 @@ export default function KycPage() {
             {status.submissions.map((s) => (
               <li key={s.id} className="flex justify-between rounded-xl border border-white/[0.06] px-4 py-2">
                 <span>{s.documentType}</span>
-                <span className="text-slate-400">{s.status}</span>
+                <span className="text-slate-400">{formatKycStatus(s.status)}</span>
               </li>
             ))}
           </ul>
@@ -131,7 +153,9 @@ export default function KycPage() {
           <h2 className="font-semibold text-white">Review queue</h2>
           <p className="mt-1 text-sm text-slate-500">Review verification for your organization</p>
           {queue.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-500">No submissions awaiting review.</p>
+            <div className="mt-4">
+              <EmptyState title="No submissions awaiting review" />
+            </div>
           ) : (
             <ul className="mt-4 space-y-4">
               {queue.map((item) => (
@@ -143,7 +167,6 @@ export default function KycPage() {
                       <p className="mt-1 text-slate-300">
                         {item.documentType} · {item.documentNumberMasked} · {item.country}
                       </p>
-                      <p className="text-xs text-slate-500">{new Date(item.createdAt).toLocaleString()}</p>
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
                       <button type="button" onClick={() => approve(item.id)} className="btn-primary !py-2 text-xs">

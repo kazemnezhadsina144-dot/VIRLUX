@@ -203,4 +203,22 @@ router.patch(
   })
 );
 
+const pilotVolumeCapSchema = z.object({
+  pilotVolumeCapCad: z.coerce.number().nonnegative().nullable(),
+});
+
+router.patch(
+  "/organizations/:id/pilot-volume-cap",
+  asyncHandler(async (req, res) => {
+    const parsed = pilotVolumeCapSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+    const org = await platformService.setOrganizationPilotVolumeCap(
+      String(req.params.id),
+      parsed.data.pilotVolumeCapCad,
+      req.auth!.userId
+    );
+    res.json(org);
+  })
+);
+
 export default router;

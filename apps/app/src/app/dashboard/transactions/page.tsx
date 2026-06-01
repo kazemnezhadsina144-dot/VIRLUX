@@ -1,29 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { parseTransactionsResponse, toDisplayTransaction } from "@/lib/transactions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 
-type Tx = {
-  id: string;
-  amountCad: string;
-  status: string;
-  createdAt: string;
-  recipientName?: string;
-};
-
 export default function TransactionsPage() {
   const router = useRouter();
-  const [txs, setTxs] = useState<Tx[]>([]);
+  const [txs, setTxs] = useState<ReturnType<typeof toDisplayTransaction>[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api<{ transactions: Tx[] }>("/api/transactions")
-      .then((d) => setTxs(d.transactions))
-      .catch(() => {})
+    api<unknown>("/api/transactions")
+      .then((data) => setTxs(parseTransactionsResponse(data).map(toDisplayTransaction)))
+      .catch(() => setTxs([]))
       .finally(() => setLoading(false));
   }, []);
 
@@ -70,7 +62,7 @@ export default function TransactionsPage() {
                     onClick={() => open(t.id)}
                     className="cursor-pointer border-b border-white/[0.04] hover:bg-white/[0.02]"
                   >
-                    <td className="px-4 py-3 font-medium text-white">${Number(t.amountCad).toLocaleString()} CAD</td>
+                    <td className="px-4 py-3 font-medium text-white">{t.amountLabel}</td>
                     <td className="px-4 py-3 text-slate-400">{t.recipientName ?? "—"}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={t.status} />
@@ -91,7 +83,7 @@ export default function TransactionsPage() {
                   className="w-full rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 text-left"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-white">${Number(t.amountCad).toLocaleString()} CAD</span>
+                    <span className="font-medium text-white">{t.amountLabel}</span>
                     <StatusBadge status={t.status} />
                   </div>
                   <p className="mt-1 text-xs text-slate-500">{new Date(t.createdAt).toLocaleDateString()}</p>

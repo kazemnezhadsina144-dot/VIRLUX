@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Converter } from "@/components/Converter";
 import { BookDemoLink } from "@/components/BookDemoLink";
-import { ProductPreview } from "@/components/ProductPreview";
+import { ProductShowcase } from "@/components/ProductScreenshotGallery";
 import {
   COVERAGE,
   PRICING,
@@ -138,7 +138,7 @@ export default function HomePage() {
           </div>
 
           <div className="mt-16 grid items-center gap-10 lg:grid-cols-2">
-            <ProductPreview />
+            <ProductShowcase />
             <div>
               <p className="section-label">Dashboard</p>
               <h3 className="mt-2 text-2xl font-bold text-white">One place for your finance team</h3>

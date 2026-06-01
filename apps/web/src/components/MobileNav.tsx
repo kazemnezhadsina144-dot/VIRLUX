@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { BookDemoLink } from "./BookDemoLink";
 import { PUBLIC_COPY } from "@virlux/shared";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001";
 
@@ -17,6 +18,7 @@ const NAV = [
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const trapRef = useFocusTrap(open, () => setOpen(false));
 
   return (
     <div className="md:hidden">
@@ -32,10 +34,13 @@ export function MobileNav() {
       {open && (
         <>
           <div className="fixed inset-0 z-40 bg-black/60" onClick={() => setOpen(false)} aria-hidden />
-          <nav className="fixed right-0 top-0 z-50 flex h-full w-72 flex-col gap-1 border-l border-white/10 bg-virlux-surface p-6 shadow-xl">
+          <nav
+            ref={trapRef}
+            className="fixed right-0 top-0 z-50 flex h-full w-72 flex-col gap-1 border-l border-white/10 bg-virlux-surface p-6 shadow-xl"
+          >
             <div className="mb-4 flex items-center justify-between">
               <span className="font-bold text-white">Menu</span>
-              <button type="button" onClick={() => setOpen(false)} className="text-slate-400">
+              <button type="button" onClick={() => setOpen(false)} className="text-slate-400" aria-label="Close menu">
                 ✕
               </button>
             </div>

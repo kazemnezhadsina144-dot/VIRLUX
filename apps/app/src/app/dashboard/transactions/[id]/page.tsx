@@ -37,6 +37,7 @@ export default function TransactionDetailPage() {
   const me = useAuth();
   const [tx, setTx] = useState<Tx | null>(null);
   const [msg, setMsg] = useState("");
+  const [msgType, setMsgType] = useState<"success" | "error">("success");
   const [rejectReason, setRejectReason] = useState("Does not meet approval policy");
 
   const approver = canApprove(me?.role);
@@ -57,9 +58,11 @@ export default function TransactionDetailPage() {
     setMsg("");
     try {
       await api(`/api/transactions/${id}/approve`, { method: "POST" });
+      setMsgType("success");
       setMsg("Payment approved.");
       load();
     } catch (e) {
+      setMsgType("error");
       setMsg(e instanceof Error ? e.message : "Failed");
     }
   }
@@ -71,9 +74,11 @@ export default function TransactionDetailPage() {
         method: "POST",
         body: JSON.stringify({ reason: rejectReason }),
       });
+      setMsgType("success");
       setMsg("Payment rejected. Funds refunded.");
       load();
     } catch (e) {
+      setMsgType("error");
       setMsg(e instanceof Error ? e.message : "Failed");
     }
   }
@@ -82,9 +87,11 @@ export default function TransactionDetailPage() {
     setMsg("");
     try {
       await api(`/api/transactions/${id}/cancel`, { method: "POST" });
+      setMsgType("success");
       setMsg("Payment cancelled. Funds refunded.");
       load();
     } catch (e) {
+      setMsgType("error");
       setMsg(e instanceof Error ? e.message : "Failed");
     }
   }
@@ -138,7 +145,7 @@ export default function TransactionDetailPage() {
         </div>
       )}
 
-      {msg && <p className="mt-4 text-sm text-emerald-400">{msg}</p>}
+      {msg && <p className={`mt-4 text-sm ${msgType === "success" ? "text-emerald-400" : "text-red-400"}`}>{msg}</p>}
 
       <dl className="mt-8 space-y-4 glass-panel p-6 text-sm">
         <Row label="Status" value={statusLabel(tx.status)} />

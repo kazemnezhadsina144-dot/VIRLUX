@@ -10,8 +10,14 @@ export type Me = {
   role: string;
   kycStatus: string;
   isPlatformAdmin?: boolean;
-  organization?: { id: string; name: string } | null;
+  organization?: {
+    id: string;
+    name: string;
+    pilotCorridor?: "PH" | "US" | null;
+    pilotVolumeCapCad?: number | null;
+  } | null;
   wallet?: { cadBalance: number | string; usdcBalance?: number | string } | null;
+  pilotVolume?: { usedCad: number; capCad: number | null } | null;
 };
 
 const AuthContext = createContext<Me | null>(null);

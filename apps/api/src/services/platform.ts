@@ -365,6 +365,27 @@ export async function setOrganizationPilotCorridor(
   return org;
 }
 
+export async function setOrganizationPilotVolumeCap(
+  orgId: string,
+  pilotVolumeCapCad: number | null,
+  adminId: string
+) {
+  const org = await prisma.organization.update({
+    where: { id: orgId },
+    data: { pilotVolumeCapCad: pilotVolumeCapCad ?? null },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      userId: adminId,
+      action: "organization.pilot_volume_cap.set",
+      metadata: { organizationId: orgId, pilotVolumeCapCad },
+    },
+  });
+
+  return org;
+}
+
 const partnerCreateSchema = {
   legalName: (v: string) => v.trim().length >= 2,
 };

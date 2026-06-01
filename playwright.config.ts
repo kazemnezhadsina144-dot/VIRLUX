@@ -20,6 +20,11 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"], baseURL: WEB },
     },
     {
+      name: "marketing-mobile",
+      testMatch: /marketing-mobile-nav\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"], baseURL: WEB },
+    },
+    {
       name: "dashboard",
       testMatch: /dashboard\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], baseURL: APP },
@@ -27,6 +32,11 @@ export default defineConfig({
     {
       name: "send-flow",
       testMatch: /send-flow\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"], baseURL: APP },
+    },
+    {
+      name: "approval-flow",
+      testMatch: /approval-flow\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], baseURL: APP },
     },
   ],

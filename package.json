@@ -30,6 +30,8 @@
     "staging:platform-setup": "bash scripts/staging-platform-setup.sh",
     "staging:deploy-all": "bash scripts/staging-deploy-all.sh",
     "staging:validate-env": "bash scripts/staging-validate-env.sh",
+    "live-pilot:deploy-check": "bash scripts/live-pilot-deploy-check.sh",
+    "post-deploy:verify": "bash scripts/post-deploy-verify.sh",
     "staging:circle": "bash scripts/circle-sandbox-check.sh",
     "ci:guards": "bash scripts/ci-guards.sh",
     "dev:preflight": "bash scripts/dev-preflight.sh",

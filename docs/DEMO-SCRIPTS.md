@@ -51,6 +51,8 @@ Platform UI labels: "Settlement reference" (not partner jargon).
 
 ---
 
+Approver notifications: link Telegram in Settings; approvers receive alerts when payments need approval.
+
 ## Pre-meeting checklist
 
 - [ ] `npm run deploy:smoke` green

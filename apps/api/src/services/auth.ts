@@ -5,6 +5,7 @@ import { prisma } from "../lib/prisma";
 import { config } from "../lib/config";
 import { AppError } from "../lib/errors";
 import { isPlatformAdminEmail } from "../lib/platform";
+import { getOrgVolumeUsageCad } from "./transaction-guards";
 
 function hashToken(token: string) {
   return crypto.createHash("sha256").update(token).digest("hex");
@@ -118,7 +119,12 @@ export function sanitizeUser(user: {
   role: string;
   kycStatus: string;
   phone?: string | null;
-  organization?: { id: string; name: string } | null;
+  organization?: {
+    id: string;
+    name: string;
+    pilotCorridor?: "PH" | "US" | null;
+    pilotVolumeCapCad?: unknown;
+  } | null;
 }) {
   return {
     id: user.id,
@@ -127,7 +133,17 @@ export function sanitizeUser(user: {
     role: user.role,
     kycStatus: user.kycStatus,
     phone: user.phone,
-    organization: user.organization ? { id: user.organization.id, name: user.organization.name } : null,
+    organization: user.organization
+      ? {
+          id: user.organization.id,
+          name: user.organization.name,
+          pilotCorridor: user.organization.pilotCorridor ?? null,
+          pilotVolumeCapCad:
+            user.organization.pilotVolumeCapCad != null
+              ? Number(user.organization.pilotVolumeCapCad)
+              : null,
+        }
+      : null,
   };
 }
 
@@ -137,5 +153,17 @@ export async function getMe(userId: string) {
     include: { wallet: true, organization: true },
   });
   if (!user) throw new AppError(404, "User not found");
-  return { ...sanitizeUser(user), wallet: user.wallet, isPlatformAdmin: isPlatformAdminEmail(user.email) };
+
+  let pilotVolume: { usedCad: number; capCad: number | null } | null = null;
+  if (user.organizationId) {
+    const usage = await getOrgVolumeUsageCad(user.organizationId);
+    pilotVolume = { usedCad: usage.used, capCad: usage.cap };
+  }
+
+  return {
+    ...sanitizeUser(user),
+    wallet: user.wallet,
+    isPlatformAdmin: isPlatformAdminEmail(user.email),
+    pilotVolume,
+  };
 }

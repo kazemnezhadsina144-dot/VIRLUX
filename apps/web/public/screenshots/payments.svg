@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260">
+  <rect width="400" height="260" fill="#0f172a"/>
+  <text x="24" y="36" fill="#fff" font-size="18" font-weight="600" font-family="system-ui">Payments</text>
+  <rect x="24" y="52" width="352" height="48" rx="8" fill="#1e293b"/>
+  <text x="40" y="82" fill="#fff" font-size="13" font-family="system-ui">$500 CAD</text>
+  <rect x="300" y="66" width="60" height="22" rx="11" fill="#14532d"/>
+  <text x="312" y="81" fill="#86efac" font-size="10" font-family="system-ui">Settled</text>
+  <rect x="24" y="108" width="352" height="48" rx="8" fill="#1e293b"/>
+  <text x="40" y="138" fill="#fff" font-size="13" font-family="system-ui">$150 CAD</text>
+  <rect x="268" y="122" width="92" height="22" rx="11" fill="#78350f"/>
+  <text x="278" y="137" fill="#fcd34d" font-size="10" font-family="system-ui">Pending approval</text>
+  <rect x="24" y="164" width="352" height="48" rx="8" fill="#1e293b"/>
+  <text x="40" y="194" fill="#fff" font-size="13" font-family="system-ui">$1,200 CAD</text>
+  <rect x="300" y="178" width="60" height="22" rx="11" fill="#1e3a8a"/>
+  <text x="312" y="193" fill="#93c5fd" font-size="10" font-family="system-ui">Sent</text>
+</svg>
