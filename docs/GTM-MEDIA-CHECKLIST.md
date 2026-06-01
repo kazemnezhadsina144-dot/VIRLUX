@@ -28,6 +28,7 @@ Capture on **live app** after deploy (logged in as demo account):
 | `apps/web/public/screenshots/payments.png` | Payments list with status badges |
 
 - [ ] PNGs committed or uploaded via Vercel deploy
+- [ ] Capture: `bash scripts/capture-product-screenshots.sh` (after deploy, against live app URL)
 - [ ] Homepage `#product` gallery shows PNGs (auto-falls back to SVG until PNGs exist)
 
 ## Optional analytics

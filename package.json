@@ -32,6 +32,7 @@
     "staging:validate-env": "bash scripts/staging-validate-env.sh",
     "live-pilot:deploy-check": "bash scripts/live-pilot-deploy-check.sh",
     "post-deploy:verify": "bash scripts/post-deploy-verify.sh",
+    "gtm:capture-screenshots": "bash scripts/capture-product-screenshots.sh",
     "staging:circle": "bash scripts/circle-sandbox-check.sh",
     "ci:guards": "bash scripts/ci-guards.sh",
     "dev:preflight": "bash scripts/dev-preflight.sh",

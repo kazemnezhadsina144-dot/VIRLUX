@@ -4,6 +4,7 @@ Founder-only steps to go from `main` to live URLs. Engineering prerequisites are
 
 ## Prerequisites
 
+- [ ] Pre-flight: `npm run live-pilot:deploy-check` (tokens + `.env.staging`)
 - [ ] `RAILWAY_TOKEN` and `VERCEL_TOKEN` in your shell
 - [ ] `.env.staging` prepared: `bash scripts/staging-prepare-env.sh`
 - [ ] Real `DATABASE_URL` on Railway Postgres
@@ -64,6 +65,10 @@ bash scripts/staging-platform-setup.sh
 ## 7. Verify
 
 ```bash
+# Single command (loads .env.staging URLs when present):
+npm run post-deploy:verify
+
+# Or manually:
 npm run deploy:smoke
 STAGING_APP_URL=https://app.virlux.com STAGING_WEB_URL=https://virlux.com npm run staging:live-e2e
 npm run staging:partner-e2e

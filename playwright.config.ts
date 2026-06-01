@@ -39,5 +39,10 @@ export default defineConfig({
       testMatch: /approval-flow\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], baseURL: APP },
     },
+    {
+      name: "capture-screenshots",
+      testMatch: /capture-screenshots\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"], baseURL: APP },
+    },
   ],
 });
