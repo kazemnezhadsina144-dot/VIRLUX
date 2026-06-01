@@ -38,8 +38,11 @@ npm run test:e2e            # Playwright (stack must be running, or use CI)
 E2E_DEMO_LOGIN=1 npm run test:e2e
 npm run staging:e2e         # API curl E2E (register → quote)
 npm run staging:partner-e2e # Partner webhook signature gate
+npm run staging:live-e2e    # Playwright on live STAGING_APP_URL (cookie auth)
 bash scripts/ci-guards.sh   # Secret / MSB / todolist checks
 ```
+
+Set `NEXT_PUBLIC_BOOK_DEMO_URL` on Vercel (Calendly/HubSpot) for marketing CTAs.
 
 ## Production defaults
 
