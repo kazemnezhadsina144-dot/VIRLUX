@@ -3,6 +3,10 @@ import { COMPANY } from "@virlux/shared";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001";
 
+function homeSection(hash: string) {
+  return `/${hash}`;
+}
+
 export function Footer() {
   return (
     <footer className="border-t border-white/[0.06] bg-virlux-surface">
@@ -19,14 +23,15 @@ export function Footer() {
               International business payments for Canadian companies. Transparent rates, Interac funding,
               team approvals, and complete payment records.
             </p>
-            <p className="mt-4 text-xs text-slate-500">🇨🇦 Built for Canadian SMEs · {COMPANY.address}</p>
+            <p className="mt-4 text-xs text-slate-500">Built for Canadian SMEs · {COMPANY.address}</p>
           </div>
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Product</p>
             <ul className="mt-4 space-y-2 text-sm text-slate-400">
-              <li><a href="#product" className="hover:text-white">Features</a></li>
+              <li><Link href={homeSection("#product")} className="hover:text-white">Features</Link></li>
               <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>
+              <li><Link href="/demo" className="hover:text-white">Demo</Link></li>
               <li><Link href={APP_URL} className="hover:text-white">Dashboard</Link></li>
             </ul>
           </div>

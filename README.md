@@ -39,6 +39,8 @@ E2E_DEMO_LOGIN=1 npm run test:e2e
 npm run staging:e2e         # API curl E2E (register → quote)
 npm run staging:partner-e2e # Partner webhook signature gate
 npm run staging:live-e2e    # Playwright on live STAGING_APP_URL (cookie auth)
+npm run staging:platform-setup  # Create MSB partner + assign org (platform admin)
+npm run staging:deploy-all      # Railway + Vercel + smoke (needs tokens)
 bash scripts/ci-guards.sh   # Secret / MSB / todolist checks
 ```
 
@@ -60,11 +62,16 @@ npm run deploy:checklist
 npm run deploy:push-setup   # GitHub auth + push (see PUSH.md)
 ```
 
-Staging: `RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:wire`
+Staging: `RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:deploy-all`
 
-- **Railway:** API + Postgres (`railway.toml`)
-- **Vercel:** two projects — Root Directory `apps/web` and `apps/app`
+Or step-by-step: `npm run staging:wire` then `npm run staging:vercel`
+
+- **Railway:** API + Postgres (`railway.toml`) — `SETTLEMENT_MODE=partner`, `AUTO_SETTLE=false`
+- **Vercel:** two projects — Root Directory `apps/web` (`virlux-web`) and `apps/app` (`virlux-app`)
 - Set `NEXT_PUBLIC_API_URL` to Railway API URL on both Vercel projects
+- Set `NEXT_PUBLIC_BOOK_DEMO_URL` for Calendly CTA on marketing
+
+See [PUSH.md](./PUSH.md), [docs/FOUNDER-GTM-CHECKLIST.md](./docs/FOUNDER-GTM-CHECKLIST.md), [docs/REAL-MONEY-GATES.md](./docs/REAL-MONEY-GATES.md)
 
 ## Contributing
 

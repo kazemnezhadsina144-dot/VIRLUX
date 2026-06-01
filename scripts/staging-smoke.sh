@@ -11,6 +11,12 @@ if [[ -z "$API" ]]; then
   exit 1
 fi
 
+if [[ "$API" == *"YOUR-"* ]] || [[ "$API" == *"REPLACE"* ]]; then
+  echo "FAIL NEXT_PUBLIC_API_URL is still a placeholder: $API"
+  echo "Run: npm run staging:wire with RAILWAY_TOKEN or set a real Railway URL"
+  exit 1
+fi
+
 echo "== VIRLUX staging smoke =="
 echo "API: $API"
 echo ""

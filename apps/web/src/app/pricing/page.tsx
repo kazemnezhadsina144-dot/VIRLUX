@@ -41,7 +41,7 @@ export default function PricingPage() {
         <div className="mt-10 rounded-xl border border-white/[0.06] p-6 text-sm text-slate-400">
           <p className="font-medium text-white">Pilot program</p>
             <p className="mt-2">
-              Early business partners may receive introductory pricing for a limited period. See{" "}
+              Design partners in our pilot program may receive introductory pricing for a limited period. See{" "}
             <Link href="/terms" className="text-blue-400">
               Terms
             </Link>{" "}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PRICING } from "@virlux/shared";
 import { fetchQuote } from "@/lib/api";
@@ -42,6 +42,11 @@ export function Converter() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    getQuote();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div id="calculator" className="glass-card relative overflow-hidden p-6 shadow-card lg:p-8">

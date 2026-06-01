@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth, canManageTeam } from "@/lib/auth-context";
+import { formatDepositStatus } from "@virlux/shared";
+import { CopyButton } from "@/components/ui/CopyButton";
 
 type Deposit = {
   id: string;
@@ -31,13 +33,21 @@ export default function DepositsPage() {
   const [deposits, setDeposits] = useState<Deposit[]>([]);
   const [pending, setPending] = useState<PendingDeposit[]>([]);
   const [msg, setMsg] = useState("");
+  const [msgType, setMsgType] = useState<"success" | "error">("success");
   const [lastRef, setLastRef] = useState("");
+  const [loading, setLoading] = useState(true);
 
   function load() {
-    api<Deposit[]>("/api/wallet/deposits").then(setDeposits);
-    if (isAdmin) {
-      api<PendingDeposit[]>("/api/wallet/deposits/pending").then(setPending).catch(() => setPending([]));
-    }
+    setLoading(true);
+    Promise.all([
+      api<Deposit[]>("/api/wallet/deposits"),
+      isAdmin ? api<PendingDeposit[]>("/api/wallet/deposits/pending").catch(() => [] as PendingDeposit[]) : Promise.resolve([]),
+    ])
+      .then(([d, p]) => {
+        setDeposits(d);
+        setPending(p);
+      })
+      .finally(() => setLoading(false));
   }
 
   useEffect(() => {
@@ -55,9 +65,11 @@ export default function DepositsPage() {
         body: JSON.stringify({ amountCad: parseFloat(amount) }),
       });
       setLastRef(res.instructions.reference);
+      setMsgType("success");
       setMsg(res.instructions.message);
       setTimeout(load, 1500);
     } catch (e) {
+      setMsgType("error");
       setMsg(e instanceof Error ? e.message : "Deposit failed");
     }
   }
@@ -88,10 +100,15 @@ export default function DepositsPage() {
         {lastRef && (
           <div className="mt-4 rounded-xl bg-black/30 p-4 text-sm">
             <p className="text-slate-400">Reference (use in Interac message):</p>
-            <p className="mt-1 font-mono text-lg text-amber-400">{lastRef}</p>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <p className="font-mono text-lg text-amber-400">{lastRef}</p>
+              <CopyButton text={lastRef} label="Copy reference" />
+            </div>
           </div>
         )}
-        {msg && <p className="mt-3 text-sm text-slate-300">{msg}</p>}
+        {msg && (
+          <p className={`mt-3 text-sm ${msgType === "success" ? "text-emerald-400" : "text-red-400"}`}>{msg}</p>
+        )}
       </div>
 
       {isAdmin && pending.length > 0 && (
@@ -118,20 +135,30 @@ export default function DepositsPage() {
       )}
 
       <h2 className="mt-10 font-semibold text-white">Deposit history</h2>
-      <ul className="mt-3 space-y-2">
-        {deposits.length === 0 && <li className="text-sm text-slate-500">No deposits yet</li>}
-        {deposits.map((d) => (
-          <li
-            key={d.id}
-            className="flex justify-between rounded-xl border border-white/[0.06] px-4 py-3 text-sm"
-          >
-            <span>
-              ${d.amountCad} CAD · <span className="font-mono text-xs">{d.reference}</span>
-            </span>
-            <span className={d.status === "completed" ? "text-emerald-400" : "text-slate-400"}>{d.status}</span>
-          </li>
-        ))}
-      </ul>
+      {loading ? (
+        <div className="mt-3 space-y-2">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-12 animate-pulse rounded-xl bg-white/[0.04]" />
+          ))}
+        </div>
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {deposits.length === 0 && <li className="text-sm text-slate-500">No deposits yet</li>}
+          {deposits.map((d) => (
+            <li
+              key={d.id}
+              className="flex justify-between rounded-xl border border-white/[0.06] px-4 py-3 text-sm"
+            >
+              <span>
+                ${d.amountCad} CAD · <span className="font-mono text-xs">{d.reference}</span>
+              </span>
+              <span className={d.status === "completed" ? "text-emerald-400" : "text-slate-400"}>
+                {formatDepositStatus(d.status)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

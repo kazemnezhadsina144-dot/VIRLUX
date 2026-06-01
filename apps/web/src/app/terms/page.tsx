@@ -13,7 +13,7 @@ export default function TermsPage() {
         </Link>
         <h1 className="mt-8 text-3xl font-bold text-white">Terms of Service</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Effective April 2026 · {COMPANY.legalName} · Draft for counsel review
+          Effective April 2026 · {COMPANY.legalName}
         </p>
         <div className="mt-10 space-y-8 text-sm leading-relaxed text-slate-400">
           <section>
@@ -28,8 +28,8 @@ export default function TermsPage() {
             <p className="mt-2">
               VIRLUX provides cross-border business payment services including CAD funding via Interac
               e-Transfer, exchange rate quotes, team approval workflows, and international payment
-              delivery through licensed financial partners. Services may change; material changes will be
-              communicated with reasonable notice.
+              delivery to your recipients. Services may change; material changes will be communicated
+              with reasonable notice.
             </p>
           </section>
           <section>
@@ -51,15 +51,15 @@ export default function TermsPage() {
             <h2 className="text-lg font-semibold text-white">5. Fees & exchange rates</h2>
             <p className="mt-2">
               Fees and rates are shown before you confirm a payment. Quotes expire as displayed. Final
-              recipient amounts may vary slightly based on partner processing and destination.
+              recipient amounts may vary slightly based on destination and processing time.
             </p>
           </section>
           <section>
             <h2 className="text-lg font-semibold text-white">6. Payment delivery</h2>
             <p className="mt-2">
-              International payments are processed through regulated partners and banking networks.
-              Delivery times vary by destination. If a payment cannot be completed after your account is
-              debited, eligible balances will be restored according to our operational procedures.
+              International payments are delivered to the recipient details you provide. Delivery times
+              vary by destination. If a payment cannot be completed after your account is debited, eligible
+              balances will be restored according to our operational procedures.
             </p>
           </section>
           <section>

@@ -23,13 +23,14 @@ async function main() {
 
   const partner = await prisma.partner.upsert({
     where: { id: "seed-partner-demo" },
-    update: {},
+    update: { webhookSecret: "demo-webhook-secret-16" },
     create: {
       id: "seed-partner-demo",
       legalName: "Demo MSB Partner Ltd.",
       fintracMsbNumber: "M00000000",
       revShareBps: 35,
       contactEmail: "partner@example.com",
+      webhookSecret: "demo-webhook-secret-16",
     },
   });
 
@@ -72,7 +73,20 @@ async function main() {
     },
   });
 
-  console.log("Seeded demo account (dev only): demo@virlux.com");
+  await prisma.user.upsert({
+    where: { email: "approver@virlux.demo" },
+    update: { kycStatus: "approved", organizationId: org.id, role: "approver" },
+    create: {
+      email: "approver@virlux.demo",
+      passwordHash,
+      fullName: "Demo Approver",
+      kycStatus: "approved",
+      role: "approver",
+      organizationId: org.id,
+    },
+  });
+
+  console.log("Seeded demo accounts: demo@virlux.com, approver@virlux.demo (password: demo12345)");
 }
 
 main().finally(() => prisma.$disconnect());

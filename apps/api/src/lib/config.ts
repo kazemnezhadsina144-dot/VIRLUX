@@ -50,7 +50,9 @@ export const config = {
   jwtSecret: resolveJwtSecret(),
   jwtAccessTtl: process.env.JWT_ACCESS_TTL ?? "15m",
   jwtRefreshTtlDays: Number(process.env.JWT_REFRESH_TTL_DAYS ?? 30),
-  approvalThresholdCad: Number(process.env.APPROVAL_THRESHOLD ?? 5000),
+  approvalThresholdCad: Number(
+    process.env.DEMO_APPROVAL_THRESHOLD ?? process.env.APPROVAL_THRESHOLD ?? 5000
+  ),
   autoSettle,
   corsOrigins: (process.env.CORS_ORIGINS ?? "http://localhost:3100,http://localhost:3001")
     .split(",")

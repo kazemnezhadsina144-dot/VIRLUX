@@ -364,3 +364,71 @@ export async function setOrganizationPilotCorridor(
 
   return org;
 }
+
+const partnerCreateSchema = {
+  legalName: (v: string) => v.trim().length >= 2,
+};
+
+export async function createPartner(
+  data: {
+    legalName: string;
+    fintracMsbNumber?: string;
+    revShareBps?: number;
+    webhookUrl?: string;
+    webhookSecret?: string;
+    contactEmail?: string;
+  },
+  adminId: string
+) {
+  if (!partnerCreateSchema.legalName(data.legalName)) {
+    throw new AppError(400, "Partner legal name required");
+  }
+
+  const partner = await prisma.partner.create({
+    data: {
+      legalName: data.legalName.trim(),
+      fintracMsbNumber: data.fintracMsbNumber?.trim() || null,
+      revShareBps: data.revShareBps ?? 35,
+      webhookUrl: data.webhookUrl?.trim() || null,
+      webhookSecret: data.webhookSecret?.trim() || null,
+      contactEmail: data.contactEmail?.trim() || null,
+    },
+    include: { _count: { select: { organizations: true } } },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      userId: adminId,
+      action: "partner.created",
+      metadata: { partnerId: partner.id, legalName: partner.legalName },
+    },
+  });
+
+  return partner;
+}
+
+export async function assignOrganizationPartner(
+  orgId: string,
+  partnerId: string | null,
+  adminId: string
+) {
+  if (partnerId) {
+    const partner = await prisma.partner.findUnique({ where: { id: partnerId } });
+    if (!partner) throw new AppError(404, "Partner not found");
+  }
+
+  const org = await prisma.organization.update({
+    where: { id: orgId },
+    data: { partnerId },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      userId: adminId,
+      action: "organization.partner.assigned",
+      metadata: { organizationId: orgId, partnerId },
+    },
+  });
+
+  return org;
+}

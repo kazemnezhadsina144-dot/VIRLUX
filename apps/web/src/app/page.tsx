@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Converter } from "@/components/Converter";
 import { BookDemoLink } from "@/components/BookDemoLink";
+import { ProductPreview } from "@/components/ProductPreview";
 import {
   COVERAGE,
   PRICING,
@@ -64,7 +65,8 @@ export default function HomePage() {
                 <Link href={APP_URL} className="btn-primary">
                   {PUBLIC_COPY.ctaPrimary}
                 </Link>
-                <a href="#calculator" className="btn-secondary">
+                <BookDemoLink className="btn-secondary" />
+                <a href="#calculator" className="btn-secondary hidden sm:inline-flex">
                   Calculate your rate
                 </a>
               </div>
@@ -134,10 +136,23 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+
+          <div className="mt-16 grid items-center gap-10 lg:grid-cols-2">
+            <ProductPreview />
+            <div>
+              <p className="section-label">Dashboard</p>
+              <h3 className="mt-2 text-2xl font-bold text-white">One place for your finance team</h3>
+              <p className="mt-4 text-sm leading-relaxed text-slate-400">
+                Balances, approvals, and payment history — built for controllers who need clarity, not
+                another banking portal.
+              </p>
+              <Link href={APP_URL} className="btn-primary mt-6 inline-flex">
+                Open dashboard →
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
-
-      {/* How it works */}
       <section id="how" className="border-t border-white/[0.06] bg-virlux-surface py-20">
         <div className="mx-auto max-w-6xl px-6">
           <p className="section-label text-center">How it works</p>
@@ -196,8 +211,8 @@ export default function HomePage() {
           <p className="section-label text-center">Compare</p>
           <h2 className="mt-3 text-center text-3xl font-bold text-white">VIRLUX vs traditional bank wires</h2>
 
-          <div className="mt-10 overflow-hidden rounded-2xl border border-white/[0.08]">
-            <table className="w-full text-left text-sm">
+          <div className="mt-10 overflow-x-auto rounded-2xl border border-white/[0.08]">
+            <table className="w-full min-w-[480px] text-left text-sm">
               <thead>
                 <tr className="border-b border-white/[0.06] bg-white/[0.03]">
                   <th className="px-6 py-4 font-medium text-slate-400">Capability</th>
@@ -281,6 +296,21 @@ export default function HomePage() {
                 {t}
               </span>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Design partners */}
+      <section className="border-t border-white/[0.06] py-16">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <p className="section-label">Design partners</p>
+          <h2 className="mt-3 text-2xl font-bold text-white">Seeking 3 Canadian design partners</h2>
+          <p className="mt-4 text-sm leading-relaxed text-slate-400">
+            We&apos;re working with early finance teams who pay international suppliers. 90-day pilot — 1% fee,
+            $50K CAD/month cap, one corridor. Honest pre-traction; your feedback shapes the product.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <BookDemoLink className="btn-primary" />
           </div>
         </div>
       </section>

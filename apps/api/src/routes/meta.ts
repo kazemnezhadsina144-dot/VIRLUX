@@ -24,6 +24,10 @@ router.get("/config", (_req, res) => {
     useCases: USE_CASES,
     faq: FAQ_ITEMS,
     ports: PORTS,
+    approvalThresholdCad: Number(process.env.APPROVAL_THRESHOLD ?? 5000),
+    demoApprovalThresholdCad: process.env.DEMO_APPROVAL_THRESHOLD
+      ? Number(process.env.DEMO_APPROVAL_THRESHOLD)
+      : undefined,
   });
 });
 

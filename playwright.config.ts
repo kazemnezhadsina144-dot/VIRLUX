@@ -24,5 +24,10 @@ export default defineConfig({
       testMatch: /dashboard\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], baseURL: APP },
     },
+    {
+      name: "send-flow",
+      testMatch: /send-flow\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"], baseURL: APP },
+    },
   ],
 });

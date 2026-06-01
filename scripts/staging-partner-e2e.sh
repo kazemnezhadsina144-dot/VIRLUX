@@ -42,4 +42,4 @@ fi
 
 echo ""
 echo "Partner settlement E2E passed (auth + webhook signature gate)."
-echo "Full deposit→instruction→settle requires MSB partner record with webhookSecret in DB."
+echo "Full deposit→instruction→settle: npm run staging:platform-setup then exercise platform ops UI."

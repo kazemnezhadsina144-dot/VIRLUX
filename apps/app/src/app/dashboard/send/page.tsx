@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { SUPPORTED_COUNTRIES, PRICING, formatSmeTxStatus } from "@virlux/shared";
 
@@ -25,7 +25,15 @@ export default function SendPage() {
   const [memo, setMemo] = useState("");
   const [quote, setQuote] = useState<Quote | null>(null);
   const [msg, setMsg] = useState("");
+  const [msgType, setMsgType] = useState<"success" | "error">("error");
   const [loading, setLoading] = useState(false);
+  const [approvalThreshold, setApprovalThreshold] = useState(5000);
+
+  useEffect(() => {
+    api<{ demoApprovalThresholdCad?: number; approvalThresholdCad?: number }>("/api/meta")
+      .then((m) => setApprovalThreshold(m.demoApprovalThresholdCad ?? m.approvalThresholdCad ?? 5000))
+      .catch(() => {});
+  }, []);
 
   async function getQuote() {
     setLoading(true);
@@ -42,6 +50,7 @@ export default function SendPage() {
       });
       setQuote(q);
     } catch (e) {
+      setMsgType("error");
       setMsg(e instanceof Error ? e.message : "Could not get rate");
     } finally {
       setLoading(false);
@@ -50,6 +59,7 @@ export default function SendPage() {
 
   async function send() {
     if (!quote?.quoteId) {
+      setMsgType("error");
       setMsg("Confirm your rate first");
       return;
     }
@@ -67,9 +77,11 @@ export default function SendPage() {
           idempotencyKey: crypto.randomUUID(),
         }),
       });
+      setMsgType("success");
       setMsg(`Payment sent — status: ${formatSmeTxStatus(tx.status)}`);
       setQuote(null);
     } catch (e) {
+      setMsgType("error");
       setMsg(e instanceof Error ? e.message : "Send failed");
     } finally {
       setLoading(false);
@@ -82,6 +94,10 @@ export default function SendPage() {
       <p className="mt-1 text-sm text-slate-400">
         Pay international suppliers in one step — {PRICING.flatFeePercent}% flat fee, confirmed upfront.
       </p>
+
+      <div className="mt-4 rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3 text-sm text-slate-300">
+        Payments over ${approvalThreshold.toLocaleString()} CAD require an approver on your team before processing.
+      </div>
 
       <div className="mt-6 space-y-4 glass-panel p-6">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -162,7 +178,9 @@ export default function SendPage() {
             <p className="mt-2 text-xs text-slate-500">{quote.disclaimer}</p>
           </div>
         )}
-        {msg && <p className="text-sm text-emerald-400">{msg}</p>}
+        {msg && (
+          <p className={`text-sm ${msgType === "success" ? "text-emerald-400" : "text-red-400"}`}>{msg}</p>
+        )}
       </div>
     </div>
   );

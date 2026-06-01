@@ -1,55 +1,75 @@
 # Push & deploy VIRLUX
 
-Repo: **https://github.com/kazemnezhadsina144-dot/VIRLUX**
+Repo: **https://github.com/kazemnezhadsina144-dot/VIRLUX**  
+Branch: **`main`** (production source)
 
-Branch: `cursor/virlux-v2-platform-and-todolist` (pushed — open PR → `main`)
-
-## 1. Merge PR
-
-Open: https://github.com/kazemnezhadsina144-dot/VIRLUX/compare/main...cursor/virlux-v2-platform-and-todolist
-
-Wait for **CI** and **Playwright E2E** workflows green, then merge.
-
-## 2. Live demo stack (Sprint 1)
+## 1. One-command deploy (founder tokens)
 
 ```bash
 cd /Users/sinakazemnezhad/Desktop/Virlux
-bash scripts/staging-prepare-env.sh   # creates .env.staging from template
-# Edit .env.staging with secrets (JWT, Telegram, etc.)
+bash scripts/staging-prepare-env.sh   # first time — edit .env.staging secrets + DATABASE_URL
 
-RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:wire
-npm run staging:vercel              # deploy virlux-web + virlux-app
+RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:deploy-all
 ```
 
-**Vercel projects:**
-- `virlux-web` — Root Directory `apps/web` (marketing)
-- `virlux-app` — Root Directory `apps/app` (dashboard)
+Or step-by-step:
+
+```bash
+RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:wire
+npm run staging:vercel
+```
+
+## 2. Vercel projects
+
+| Project | Root Directory | Domain target |
+|---------|----------------|---------------|
+| `virlux-web` | `apps/web` | `virlux.com` |
+| `virlux-app` | `apps/app` | `app.virlux.com` |
 
 **Env on both Vercel projects:**
+
 - `NEXT_PUBLIC_API_URL` — Railway API URL
 - `NEXT_PUBLIC_APP_URL` — dashboard URL
 - `NEXT_PUBLIC_WEB_URL` — marketing URL
-- `NEXT_PUBLIC_BOOK_DEMO_URL` — Calendly/HubSpot link (optional)
+- `NEXT_PUBLIC_BOOK_DEMO_URL` — Calendly/HubSpot (GTM Phase 1)
 
-**Railway API:** `SETTLEMENT_MODE=partner`, `AUTO_SETTLE=false`, `PLATFORM_ADMIN_EMAILS`, `CORS_ORIGINS`
+**Railway API:**
+
+- `SETTLEMENT_MODE=partner`, `AUTO_SETTLE=false`, `ALLOW_ORG_DEPOSIT_CONFIRM=false`
+- `PLATFORM_ADMIN_EMAILS`, `CORS_ORIGINS` (both Vercel URLs)
+- `DEPOSIT_WEBHOOK_SECRET`, `JWT_SECRET` (32+ chars)
 
 **DNS:** `virlux.com` → marketing · `app.virlux.com` → dashboard
 
 ## 3. Verify live
 
 ```bash
+export NEXT_PUBLIC_API_URL=https://your-api.up.railway.app
+export STAGING_WEB_URL=https://virlux-web.vercel.app
+export STAGING_APP_URL=https://virlux-app.vercel.app
 npm run deploy:smoke
-STAGING_API_URL=https://your-api.up.railway.app npm run staging:e2e
-STAGING_APP_URL=https://app.virlux.com npm run staging:live-e2e
+npm run staging:e2e
+STAGING_APP_URL=$STAGING_APP_URL npm run staging:live-e2e
+npm run staging:partner-e2e
 ```
 
-## 4. Founder GTM (Sprint 3)
+## 4. Platform ops (pilot setup)
 
-Internal checklists (local `todolist/` — not in git):
+```bash
+PLATFORM_ADMIN_EMAIL=demo@virlux.com npm run staging:platform-setup
+```
+
+Then use `/dashboard/platform` for Interac confirm + settlement queue.
+
+## 5. Founder GTM
+
+See [docs/FOUNDER-GTM-CHECKLIST.md](./docs/FOUNDER-GTM-CHECKLIST.md) and local `todolist/` (gitignored):
+
 - `accelerator-pitch-kit.md`
-- `msb-partner-tracker.md`
 - `pilot-outreach-pack.md`
-- Send `counsel-review-brief.md` to counsel
+- `counsel-review-brief.md`
+
+Real money gates: [docs/REAL-MONEY-GATES.md](./docs/REAL-MONEY-GATES.md)
 
 ## SSH deploy key (optional)
 

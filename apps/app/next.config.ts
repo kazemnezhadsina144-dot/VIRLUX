@@ -1,7 +1,5 @@
 import type { NextConfig } from "next";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002";
-
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
@@ -12,11 +10,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@virlux/shared"],
-  // Auth cookies: Route Handler at app/api/[...path]/route.ts forwards Set-Cookie.
-  // Other /api paths still use rewrite fallback if needed.
-  async rewrites() {
-    return [{ source: "/api/:path*", destination: `${API}/api/:path*` }];
-  },
+  // /api/* is handled by app/api/[...path]/route.ts (forwards Set-Cookie for auth).
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

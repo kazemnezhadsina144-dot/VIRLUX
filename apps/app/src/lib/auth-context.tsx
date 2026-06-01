@@ -11,6 +11,7 @@ export type Me = {
   kycStatus: string;
   isPlatformAdmin?: boolean;
   organization?: { id: string; name: string } | null;
+  wallet?: { cadBalance: number | string; usdcBalance?: number | string } | null;
 };
 
 const AuthContext = createContext<Me | null>(null);

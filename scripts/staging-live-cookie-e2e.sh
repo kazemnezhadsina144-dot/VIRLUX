@@ -23,4 +23,4 @@ echo "App: $PLAYWRIGHT_APP_URL"
 echo "Web: $PLAYWRIGHT_WEB_URL"
 echo ""
 
-npx playwright test e2e/dashboard.spec.ts --project=dashboard
+npx playwright test e2e/dashboard.spec.ts e2e/send-flow.spec.ts --project=dashboard --project=send-flow

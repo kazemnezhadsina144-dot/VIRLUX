@@ -55,6 +55,8 @@ export default function PlatformPage() {
   const [msg, setMsg] = useState("");
   const [settlementIds, setSettlementIds] = useState<Record<string, string>>({});
   const [rejectNotes, setRejectNotes] = useState<Record<string, string>>({});
+  const [newPartnerName, setNewPartnerName] = useState("");
+  const [newPartnerSecret, setNewPartnerSecret] = useState("");
 
   function load() {
     api<KycQueueItem[]>("/api/platform/kyc/queue").then(setKycQueue).catch(() => setKycQueue([]));
@@ -104,13 +106,35 @@ export default function PlatformPage() {
   async function markSettled(txId: string) {
     const partnerSettlementId = settlementIds[txId]?.trim();
     if (!partnerSettlementId) {
-      setMsg("Partner settlement ID required.");
+      setMsg("Settlement reference required.");
       return;
     }
     await api(`/api/platform/transactions/${txId}/mark-settled`, {
       method: "POST",
       body: JSON.stringify({ partnerSettlementId }),
     });
+    load();
+  }
+
+  async function createPartner(e: React.FormEvent) {
+    e.preventDefault();
+    const legalName = newPartnerName.trim();
+    const webhookSecret = newPartnerSecret.trim();
+    if (legalName.length < 2) {
+      setMsg("Partner legal name required.");
+      return;
+    }
+    if (webhookSecret.length < 16) {
+      setMsg("Webhook secret required (min 16 characters).");
+      return;
+    }
+    await api("/api/platform/partners", {
+      method: "POST",
+      body: JSON.stringify({ legalName, webhookSecret }),
+    });
+    setNewPartnerName("");
+    setNewPartnerSecret("");
+    setMsg("Partner created.");
     load();
   }
 
@@ -147,6 +171,23 @@ export default function PlatformPage() {
 
       <section className="mt-8">
         <h2 className="font-semibold text-white">MSB partners ({partners.length})</h2>
+        <form onSubmit={createPartner} className="mt-4 flex flex-wrap gap-2 glass-panel p-4">
+          <input
+            placeholder="Partner legal name"
+            value={newPartnerName}
+            onChange={(e) => setNewPartnerName(e.target.value)}
+            className="input-field !py-2 text-xs flex-1 min-w-[180px]"
+          />
+          <input
+            placeholder="Webhook secret (16+ chars)"
+            value={newPartnerSecret}
+            onChange={(e) => setNewPartnerSecret(e.target.value)}
+            className="input-field !py-2 text-xs flex-1 min-w-[180px]"
+          />
+          <button type="submit" className="btn-primary !py-2 text-xs">
+            Add partner
+          </button>
+        </form>
         {partners.length === 0 ? (
           <p className="mt-2 text-sm text-slate-500">No partners configured yet.</p>
         ) : (
@@ -242,7 +283,7 @@ export default function PlatformPage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="font-semibold text-white">Awaiting partner settlement ({submittedTxs.length})</h2>
+        <h2 className="font-semibold text-white">Awaiting settlement confirmation ({submittedTxs.length})</h2>
         {submittedTxs.length === 0 ? (
           <p className="mt-2 text-sm text-slate-500">No transactions submitted to MSB partner.</p>
         ) : (
@@ -261,7 +302,7 @@ export default function PlatformPage() {
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <input
-                    placeholder="Partner settlement ID"
+                    placeholder="Settlement reference"
                     value={settlementIds[tx.id] ?? ""}
                     onChange={(e) => setSettlementIds((p) => ({ ...p, [tx.id]: e.target.value }))}
                     className="input-field !py-2 text-xs flex-1 min-w-[200px]"

@@ -33,7 +33,7 @@ const allLinks = [
   { href: "/dashboard/settings", label: "Settings", show: () => true },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const path = usePathname();
   const me = useAuth();
   const web = process.env.NEXT_PUBLIC_WEB_URL ?? "http://localhost:3100";
@@ -68,6 +68,7 @@ export function Sidebar() {
             <Link
               key={l.href}
               href={l.href}
+              onClick={onNavigate}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
                 active
                   ? "bg-blue-600/15 font-medium text-blue-300 ring-1 ring-blue-500/20"

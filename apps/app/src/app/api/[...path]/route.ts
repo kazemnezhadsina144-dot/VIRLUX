@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isInvalidApiUrl } from "@virlux/shared";
+import { forwardSetCookies } from "@/lib/api-proxy";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002";
+const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002").replace(/\/$/, "");
 
 /** Proxy /api/* to Railway API and forward Set-Cookie headers (auth cookies). */
 async function proxy(req: NextRequest, path: string) {
+  if (isInvalidApiUrl(API)) {
+    return NextResponse.json(
+      {
+        error: "API not configured",
+        hint: "Set NEXT_PUBLIC_API_URL on Vercel to your live Railway API URL, then redeploy virlux-app",
+      },
+      { status: 503 }
+    );
+  }
+
   const url = `${API}/api/${path}${req.nextUrl.search}`;
   const headers = new Headers(req.headers);
   headers.delete("host");
@@ -17,16 +29,30 @@ async function proxy(req: NextRequest, path: string) {
     init.body = await req.text();
   }
 
-  const upstream = await fetch(url, init);
-  const resHeaders = new Headers(upstream.headers);
-  resHeaders.delete("content-encoding");
+  let upstream: Response;
+  try {
+    upstream = await fetch(url, init);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json(
+      { error: "API unreachable", hint: "Check NEXT_PUBLIC_API_URL and Railway API health", detail: msg },
+      { status: 502 }
+    );
+  }
 
-  const res = new NextResponse(upstream.body, {
+  const resHeaders = new Headers();
+  upstream.headers.forEach((value, key) => {
+    const lower = key.toLowerCase();
+    if (lower === "set-cookie" || lower === "content-encoding") return;
+    resHeaders.append(key, value);
+  });
+  forwardSetCookies(upstream, resHeaders);
+
+  return new NextResponse(upstream.body, {
     status: upstream.status,
     statusText: upstream.statusText,
     headers: resHeaders,
   });
-  return res;
 }
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {

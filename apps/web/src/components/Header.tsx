@@ -1,12 +1,16 @@
 import Link from "next/link";
+import { BookDemoLink } from "./BookDemoLink";
+import { MobileNav } from "./MobileNav";
+import { PUBLIC_COPY } from "@virlux/shared";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001";
 
 const NAV = [
-  { href: "#product", label: "Product" },
-  { href: "#how", label: "How it works" },
+  { href: "/#product", label: "Product" },
+  { href: "/#how", label: "How it works" },
   { href: "/pricing", label: "Pricing" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#faq", label: "FAQ" },
+  { href: "/demo", label: "Demo" },
 ];
 
 export function Header() {
@@ -21,28 +25,24 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
-          {NAV.map((item) =>
-            item.href.startsWith("/") ? (
-              <Link key={item.href} href={item.href} className="nav-link">
-                {item.label}
-              </Link>
-            ) : (
-              <a key={item.href} href={item.href} className="nav-link">
-                {item.label}
-              </a>
-            )
-          )}
+          {NAV.map((item) => (
+            <Link key={item.href} href={item.href} className="nav-link">
+              {item.label}
+            </Link>
+          ))}
           <Link href="/privacy" className="nav-link">
             Privacy
           </Link>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <MobileNav />
           <Link href={APP_URL} className="hidden text-sm font-medium text-slate-300 hover:text-white sm:inline">
             Sign in
           </Link>
+          <BookDemoLink className="hidden sm:inline-flex btn-secondary !px-4 !py-2.5 text-sm" />
           <Link href={APP_URL} className="btn-primary !px-4 !py-2.5 text-sm">
-            Open dashboard
+            {PUBLIC_COPY.ctaPrimary}
           </Link>
         </div>
       </div>

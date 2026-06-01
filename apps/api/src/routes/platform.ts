@@ -66,6 +66,54 @@ router.get(
   })
 );
 
+const createPartnerSchema = z.object({
+  legalName: z.string().min(2).max(200),
+  fintracMsbNumber: z.string().max(50).optional(),
+  revShareBps: z.coerce.number().int().min(0).max(500).optional(),
+  webhookUrl: z.union([z.string().url(), z.literal("")]).optional(),
+  webhookSecret: z.string().min(16).max(128).optional(),
+  contactEmail: z.string().email().optional(),
+});
+
+router.post(
+  "/partners",
+  asyncHandler(async (req, res) => {
+    const parsed = createPartnerSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+    const body = parsed.data;
+    const partner = await platformService.createPartner(
+      {
+        legalName: body.legalName,
+        fintracMsbNumber: body.fintracMsbNumber,
+        revShareBps: body.revShareBps,
+        webhookUrl: body.webhookUrl || undefined,
+        webhookSecret: body.webhookSecret,
+        contactEmail: body.contactEmail,
+      },
+      req.auth!.userId
+    );
+    res.status(201).json(partner);
+  })
+);
+
+const assignPartnerSchema = z.object({
+  partnerId: z.string().cuid().nullable(),
+});
+
+router.patch(
+  "/organizations/:id/partner",
+  asyncHandler(async (req, res) => {
+    const parsed = assignPartnerSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+    const org = await platformService.assignOrganizationPartner(
+      String(req.params.id),
+      parsed.data.partnerId,
+      req.auth!.userId
+    );
+    res.json(org);
+  })
+);
+
 router.get(
   "/partners/:id/orgs",
   asyncHandler(async (req, res) => {

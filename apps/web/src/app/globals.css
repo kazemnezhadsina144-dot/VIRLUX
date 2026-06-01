@@ -25,6 +25,10 @@
     @apply rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl;
   }
 
+  .glass-panel {
+    @apply rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl;
+  }
+
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-xl bg-virlux-accent px-6 py-3 text-sm font-semibold text-white shadow-glow transition hover:bg-virlux-accent-light hover:shadow-lg active:scale-[0.98];
   }
