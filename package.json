@@ -23,6 +23,7 @@
     "staging:railway": "bash scripts/staging-railway-deploy.sh",
     "staging:wire": "bash scripts/staging-wire-production.sh",
     "staging:vercel": "bash scripts/staging-vercel-deploy.sh",
+    "staging:vercel-env": "bash scripts/staging-vercel-env-sync.sh",
     "staging:local": "bash scripts/staging-local-verify.sh",
     "staging:e2e": "bash scripts/staging-e2e.sh",
     "staging:partner-e2e": "bash scripts/staging-partner-e2e.sh",

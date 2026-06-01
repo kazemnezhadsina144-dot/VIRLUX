@@ -1,0 +1,44 @@
+name: Deploy Railway API
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "apps/api/**"
+      - "packages/shared/**"
+      - "railway.toml"
+      - "apps/api/Dockerfile"
+
+jobs:
+  deploy:
+    if: ${{ secrets.RAILWAY_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          npx railway up --detach --service api || npx railway up --detach
+
+      - name: Smoke health
+        env:
+          API_URL: ${{ secrets.STAGING_API_URL }}
+        run: |
+          if [[ -n "$API_URL" ]]; then
+            for i in $(seq 1 30); do
+              if curl -fsS "$API_URL/health" | jq -e '.status == "ok"'; then exit 0; fi
+              sleep 10
+            done
+            exit 1
+          fi
+          echo "Set STAGING_API_URL secret for post-deploy smoke"

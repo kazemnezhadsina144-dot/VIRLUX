@@ -41,12 +41,18 @@ fi
 WEB_URL="${STAGING_WEB_URL:-https://virlux-web.vercel.app}"
 APP_URL="${STAGING_APP_URL:-https://virlux-app.vercel.app}"
 
-if [[ -n "${VERCEL_TOKEN:-}" ]]; then
+if [[ -n "${VERCEL_TOKEN:-}" ]] || npx vercel whoami >/dev/null 2>&1; then
   echo "== Update Vercel env vars =="
-  export VERCEL_TOKEN
+  SCOPE="${VERCEL_SCOPE:-the-777-foundation}"
+  TOKEN_ARGS=()
+  [[ -n "${VERCEL_TOKEN:-}" ]] && TOKEN_ARGS=(--token "$VERCEL_TOKEN")
   for project in virlux-web virlux-app; do
-    echo "$API_URL" | npx vercel env rm NEXT_PUBLIC_API_URL production --yes --token "$VERCEL_TOKEN" -p "$project" 2>/dev/null || true
-    echo "$API_URL" | npx vercel env add NEXT_PUBLIC_API_URL production --token "$VERCEL_TOKEN" -p "$project" 2>/dev/null || true
+    echo "$API_URL" | npx vercel env rm NEXT_PUBLIC_API_URL production --yes "${TOKEN_ARGS[@]}" --scope "$SCOPE" -p "$project" 2>/dev/null || true
+    echo "$API_URL" | npx vercel env add NEXT_PUBLIC_API_URL production "${TOKEN_ARGS[@]}" --scope "$SCOPE" -p "$project" 2>/dev/null || true
+    if [[ "$project" == "virlux-app" ]]; then
+      echo "true" | npx vercel env rm NEXT_PUBLIC_DEMO_MODE production --yes "${TOKEN_ARGS[@]}" --scope "$SCOPE" -p "$project" 2>/dev/null || true
+      echo "true" | npx vercel env add NEXT_PUBLIC_DEMO_MODE production "${TOKEN_ARGS[@]}" --scope "$SCOPE" -p "$project" 2>/dev/null || true
+    fi
   done
   echo "Redeploy: npm run staging:vercel"
 else

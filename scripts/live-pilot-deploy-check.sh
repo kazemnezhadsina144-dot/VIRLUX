@@ -13,8 +13,12 @@ if [[ -z "${RAILWAY_TOKEN:-}" ]]; then
   missing=$((missing + 1))
 fi
 if [[ -z "${VERCEL_TOKEN:-}" ]]; then
-  echo "WARN: VERCEL_TOKEN not set"
-  missing=$((missing + 1))
+  if npx vercel whoami >/dev/null 2>&1; then
+    echo "OK: Vercel CLI session (no VERCEL_TOKEN needed)"
+  else
+    echo "WARN: VERCEL_TOKEN not set and Vercel CLI not logged in"
+    missing=$((missing + 1))
+  fi
 fi
 
 if [[ -f .env.staging ]]; then

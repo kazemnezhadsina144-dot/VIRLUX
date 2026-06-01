@@ -21,10 +21,17 @@ npm run staging:vercel
 
 ## 2. Vercel projects
 
-| Project | Root Directory | Domain target |
-|---------|----------------|---------------|
-| `virlux-web` | `apps/web` | `virlux.com` |
-| `virlux-app` | `apps/app` | `app.virlux.com` |
+| Project | Root Directory | Production URL |
+|---------|----------------|----------------|
+| `virlux-web` | repo root + `vercel.json` | https://virlux-web.vercel.app |
+| `virlux-app` | `apps/app` | https://virlux-app.vercel.app |
+
+Deploy from repo root (Vercel CLI session or `VERCEL_TOKEN`):
+
+```bash
+npm run staging:vercel-env   # sync NEXT_PUBLIC_* from .env.staging
+npm run staging:vercel       # deploy web + app
+```
 
 **Env on both Vercel projects:**
 

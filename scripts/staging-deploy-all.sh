@@ -12,13 +12,17 @@ if [[ ! -f "$ROOT/.env.staging" ]]; then
 fi
 
 if [[ -z "${RAILWAY_TOKEN:-}" || -z "${VERCEL_TOKEN:-}" ]]; then
-  echo "Set RAILWAY_TOKEN and VERCEL_TOKEN"
-  echo ""
-  echo "  RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:deploy-all"
-  echo ""
-  echo "Or wire an existing API URL:"
-  echo "  bash scripts/staging-wire-production.sh https://YOUR-API.up.railway.app"
-  exit 1
+  if npx vercel whoami >/dev/null 2>&1; then
+    echo "Vercel CLI session detected — proceeding without VERCEL_TOKEN"
+  else
+    echo "Set RAILWAY_TOKEN and VERCEL_TOKEN (or log in: npx vercel login)"
+    echo ""
+    echo "  RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:deploy-all"
+    echo ""
+    echo "Or wire an existing API URL:"
+    echo "  bash scripts/staging-wire-production.sh https://YOUR-API.up.railway.app"
+    exit 1
+  fi
 fi
 
 echo "== Phase 1: Railway + Vercel wire =="

@@ -2,6 +2,16 @@
 
 Founder-only steps to go from `main` to live URLs. Engineering prerequisites are on `main`; this doc is the execution checklist.
 
+## Current live URLs (2026-06-01)
+
+| Surface | URL | Status |
+|---------|-----|--------|
+| Marketing | https://virlux-web.vercel.app | Live (Live Pilot build) |
+| Dashboard | https://virlux-app.vercel.app | Live (Live Pilot build) |
+| API | `virlux-api-production.up.railway.app` | **Needs `RAILWAY_TOKEN` deploy** |
+
+Custom domains (`virlux.com`, `app.virlux.com`) — point DNS to Vercel projects above.
+
 ## Prerequisites
 
 - [ ] Pre-flight: `npm run live-pilot:deploy-check` (tokens + `.env.staging`)
