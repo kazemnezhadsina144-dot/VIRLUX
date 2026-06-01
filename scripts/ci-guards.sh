@@ -39,8 +39,10 @@ if grep -q 'fintracMsbClaim: false' packages/shared/src/constants.ts; then
   done
 fi
 
-# Competitor identity leak (internal reference only)
-if git grep -ni 'kavodax' -- apps/web apps/app packages/shared 2>/dev/null; then
+# Competitor identity leak (internal reference only — exclude drift scanner definitions)
+if git grep -ni 'kavodax' -- apps/web apps/app packages/shared \
+  ':!packages/shared/src/drift-prevention.ts' \
+  ':!packages/shared/src/drift-prevention.test.ts' 2>/dev/null; then
   fail "Competitor name must not appear in shipped code"
 fi
 
