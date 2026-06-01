@@ -4,6 +4,7 @@ import { AppError } from "../lib/errors";
 import { config } from "../lib/config";
 import { assertSameOrg, orgMemberIds } from "../lib/org";
 import { notifyKycUpdate } from "../telegram/handlers";
+import { emitPartnerWebhook } from "./partner-webhooks";
 
 export async function submitKyc(
   userId: string,
@@ -73,6 +74,10 @@ export async function approveKyc(submissionId: string, notes?: string) {
   });
 
   notifyKycUpdate(submission.userId, "approved").catch(() => {});
+  emitPartnerWebhook(submission.userId, "kyc.approved", {
+    submissionId,
+    userId: submission.userId,
+  }).catch(() => {});
 }
 
 export async function rejectKyc(submissionId: string, notes: string) {
@@ -90,6 +95,11 @@ export async function rejectKyc(submissionId: string, notes: string) {
   });
 
   notifyKycUpdate(submission.userId, "rejected").catch(() => {});
+  emitPartnerWebhook(submission.userId, "kyc.rejected", {
+    submissionId,
+    userId: submission.userId,
+    notes,
+  }).catch(() => {});
   return submission;
 }
 

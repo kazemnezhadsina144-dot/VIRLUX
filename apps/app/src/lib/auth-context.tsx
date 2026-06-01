@@ -9,6 +9,7 @@ export type Me = {
   fullName: string;
   role: string;
   kycStatus: string;
+  isPlatformAdmin?: boolean;
   organization?: { id: string; name: string } | null;
 };
 

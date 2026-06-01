@@ -6,6 +6,7 @@ import { config } from "../lib/config";
 import { assertSameOrg, orgMemberIds } from "../lib/org";
 import { logger } from "../lib/logger";
 import { notifyDepositCompleted } from "../telegram/handlers";
+import { emitPartnerWebhook } from "./partner-webhooks";
 
 const DEPOSIT_ROLES = new Set(["owner", "admin", "approver"]);
 
@@ -82,6 +83,13 @@ export async function completeDeposit(intentId: string) {
   });
 
   notifyDepositCompleted(completed).catch((e) => logger.error("Telegram notify failed", { err: String(e) }));
+
+  emitPartnerWebhook(intent.userId, "deposit.completed", {
+    paymentIntentId: completed.id,
+    reference: completed.reference,
+    amountCad: Number(completed.amountCad),
+  }).catch(() => {});
+
   return completed;
 }
 
@@ -116,6 +124,13 @@ export async function listOrgPendingDeposits(reviewerId: string) {
 }
 
 export async function confirmDepositAsAdmin(intentId: string, adminId: string) {
+  if (!config.allowOrgDepositConfirm) {
+    throw new AppError(
+      403,
+      "Org deposit confirmation disabled — use platform admin or partner webhook",
+      "FORBIDDEN"
+    );
+  }
   const intent = await prisma.paymentIntent.findUnique({
     where: { id: intentId },
     include: { user: { select: { id: true } } },

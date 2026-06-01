@@ -76,8 +76,8 @@ export default function KycPage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-2xl font-bold text-white">Identity verification</h1>
-      <p className="mt-1 text-sm text-slate-400">Required by FINTRAC before moving funds</p>
+      <h1 className="text-2xl font-bold text-white">Business verification</h1>
+      <p className="mt-1 text-sm text-slate-400">Required before you can send payments or add funds</p>
 
       <div className="mt-6 glass-panel p-6">
         <p className="text-sm">
@@ -105,7 +105,7 @@ export default function KycPage() {
               className="input-field text-sm"
             />
             <button type="button" onClick={submit} className="btn-primary">
-              Submit KYC
+              Submit documents
             </button>
           </div>
         )}
@@ -128,8 +128,8 @@ export default function KycPage() {
 
       {isReviewer && (
         <section className="mt-10">
-          <h2 className="font-semibold text-white">Compliance queue</h2>
-          <p className="mt-1 text-sm text-slate-500">Review KYC for your organization</p>
+          <h2 className="font-semibold text-white">Review queue</h2>
+          <p className="mt-1 text-sm text-slate-500">Review verification for your organization</p>
           {queue.length === 0 ? (
             <p className="mt-4 text-sm text-slate-500">No submissions awaiting review.</p>
           ) : (

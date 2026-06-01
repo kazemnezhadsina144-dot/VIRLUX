@@ -20,6 +20,21 @@ if (isProd && process.env.AUTO_SETTLE === "true") {
   throw new Error("AUTO_SETTLE must not be enabled in production");
 }
 
+export type SettlementMode = "sandbox" | "direct" | "partner" | "disabled";
+
+function resolveSettlementMode(): SettlementMode {
+  const raw = process.env.SETTLEMENT_MODE ?? (isDev ? "sandbox" : "partner");
+  if (raw !== "sandbox" && raw !== "direct" && raw !== "partner" && raw !== "disabled") {
+    throw new Error("SETTLEMENT_MODE must be sandbox, direct, partner, or disabled");
+  }
+  if (isProd && raw === "sandbox" && process.env.CIRCLE_SANDBOX === "false") {
+    throw new Error("SETTLEMENT_MODE=sandbox is not allowed in production with CIRCLE_SANDBOX=false");
+  }
+  return raw;
+}
+
+const settlementMode = resolveSettlementMode();
+
 const telegramMode = (process.env.TELEGRAM_MODE ?? "polling") as "polling" | "webhook";
 const telegramWebhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET ?? "";
 
@@ -59,6 +74,21 @@ export const config = {
   circleSandbox: process.env.CIRCLE_SANDBOX !== "false",
   circleWalletId: process.env.CIRCLE_WALLET_ID ?? "",
   circleWebhookSecret: process.env.CIRCLE_WEBHOOK_SECRET ?? "",
+  platformAdminEmails: (process.env.PLATFORM_ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean),
+  depositWebhookSecret: process.env.DEPOSIT_WEBHOOK_SECRET ?? "",
+  settlementMode,
+  /** Require at least one partner-confirmed deposit before sending (always on in prod partner mode) */
+  requirePartnerDeposit:
+    settlementMode === "partner" ||
+    process.env.REQUIRE_PARTNER_DEPOSIT === "true",
+  /** Org admins may confirm Interac deposits — disabled in production by default */
+  allowOrgDepositConfirm:
+    isDev && process.env.ALLOW_ORG_DEPOSIT_CONFIRM !== "false"
+      ? true
+      : process.env.ALLOW_ORG_DEPOSIT_CONFIRM === "true",
 };
 
 export function telegramConfigured(): boolean {

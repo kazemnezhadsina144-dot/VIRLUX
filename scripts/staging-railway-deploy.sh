@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Deploy VIRLUX API + Postgres to Railway (requires RAILWAY_TOKEN)
+# Postgres: Railway plugin, or external Neon (see neonctl / staging-prepare-env.sh)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"

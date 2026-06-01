@@ -1,4 +1,4 @@
-/** Representative corridor list (50+ in marketing; subset for app) */
+/** Representative destination markets for Canadian B2B payments */
 export const SUPPORTED_COUNTRIES = [
   { code: "CA", name: "Canada", region: "Americas" },
   { code: "US", name: "United States", region: "Americas" },
@@ -22,45 +22,50 @@ export const SUPPORTED_COUNTRIES = [
 export const USE_CASES = [
   {
     id: "suppliers",
-    title: "Pay Overseas Suppliers",
-    description: "Settle invoices in local currencies without 3–5 day wire delays.",
+    title: "Pay international suppliers",
+    description: "Settle invoices abroad without multi-day wire delays or opaque FX spreads.",
   },
   {
     id: "payroll",
-    title: "Pay Remote Contractors & Teams",
-    description: "Send payroll globally with upfront rates and real-time tracking.",
+    title: "Pay contractors and remote teams",
+    description: "Send global payroll with locked rates, clear fees, and live payment tracking.",
   },
   {
     id: "vendors",
-    title: "Manage International Vendors",
-    description: "Strengthen supply chains with predictable settlement timelines.",
+    title: "Manage vendor payments",
+    description: "Keep supply chains moving with predictable timelines and full visibility.",
   },
   {
     id: "trade",
-    title: "Execute Cross-Border Trade",
-    description: "Move funds quickly to secure inventory and close deals faster.",
+    title: "Support cross-border trade",
+    description: "Pay partners quickly to secure inventory and close deals with confidence.",
   },
 ] as const;
 
+/** Business-facing FAQ — no crypto or infrastructure vocabulary */
 export const FAQ_ITEMS = [
   {
-    q: "Digital Wallet",
-    a: "A wallet is where you hold stablecoins and approve transactions. It's like a bank account you fully control.",
+    q: "How fast do international payments settle?",
+    a: "Most payments are processed within minutes after any required approval. Timing can vary by destination and banking partner.",
   },
   {
-    q: "Stablecoin",
-    a: "Digital money designed to match a real currency 1:1 (e.g., 1 USDC = $1 USD). Used for fast digital payments.",
+    q: "What are your fees?",
+    a: "VIRLUX charges a flat 1% fee on cross-border payments. You see the full cost—including exchange rate—before you confirm.",
   },
   {
-    q: "Gas Fee",
-    a: "A small network fee paid to process your transaction. Costs vary by network and congestion.",
+    q: "How do I fund my account?",
+    a: "Canadian businesses can add CAD via Interac e-Transfer using the reference shown in your dashboard. USD funding is also supported where available.",
   },
   {
-    q: "On-Ramp / Off-Ramp",
-    a: "On-ramp converts bank money into stablecoins. Off-ramp converts stablecoins back to traditional money.",
+    q: "Do I need approval from my team?",
+    a: "Yes, for amounts above your company threshold. Owners and admins can configure who sends and who approves payments.",
   },
   {
-    q: "KYC",
-    a: "A one-time identity check required by law to prevent fraud and money laundering.",
+    q: "Is VIRLUX secure and compliant?",
+    a: "Every payment is logged with role-based access and business verification. Records are built for Canadian AML and audit requirements.",
+  },
+  {
+    q: "Which countries can I pay?",
+    a: "VIRLUX supports major business corridors across the Americas, Europe, Africa, Asia, and Oceania—with more added regularly.",
   },
 ] as const;

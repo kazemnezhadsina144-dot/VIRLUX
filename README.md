@@ -1,6 +1,6 @@
 # VIRLUX
 
-Cross-border B2B payments for Canadian SMEs — stablecoin settlement, Interac on-ramp, team approvals, Circle sandbox, Telegram @VIRLUXBOT.
+Canadian B2B cross-border payments for SMEs — flat 1% fee, Interac on-ramp, team approvals, and partner settlement. Telegram: @VIRLUXBOT.
 
 ## Stack
 
@@ -16,54 +16,39 @@ Ports **3000, 8000, 8020** are not used.
 ## Quick start
 
 ```bash
+cd /path/to/Virlux
+unset DATABASE_URL          # shell override breaks Prisma — use .env instead
 docker compose up -d postgres
-cp .env.example .env   # add TELEGRAM_BOT_TOKEN, secrets
+cp .env.example .env        # add TELEGRAM_BOT_TOKEN, JWT_SECRET (32+ chars)
 npm install
-npm run db:push && npm run db:seed
-npm run dev
+npm run db:migrate && npm run db:seed
+npm run dev                 # web:3100, app:3001, api:3002
 ```
 
-Demo: `demo@virlux.com` / `demo12345`
+**Demo login (dev seed only):** `demo@virlux.com` / `demo12345`
 
-## Future tracking
+If ports are stuck: `npm run dev` runs preflight and kills stale listeners on 3100/3001/3002.
 
-Founder/product follow-ups (launch blockers, UI roadmap, ops runbooks) live in **[`todolist/`](./todolist/README.md)** — update after each build session.
+## Tests
 
-## Phase features (v2.1)
+```bash
+npm test                    # Vitest (API + shared)
+npm run build               # All workspaces
+npm run test:e2e            # Playwright (stack must be running, or use CI)
+E2E_DEMO_LOGIN=1 npm run test:e2e
+npm run staging:e2e         # API curl E2E (register → quote)
+npm run staging:partner-e2e # Partner webhook signature gate
+bash scripts/ci-guards.sh   # Secret / MSB / todolist checks
+```
 
-- **PostgreSQL** + Docker Compose (SQLite removed)
-- **Telegram** polling (local) or webhook (production) — @VIRLUXBOT, token-based linking
-- **Circle** USDC transfer skeleton (`CIRCLE_API_KEY`, `CIRCLE_WALLET_ID`, sandbox)
-- **Team** invites + role management (`/dashboard/team`)
-- **Tests** — Vitest (fees, auth, ledger, send) + GitHub Actions CI
-- **Deploy** — `vercel.json`, `railway.toml`, `scripts/deploy.sh`
+## Production defaults
 
-## Fintech safeguards (v2.2)
+- `SETTLEMENT_MODE=partner` — VIRLUX generates instructions; partners execute settlement
+- `AUTO_SETTLE=false` — required in production
+- `ALLOW_ORG_DEPOSIT_CONFIRM=false` — deposit confirmation via partner/platform ops
+- `fintracMsbClaim: false` in `@virlux/shared` until MSB registration is verified
 
-- Atomic quote consume + debit + transaction create (no double-spend)
-- Ledger idempotency + conditional balance updates (no overdraft races)
-- External remittance does **not** credit sender USDC; Circle failure refunds fiat
-- `AUTO_SETTLE` dev-only (explicit opt-in); blocked in production
-- Maker-checker approvals, org-scoped audit, role-gated send/deposit
-- Marketing claims aligned with actual product scope
-
-## Env vars
-
-See `.env.example` for full list. Key production vars:
-
-- `DATABASE_URL` — PostgreSQL
-- `JWT_SECRET` — long random string
-- `TELEGRAM_MODE=webhook` + `TELEGRAM_WEBHOOK_URL` on Railway
-- `CIRCLE_API_KEY` + `CIRCLE_WALLET_ID` for real USDC (sandbox first)
-- `AUTO_SETTLE=true` — **local dev only** (simulates deposits/settlement/KYC)
-- `AUTO_SETTLE=false` in production (required)
-
-## Telegram
-
-Official bot: **@VIRLUXBOT** only. TrustField / Virelux bots are separate.
-
-- Local: `TELEGRAM_MODE=polling`
-- Prod: `TELEGRAM_MODE=webhook`, `TELEGRAM_WEBHOOK_URL=https://api.example.com/api/telegram/webhook`
+See `.env.example` and `.env.staging.example` for full variable lists.
 
 ## Deploy
 
@@ -72,16 +57,19 @@ npm run deploy:checklist
 npm run deploy:push-setup   # GitHub auth + push (see PUSH.md)
 ```
 
-Full runbook: **[`todolist/staging-deploy.md`](./todolist/staging-deploy.md)**  
-**Not pushed yet?** See **[PUSH.md](./PUSH.md)**
+Staging: `RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:wire`
 
-- **Railway:** API + Postgres, use `railway.toml`
+- **Railway:** API + Postgres (`railway.toml`)
 - **Vercel:** two projects — Root Directory `apps/web` and `apps/app`
 - Set `NEXT_PUBLIC_API_URL` to Railway API URL on both Vercel projects
-- Copy env from `.env.staging.example`
 
-## Tests
+## Contributing
 
-```bash
-npm test
-```
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## Telegram
+
+Official bot: **@VIRLUXBOT** only.
+
+- Local: `TELEGRAM_MODE=polling`
+- Prod: `TELEGRAM_MODE=webhook`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_WEBHOOK_URL`

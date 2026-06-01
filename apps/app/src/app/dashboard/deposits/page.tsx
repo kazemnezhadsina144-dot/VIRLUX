@@ -69,7 +69,7 @@ export default function DepositsPage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-2xl font-bold text-white">Deposit CAD</h1>
+      <h1 className="text-2xl font-bold text-white">Add funds</h1>
       <p className="mt-1 text-sm text-slate-400">Fund your account via Interac e-Transfer</p>
 
       <div className="mt-6 glass-panel p-6">

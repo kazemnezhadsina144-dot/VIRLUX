@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { useAuth, canApprove } from "@/lib/auth-context";
+import { formatSmeTxStatus } from "@virlux/shared";
 
 type Tx = {
   id: string;
@@ -24,6 +25,8 @@ type Tx = {
   recipientWallet?: string;
   memo?: string;
   txHash?: string;
+  partnerSettlementId?: string;
+  submittedToPartnerAt?: string;
   failureReason?: string;
   settledAt?: string;
   createdAt: string;
@@ -88,6 +91,10 @@ export default function TransactionDetailPage() {
 
   if (!tx) return <p className="text-slate-400">Loading…</p>;
 
+  function statusLabel(status: string) {
+    return formatSmeTxStatus(status);
+  }
+
   return (
     <div className="max-w-2xl">
       <Link href="/dashboard/transactions" className="text-sm text-blue-400 hover:text-blue-300">
@@ -134,18 +141,21 @@ export default function TransactionDetailPage() {
       {msg && <p className="mt-4 text-sm text-emerald-400">{msg}</p>}
 
       <dl className="mt-8 space-y-4 glass-panel p-6 text-sm">
-        <Row label="Status" value={tx.status.replace("_", " ")} />
+        <Row label="Status" value={statusLabel(tx.status)} />
         <Row label="Send" value={`${tx.amountIn} ${tx.fromCurrency}`} />
-        <Row label="Receive" value={`${tx.amountOut} ${tx.toStablecoin}`} />
-        <Row label="Network" value={tx.network} />
-        <Row label="Rate" value={tx.midMarketRate} />
-        <Row label="VIRLUX fee" value={tx.feeAmount} />
-        <Row label="Est. gas" value={`$${tx.gasEstimateUsd}`} />
+        <Row label="Recipient receives" value={`≈ ${tx.amountOut}`} />
+        <Row label="Exchange rate" value={tx.midMarketRate} />
+        <Row label="Service fee" value={tx.feeAmount} />
         {tx.recipientCountry && <Row label="Country" value={tx.recipientCountry} />}
         {tx.recipientName && <Row label="Recipient" value={tx.recipientName} />}
-        {tx.recipientWallet && <Row label="Wallet" value={tx.recipientWallet} mono />}
-        {tx.memo && <Row label="Memo" value={tx.memo} />}
-        {tx.txHash && <Row label="Tx hash" value={tx.txHash} mono />}
+        {tx.memo && <Row label="Reference" value={tx.memo} />}
+        {(tx.recipientWallet || tx.txHash) && (
+          <details className="text-xs text-slate-500">
+            <summary className="cursor-pointer text-slate-400">Payment reference details</summary>
+            {tx.recipientWallet && <Row label="Payout details" value={tx.recipientWallet} mono />}
+            {tx.txHash && <Row label="Confirmation ID" value={tx.txHash} mono />}
+          </details>
+        )}
         {tx.settledAt && <Row label="Settled" value={new Date(tx.settledAt).toLocaleString()} />}
         {tx.failureReason && <Row label="Failure" value={tx.failureReason} />}
       </dl>

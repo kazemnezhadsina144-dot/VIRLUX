@@ -5,8 +5,12 @@ dist
 .env
 .env.local
 .env.staging
+# Founder/agent ops — local only, never push
+todolist/
 *.log
 .DS_Store
+.cursor/
+.vercel/
 apps/api/prisma/*.db
 apps/api/prisma/**/*.db
 apps/api/prisma/*.db-journal

@@ -9,7 +9,6 @@ type Me = {
   role: string;
   phone?: string;
   organization?: { name: string } | null;
-  wallet?: { address?: string };
 };
 
 type Ledger = {
@@ -30,13 +29,13 @@ type TelegramLink = {
 
 export default function SettingsPage() {
   const [me, setMe] = useState<Me | null>(null);
-  const [ledger, setLedger] = useState<Ledger[]>([]);
+  const [activity, setActivity] = useState<Ledger[]>([]);
   const [telegram, setTelegram] = useState<TelegramLink | null>(null);
 
   useEffect(() => {
     Promise.all([api<Me>("/api/auth/me"), api<Ledger[]>("/api/wallet/ledger")]).then(([m, l]) => {
       setMe(m);
-      setLedger(l.slice(0, 20));
+      setActivity(l.slice(0, 20));
     });
   }, []);
 
@@ -49,31 +48,29 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-semibold">Settings</h1>
-      <dl className="mt-6 space-y-3 rounded-xl border border-slate-700 bg-[#111827] p-6 text-sm">
+      <h1 className="text-2xl font-semibold text-white">Settings</h1>
+      <p className="mt-1 text-sm text-slate-400">Account details and notifications</p>
+
+      <dl className="mt-6 space-y-3 glass-panel p-6 text-sm">
         <Row label="Name" value={me.fullName} />
         <Row label="Email" value={me.email} />
         <Row label="Role" value={me.role} />
         <Row label="Organization" value={me.organization?.name ?? "—"} />
-        <Row label="Wallet address" value={me.wallet?.address ?? "—"} mono />
       </dl>
 
-      <div className="mt-8 rounded-xl border border-slate-700 bg-[#111827] p-6">
-        <h2 className="font-semibold">Telegram (@VIRLUXBOT)</h2>
+      <div className="mt-8 glass-panel p-6">
+        <h2 className="font-semibold text-white">Payment notifications</h2>
         <p className="mt-1 text-sm text-slate-400">
-          Generate a one-time link code, then send it to the bot in Telegram.
+          Link Telegram to receive payment updates from @VIRLUXBOT.
         </p>
-        <button
-          type="button"
-          onClick={generateTelegramLink}
-          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm hover:bg-blue-500"
-        >
+        <button type="button" onClick={generateTelegramLink} className="btn-primary mt-4 !py-2 text-sm">
           Generate link code
         </button>
         {telegram && (
-          <div className="mt-4 rounded-lg bg-slate-900 p-4 font-mono text-sm">
+          <div className="mt-4 rounded-xl bg-black/30 p-4 text-sm">
             <p>
-              Open @{telegram.bot} and send: <span className="text-green-400">{telegram.command}</span>
+              Open @{telegram.bot} and send:{" "}
+              <span className="font-mono text-emerald-400">{telegram.command}</span>
             </p>
             <p className="mt-2 text-xs text-slate-500">
               Expires {new Date(telegram.expiresAt).toLocaleString()}
@@ -82,14 +79,15 @@ export default function SettingsPage() {
         )}
       </div>
 
-      <h2 className="mt-10 font-semibold">Ledger (recent)</h2>
+      <h2 className="mt-10 font-semibold text-white">Recent account activity</h2>
       <ul className="mt-3 space-y-2 text-sm">
-        {ledger.map((e) => (
-          <li key={e.id} className="flex justify-between rounded-lg border border-slate-700 px-4 py-2">
-            <span>
-              {e.type} {e.amount} {e.currency}
+        {activity.length === 0 && <li className="text-slate-500">No activity yet</li>}
+        {activity.map((e) => (
+          <li key={e.id} className="flex justify-between rounded-xl border border-white/[0.06] px-4 py-2">
+            <span className="text-slate-300">
+              {e.description ?? `${e.type} ${e.amount} ${e.currency}`}
             </span>
-            <span className="text-slate-400">bal {e.balanceAfter}</span>
+            <span className="text-slate-500">{new Date(e.createdAt).toLocaleDateString()}</span>
           </li>
         ))}
       </ul>
@@ -97,11 +95,11 @@ export default function SettingsPage() {
   );
 }
 
-function Row({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-4">
+    <div className="flex justify-between gap-4 border-b border-white/[0.06] pb-3 last:border-0">
       <dt className="text-slate-400">{label}</dt>
-      <dd className={mono ? "font-mono text-xs truncate max-w-[60%]" : ""}>{value}</dd>
+      <dd className="text-right text-white">{value}</dd>
     </div>
   );
 }

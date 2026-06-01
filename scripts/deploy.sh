@@ -8,7 +8,7 @@ echo "╔═══════════════════════�
 echo "║  VIRLUX deploy — Railway API + Vercel web/app            ║"
 echo "╚══════════════════════════════════════════════════════════╝"
 echo ""
-echo "Full runbook: todolist/staging-deploy.md"
+echo "Staging wire: npm run staging:wire  (needs RAILWAY_TOKEN + VERCEL_TOKEN)"
 echo "Env template: .env.staging.example"
 echo ""
 echo "── Railway (API + Postgres) ──"

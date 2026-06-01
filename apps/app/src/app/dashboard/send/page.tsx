@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { api } from "@/lib/api";
-import { SUPPORTED_COUNTRIES } from "@virlux/shared";
+import { SUPPORTED_COUNTRIES, PRICING, formatSmeTxStatus } from "@virlux/shared";
 
 type Quote = {
   quoteId: string;
@@ -12,11 +12,13 @@ type Quote = {
   disclaimer: string;
 };
 
+/** Default payout routing — not shown to users */
+const DEFAULT_COIN = "USDC" as const;
+const DEFAULT_NETWORK = "polygon" as const;
+
 export default function SendPage() {
   const [amount, setAmount] = useState("500");
   const [from, setFrom] = useState<"CAD" | "USD">("CAD");
-  const [coin, setCoin] = useState<"USDC" | "USDT">("USDC");
-  const [network, setNetwork] = useState<"polygon" | "ethereum" | "solana">("polygon");
   const [country, setCountry] = useState("NG");
   const [recipientName, setRecipientName] = useState("");
   const [recipientWallet, setRecipientWallet] = useState("");
@@ -34,13 +36,13 @@ export default function SendPage() {
         body: JSON.stringify({
           amount: parseFloat(amount),
           fromCurrency: from,
-          toStablecoin: coin,
-          network,
+          toStablecoin: DEFAULT_COIN,
+          network: DEFAULT_NETWORK,
         }),
       });
       setQuote(q);
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : "Quote failed");
+      setMsg(e instanceof Error ? e.message : "Could not get rate");
     } finally {
       setLoading(false);
     }
@@ -48,7 +50,7 @@ export default function SendPage() {
 
   async function send() {
     if (!quote?.quoteId) {
-      setMsg("Get a quote first");
+      setMsg("Confirm your rate first");
       return;
     }
     setLoading(true);
@@ -65,7 +67,7 @@ export default function SendPage() {
           idempotencyKey: crypto.randomUUID(),
         }),
       });
-      setMsg(`Payment submitted — status: ${tx.status}`);
+      setMsg(`Payment sent — status: ${formatSmeTxStatus(tx.status)}`);
       setQuote(null);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Send failed");
@@ -76,10 +78,12 @@ export default function SendPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-semibold">Send international payment</h1>
-      <p className="mt-1 text-sm text-slate-400">Quote first, then confirm. Balances are debited on submit.</p>
+      <h1 className="text-2xl font-semibold text-white">Send payment</h1>
+      <p className="mt-1 text-sm text-slate-400">
+        Pay international suppliers in one step — {PRICING.flatFeePercent}% flat fee, confirmed upfront.
+      </p>
 
-      <div className="mt-6 space-y-4 rounded-xl border border-slate-700 bg-[#111827] p-6">
+      <div className="mt-6 space-y-4 glass-panel p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-sm">
             <span className="text-slate-400">Amount</span>
@@ -87,43 +91,18 @@ export default function SendPage() {
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2"
+              className="input-field mt-1"
             />
           </label>
           <label className="block text-sm">
-            <span className="text-slate-400">From currency</span>
+            <span className="text-slate-400">Currency</span>
             <select
               value={from}
               onChange={(e) => setFrom(e.target.value as "CAD" | "USD")}
-              className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2"
+              className="input-field mt-1"
             >
               <option>CAD</option>
               <option>USD</option>
-            </select>
-          </label>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block text-sm">
-            <span className="text-slate-400">Stablecoin</span>
-            <select
-              value={coin}
-              onChange={(e) => setCoin(e.target.value as "USDC" | "USDT")}
-              className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2"
-            >
-              <option>USDC</option>
-              <option>USDT</option>
-            </select>
-          </label>
-          <label className="block text-sm">
-            <span className="text-slate-400">Network</span>
-            <select
-              value={network}
-              onChange={(e) => setNetwork(e.target.value as typeof network)}
-              className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2"
-            >
-              <option value="polygon">Polygon</option>
-              <option value="ethereum">Ethereum</option>
-              <option value="solana">Solana</option>
             </select>
           </label>
         </div>
@@ -132,7 +111,7 @@ export default function SendPage() {
           <select
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2"
+            className="input-field mt-1"
           >
             {SUPPORTED_COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>
@@ -142,53 +121,48 @@ export default function SendPage() {
           </select>
         </label>
         <input
-          placeholder="Recipient name (optional)"
+          placeholder="Recipient name"
           value={recipientName}
           onChange={(e) => setRecipientName(e.target.value)}
-          className="w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm"
+          className="input-field text-sm"
         />
         <input
-          placeholder="Recipient wallet address (optional)"
-          value={recipientWallet}
-          onChange={(e) => setRecipientWallet(e.target.value)}
-          className="w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm font-mono"
-        />
-        <input
-          placeholder="Memo / invoice reference"
+          placeholder="Payment reference / invoice # (optional)"
           value={memo}
           onChange={(e) => setMemo(e.target.value)}
-          className="w-full rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm"
+          className="input-field text-sm"
         />
+        <details className="text-sm text-slate-500">
+          <summary className="cursor-pointer text-slate-400 hover:text-slate-300">Recipient payout details (if required)</summary>
+          <input
+            placeholder="Bank or payout reference"
+            value={recipientWallet}
+            onChange={(e) => setRecipientWallet(e.target.value)}
+            className="input-field mt-3 text-sm font-mono"
+          />
+        </details>
 
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={getQuote}
-            disabled={loading}
-            className="rounded-lg border border-slate-600 px-4 py-2 text-sm hover:bg-slate-800 disabled:opacity-50"
-          >
-            Get quote
+        <div className="flex flex-wrap gap-3">
+          <button type="button" onClick={getQuote} disabled={loading} className="btn-ghost !py-2 text-sm">
+            Confirm rate
           </button>
-          <button
-            type="button"
-            onClick={send}
-            disabled={loading || !quote}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium hover:bg-blue-500 disabled:opacity-50"
-          >
-            Confirm & send
+          <button type="button" onClick={send} disabled={loading || !quote} className="btn-primary !py-2 text-sm">
+            Send payment
           </button>
         </div>
 
         {quote && (
-          <div className="rounded-lg bg-slate-900/80 p-4 text-sm">
-            <p>Fee: {quote.virluxFeeAmount} · Gas est.: ${quote.estimatedGasUsd}</p>
-            <p className="mt-1 text-lg font-medium text-amber-400">
-              Recipient receives: {quote.amountOut} {coin}
+          <div className="rounded-xl border border-white/[0.06] bg-black/20 p-4 text-sm">
+            <p className="text-slate-300">
+              VIRLUX fee ({PRICING.flatFeePercent}%): {quote.virluxFeeAmount} {from}
+            </p>
+            <p className="mt-2 text-lg font-medium text-white">
+              Recipient receives ≈ {quote.amountOut} (estimated)
             </p>
             <p className="mt-2 text-xs text-slate-500">{quote.disclaimer}</p>
           </div>
         )}
-        {msg && <p className="text-sm text-amber-400">{msg}</p>}
+        {msg && <p className="text-sm text-emerald-400">{msg}</p>}
       </div>
     </div>
   );

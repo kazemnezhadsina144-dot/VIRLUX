@@ -17,8 +17,8 @@ export default function AuditPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold">Audit log</h1>
-      <p className="mt-1 text-sm text-slate-400">Compliance trail for your account (owner/admin)</p>
+      <h1 className="text-2xl font-semibold">Activity log</h1>
+      <p className="mt-1 text-sm text-slate-400">Payment and account events for your organization</p>
       {err && <p className="mt-4 text-sm text-red-400">{err}</p>}
       <ul className="mt-6 space-y-2">
         {logs.map((l) => (

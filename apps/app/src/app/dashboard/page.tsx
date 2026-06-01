@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { useAuth, canSend } from "@/lib/auth-context";
+import { formatSmeTxStatus } from "@virlux/shared";
 
 type Me = {
   fullName: string;
@@ -22,9 +23,14 @@ type Tx = {
   createdAt: string;
 };
 
-function statusBadge(status: string) {
+function statusLabel(status: string) {
+  return formatSmeTxStatus(status);
+}
+
+function statusBadgeClass(status: string) {
   if (status === "confirmed") return "badge-green";
   if (status === "awaiting_approval") return "badge-amber";
+  if (status === "submitted_to_partner") return "badge bg-blue-500/15 text-blue-300";
   if (status === "failed") return "badge bg-red-500/15 text-red-400";
   return "badge-slate";
 }
@@ -61,10 +67,12 @@ export default function OverviewPage() {
           <p className="text-xs font-semibold uppercase tracking-widest text-blue-400">Overview</p>
           <h1 className="text-2xl font-bold text-white">Good day, {me.fullName.split(" ")[0]}</h1>
           <p className="mt-1 text-sm text-slate-400">
-            {me.organization?.name ?? "Your business"} · KYC{" "}
-            <span className={me.kycStatus === "approved" ? "text-emerald-400" : "text-amber-400"}>
-              {me.kycStatus.replace("_", " ")}
-            </span>
+            {me.organization?.name ?? "Your business"} ·{" "}
+            {me.kycStatus === "approved" ? (
+              <span className="text-emerald-400">Verified</span>
+            ) : (
+              <span className="text-amber-400">Verification pending</span>
+            )}
           </p>
         </div>
         {canSendMoney && (
@@ -88,20 +96,10 @@ export default function OverviewPage() {
         </div>
       )}
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <StatTile label="CAD balance" value={`$${Number(w?.cadBalance ?? 0).toLocaleString()}`} accent="blue" />
         <StatTile label="USD balance" value={`$${Number(w?.usdBalance ?? 0).toLocaleString()}`} accent="slate" />
-        <StatTile
-          label="USDC balance"
-          value={`${Number(w?.usdcBalance ?? 0).toLocaleString()}`}
-          suffix="USDC"
-          accent="amber"
-        />
       </div>
-
-      {w?.address && (
-        <p className="mt-4 truncate font-mono text-xs text-slate-600">Treasury wallet · {w.address}</p>
-      )}
 
       <section className="mt-10 glass-panel p-6">
         <div className="flex items-center justify-between">
@@ -128,11 +126,11 @@ export default function OverviewPage() {
             >
               <div>
                 <p className="font-medium text-white">
-                  {tx.amountIn} {tx.fromCurrency} → {tx.amountOut} {tx.toStablecoin}
+                  {tx.amountIn} {tx.fromCurrency} → ≈ {tx.amountOut}
                 </p>
                 <p className="text-xs text-slate-500">{new Date(tx.createdAt).toLocaleString()}</p>
               </div>
-              <span className={statusBadge(tx.status)}>{tx.status.replace("_", " ")}</span>
+              <span className={statusBadgeClass(tx.status)}>{statusLabel(tx.status)}</span>
             </li>
           ))}
         </ul>
@@ -140,10 +138,10 @@ export default function OverviewPage() {
 
       {me.kycStatus !== "approved" && (
         <div className="mt-6 rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
-          <p className="font-medium text-amber-200">Complete verification to send and deposit</p>
-          <p className="mt-1 text-sm text-amber-200/70">Canadian compliance requires business KYC before moving funds.</p>
+          <p className="font-medium text-amber-200">Complete verification to send payments</p>
+          <p className="mt-1 text-sm text-amber-200/70">We verify your business before processing payments.</p>
           <Link href="/dashboard/kyc" className="btn-primary mt-4 inline-flex">
-            Complete KYC →
+            Complete verification →
           </Link>
         </div>
       )}

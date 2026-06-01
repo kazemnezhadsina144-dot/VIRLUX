@@ -16,10 +16,12 @@ export default defineConfig({
   projects: [
     {
       name: "marketing",
+      testMatch: /marketing\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], baseURL: WEB },
     },
     {
       name: "dashboard",
+      testMatch: /dashboard\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], baseURL: APP },
     },
   ],

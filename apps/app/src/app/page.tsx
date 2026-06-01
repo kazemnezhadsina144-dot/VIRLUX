@@ -88,9 +88,9 @@ function LoginForm() {
           <ul className="mt-8 space-y-4 text-sm text-slate-400">
             {[
               "Interac CAD funding with clear references",
-              "Live FX quotes with flat 1% fee",
-              "Maker-checker approvals on high-value sends",
-              "Audit-ready logs for every action",
+              "Live rates with a flat 1% fee",
+              "Payment approvals for high-value sends",
+              "Complete payment history for your team",
             ].map((item) => (
               <li key={item} className="flex gap-3">
                 <span className="mt-0.5 text-emerald-500">✓</span>

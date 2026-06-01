@@ -7,8 +7,6 @@ import { fetchQuote } from "@/lib/api";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001";
 
-type Network = "ethereum" | "polygon" | "solana";
-
 type QuoteResult = {
   virluxFeeAmount: number;
   estimatedGasUsd: number;
@@ -21,8 +19,6 @@ type QuoteResult = {
 export function Converter() {
   const [amount, setAmount] = useState("10000");
   const [from, setFrom] = useState<"CAD" | "USD">("CAD");
-  const [coin, setCoin] = useState<"USDC" | "USDT">("USDC");
-  const [network, setNetwork] = useState<Network>("polygon");
   const [quote, setQuote] = useState<QuoteResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -36,12 +32,12 @@ export function Converter() {
       const q = await fetchQuote({
         amount: parseFloat(amount) || 0,
         fromCurrency: from,
-        toStablecoin: coin,
-        network,
+        toStablecoin: "USDC",
+        network: "polygon",
       });
       setQuote(q);
     } catch {
-      setError("Rate feed unavailable. Start the API or try again shortly.");
+      setError("Rate unavailable right now. Please try again in a moment.");
     } finally {
       setLoading(false);
     }
@@ -53,17 +49,17 @@ export function Converter() {
       <div className="relative">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="section-label">Live rate calculator</p>
-            <h3 className="mt-1 text-xl font-bold text-white">See what you save vs your bank</h3>
+            <p className="section-label">Rate calculator</p>
+            <h3 className="mt-1 text-xl font-bold text-white">See your cost before you send</h3>
           </div>
           <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
-            Mid-market FX
+            Live rates
           </span>
         </div>
 
         <div className="mt-6 space-y-4">
           <label className="block">
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">You send</span>
+            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Payment amount</span>
             <div className="mt-2 flex gap-2">
               <input
                 type="number"
@@ -82,39 +78,13 @@ export function Converter() {
             </div>
           </label>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block">
-              <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Receive as</span>
-              <select
-                value={coin}
-                onChange={(e) => setCoin(e.target.value as "USDC" | "USDT")}
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none"
-              >
-                <option>USDC</option>
-                <option>USDT</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Network</span>
-              <select
-                value={network}
-                onChange={(e) => setNetwork(e.target.value as Network)}
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none"
-              >
-                <option value="polygon">Polygon · low gas</option>
-                <option value="ethereum">Ethereum</option>
-                <option value="solana">Solana</option>
-              </select>
-            </label>
-          </div>
-
           <button
             type="button"
             onClick={getQuote}
             disabled={loading}
             className="btn-primary w-full !py-3.5"
           >
-            {loading ? "Fetching live rates…" : "Calculate savings"}
+            {loading ? "Calculating…" : "Get quote"}
           </button>
         </div>
 
@@ -124,15 +94,15 @@ export function Converter() {
           <div className="mt-6 space-y-4 rounded-xl border border-white/[0.08] bg-black/25 p-5">
             <div className="flex items-end justify-between gap-4 border-b border-white/[0.06] pb-4">
               <div>
-                <p className="text-xs text-slate-500">Recipient receives</p>
+                <p className="text-xs text-slate-500">Recipient receives (est.)</p>
                 <p className="text-3xl font-bold text-white">
-                  {quote.amountOut.toLocaleString(undefined, { maximumFractionDigits: 2 })}{" "}
-                  <span className="text-lg text-amber-400">{coin}</span>
+                  {quote.amountOut.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                 </p>
               </div>
               {quote.midMarketRate != null && (
                 <p className="text-right text-xs text-slate-500">
-                  Rate<br />
+                  Exchange rate
+                  <br />
                   <span className="font-mono text-slate-300">{quote.midMarketRate.toFixed(4)}</span>
                 </p>
               )}
@@ -141,26 +111,26 @@ export function Converter() {
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-lg bg-white/[0.03] p-3">
                 <p className="text-xs text-slate-500">VIRLUX fee ({PRICING.flatFeePercent}%)</p>
-                <p className="font-semibold text-white">{from} {quote.virluxFeeAmount.toFixed(2)}</p>
+                <p className="font-semibold text-white">
+                  {from} {quote.virluxFeeAmount.toFixed(2)}
+                </p>
               </div>
               <div className="rounded-lg bg-white/[0.03] p-3">
-                <p className="text-xs text-slate-500">Est. network gas</p>
+                <p className="text-xs text-slate-500">Processing (est.)</p>
                 <p className="font-semibold text-white">${quote.estimatedGasUsd.toFixed(2)} USD</p>
               </div>
             </div>
 
             <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-sm">
-              <p className="font-medium text-emerald-400">
-                Est. savings vs typical bank wire (~2.5% hidden FX)
-              </p>
+              <p className="font-medium text-emerald-400">Estimated savings vs typical bank wire</p>
               <p className="mt-1 text-emerald-200/80">
-                Up to ~{from} {bankSpreadEstimate.toFixed(0)} kept in your business on this transfer*
+                Up to ~{from} {bankSpreadEstimate.toFixed(0)} retained on this payment*
               </p>
             </div>
 
             <p className="text-xs leading-relaxed text-slate-500">{quote.disclaimer}</p>
             <Link href={APP_URL} className="btn-primary w-full text-center">
-              Open account to send →
+              Create free account →
             </Link>
           </div>
         )}

@@ -26,17 +26,17 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-semibold text-white">Information we collect</h2>
             <ul className="mt-2 list-inside list-disc space-y-1">
               <li>Account registration: name, email, business name, role</li>
-              <li>KYC/KYB: government ID type and number (stored securely), country, review notes</li>
-              <li>Transactions: amounts, currencies, corridors, wallet addresses, approval history</li>
-              <li>Technical: IP address, device/browser data, audit and security logs</li>
-              <li>Communications: support email, Telegram link tokens (when you opt in)</li>
+              <li>Business verification: government ID type and number (stored securely), country</li>
+              <li>Payments: amounts, currencies, destinations, approval history</li>
+              <li>Technical: IP address, device/browser data, security logs</li>
+              <li>Communications: support email, optional Telegram notifications</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-white">Why we collect it</h2>
             <ul className="mt-2 list-inside list-disc space-y-1">
-              <li>Provide payment and treasury services</li>
+              <li>Provide payment services to your business</li>
               <li>Verify identity and meet anti-money-laundering obligations</li>
               <li>Fraud prevention, security, and dispute resolution</li>
               <li>Legal and regulatory recordkeeping</li>
@@ -52,18 +52,18 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-white">Subprocessors</h2>
+            <h2 className="text-lg font-semibold text-white">Service providers</h2>
             <p className="mt-2">
-              Infrastructure (hosting, database), Circle (stablecoin settlement when enabled), and
-              Telegram (optional notifications). A current list is available on request.
+              We use trusted providers for hosting, payment processing, and optional notifications.
+              A current list is available on request.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-white">Retention</h2>
             <p className="mt-2">
-              Transaction and KYC records are retained for at least five (5) years after account closure
-              or last activity, or longer if required by law.
+              Payment and verification records are retained for at least five (5) years after account
+              closure or last activity, or longer if required by law.
             </p>
           </section>
 
@@ -86,8 +86,12 @@ export default function PrivacyPage() {
               {COMPANY.legalName}
               <br />
               {COMPANY.address}
-              <br />
-              {COMPANY.phone}
+              {COMPANY.phone ? (
+                <>
+                  <br />
+                  {COMPANY.phone}
+                </>
+              ) : null}
             </p>
           </section>
         </div>

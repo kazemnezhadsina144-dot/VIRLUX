@@ -26,16 +26,16 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold text-white">2. Services</h2>
             <p className="mt-2">
-              VIRLUX provides cross-border B2B payment tools including CAD funding via Interac
-              e-Transfer (subject to manual confirmation), FX quotes, team approval workflows, and
-              stablecoin settlement where configured. Services may change; material changes will be
+              VIRLUX provides cross-border business payment services including CAD funding via Interac
+              e-Transfer, exchange rate quotes, team approval workflows, and international payment
+              delivery through licensed financial partners. Services may change; material changes will be
               communicated with reasonable notice.
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-white">3. Eligibility & KYC</h2>
+            <h2 className="text-lg font-semibold text-white">3. Eligibility & verification</h2>
             <p className="mt-2">
-              You must complete identity and business verification before moving funds. You represent
+              You must complete business and identity verification before sending payments. You represent
               that information provided is accurate and you are authorized to act for your organization.
             </p>
           </section>
@@ -48,17 +48,18 @@ export default function TermsPage() {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-white">5. Fees & FX</h2>
+            <h2 className="text-lg font-semibold text-white">5. Fees & exchange rates</h2>
             <p className="mt-2">
-              Fees and rates are shown before you confirm a payment. Quotes expire as displayed. Network
-              gas estimates are indicative; actual blockchain costs may vary.
+              Fees and rates are shown before you confirm a payment. Quotes expire as displayed. Final
+              recipient amounts may vary slightly based on partner processing and destination.
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-white">6. Settlement risk</h2>
+            <h2 className="text-lg font-semibold text-white">6. Payment delivery</h2>
             <p className="mt-2">
-              Stablecoin settlement depends on third-party networks and providers. If settlement fails
-              after debit, eligible fiat balances will be refunded per our operational procedures.
+              International payments are processed through regulated partners and banking networks.
+              Delivery times vary by destination. If a payment cannot be completed after your account is
+              debited, eligible balances will be restored according to our operational procedures.
             </p>
           </section>
           <section>

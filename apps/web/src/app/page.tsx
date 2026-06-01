@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Converter } from "@/components/Converter";
+import { BookDemoLink } from "@/components/BookDemoLink";
 import {
   COVERAGE,
   PRICING,
@@ -10,32 +11,29 @@ import {
   COMPANY,
   SETTLEMENT,
   SUPPORTED_COUNTRIES,
+  POSITIONING,
+  PUBLIC_COPY,
 } from "@virlux/shared";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001";
 
 const STATS = [
-  { value: "< 15 min", label: "Typical settlement", sub: "After approval" },
+  { value: "< 15 min", label: "Typical delivery", sub: "After approval" },
   { value: `${PRICING.flatFeePercent}%`, label: "Flat transparent fee", sub: "No hidden FX spread" },
-  { value: `${COVERAGE.supportedCountries}+`, label: "Live corridors", sub: "Expanding monthly" },
-  { value: "Interac", label: "CAD on-ramp", sub: "Familiar for Canadian finance" },
+  { value: `${COVERAGE.supportedCountries}+`, label: "Business destinations", sub: "Growing every month" },
+  { value: "Interac", label: "CAD funding", sub: "Built for Canadian teams" },
 ];
 
-const TRUST = [
-  "Role-based approvals",
-  "Full audit trail",
-  "KYC / KYB workflows",
-  "FINTRAC-ready records",
-  "Team permissions",
-  "Quote lock at send",
-];
+const TRUST = [...PUBLIC_COPY.trustChips];
+
+const HOW_IT_WORKS = PUBLIC_COPY.howItWorks;
 
 const COMPARE = [
   { feature: "FX transparency", bank: "Hidden spread (2–5%)", virlux: "Mid-market + 1% flat" },
-  { feature: "Settlement time", bank: `${SETTLEMENT.bankWireDays} business days`, virlux: "Minutes (post-approval)" },
-  { feature: "Interac on-ramp", bank: "Not available", virlux: "Native CAD funding" },
-  { feature: "Team approvals", bank: "Manual email chains", virlux: "Built-in maker-checker" },
-  { feature: "Audit trail", bank: "Fragmented", virlux: "Immutable event log" },
+  { feature: "Delivery time", bank: `${SETTLEMENT.bankWireDays} business days`, virlux: "Minutes (after approval)" },
+  { feature: "Interac funding", bank: "Not available", virlux: "Native CAD deposits" },
+  { feature: "Team approvals", bank: "Manual email chains", virlux: "Built-in workflows" },
+  { feature: "Payment records", bank: "Fragmented", virlux: "Full history in one place" },
 ];
 
 export default function HomePage() {
@@ -54,18 +52,17 @@ export default function HomePage() {
               </div>
 
               <h1 className="mt-6 text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
-                Pay global suppliers from{" "}
-                <span className="gradient-text">Canada</span> — without bank-wire delays
+                {POSITIONING.headline}
               </h1>
 
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-400">
-                Finance teams use VIRLUX to fund in CAD via Interac, lock upfront FX, route through
-                team approvals, and settle cross-border in minutes — not {SETTLEMENT.bankWireDays} days.
+                {POSITIONING.description} Delivery in minutes after approval — not{" "}
+                {SETTLEMENT.bankWireDays} bank-wire days.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link href={APP_URL} className="btn-primary">
-                  Start free — no card required
+                  {PUBLIC_COPY.ctaPrimary}
                 </Link>
                 <a href="#calculator" className="btn-secondary">
                   Calculate your rate
@@ -115,18 +112,18 @@ export default function HomePage() {
           <div className="mt-14 grid gap-6 md:grid-cols-3">
             {[
               {
-                title: "Interac-native CAD funding",
-                desc: "Fund from any Canadian bank. Clear reference codes. No SWIFT guesswork for your AP team.",
+                title: "Fund in CAD via Interac",
+                desc: "Add funds from any Canadian bank with a clear reference code your AP team can follow.",
                 icon: "🏦",
               },
               {
-                title: "Upfront FX & fees",
-                desc: "Mid-market rates with a flat 1% fee. Gas estimates shown before you commit. No surprise spreads.",
+                title: "Rates and fees upfront",
+                desc: "See the exchange rate and 1% fee before you confirm. No surprise spreads after the fact.",
                 icon: "📊",
               },
               {
-                title: "Controls that scale",
-                desc: "Approvers, viewers, audit logs, and maker-checker on high-value sends. Built for growing SMEs.",
+                title: "Controls for growing teams",
+                desc: "Senders, approvers, and viewers — with a full payment history as you scale.",
                 icon: "🛡️",
               },
             ].map((card) => (
@@ -144,15 +141,15 @@ export default function HomePage() {
       <section id="how" className="border-t border-white/[0.06] bg-virlux-surface py-20">
         <div className="mx-auto max-w-6xl px-6">
           <p className="section-label text-center">How it works</p>
-          <h2 className="mt-3 text-center text-3xl font-bold text-white">From Interac to settled — in four steps</h2>
+          <h2 className="mt-3 text-center text-3xl font-bold text-white">Four steps to pay internationally</h2>
 
           <div className="relative mt-14 grid gap-8 md:grid-cols-4">
             <div className="absolute left-0 right-0 top-8 hidden h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent md:block" />
             {[
-              { n: "01", title: "Register & verify", desc: "Business KYC for your organization. Invite finance and approvers." },
-              { n: "02", title: "Fund via Interac", desc: "Send CAD with a unique reference. Balances update when confirmed." },
-              { n: "03", title: "Quote & approve", desc: "Lock live rates. Large sends route to approvers automatically." },
-              { n: "04", title: "Settle globally", desc: "USDC to supplier wallets or treasury. Track status in one dashboard." },
+              { n: HOW_IT_WORKS[0].step, title: HOW_IT_WORKS[0].title, desc: HOW_IT_WORKS[0].desc },
+              { n: HOW_IT_WORKS[1].step, title: HOW_IT_WORKS[1].title, desc: HOW_IT_WORKS[1].desc },
+              { n: HOW_IT_WORKS[2].step, title: HOW_IT_WORKS[2].title, desc: HOW_IT_WORKS[2].desc },
+              { n: HOW_IT_WORKS[3].step, title: HOW_IT_WORKS[3].title, desc: HOW_IT_WORKS[3].desc },
             ].map((step) => (
               <div key={step.n} className="relative text-center">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-500/30 bg-blue-600/10 text-lg font-bold text-blue-400">
@@ -225,8 +222,8 @@ export default function HomePage() {
       {/* Corridors */}
       <section className="py-16">
         <div className="mx-auto max-w-6xl px-6 text-center">
-          <p className="section-label">Corridors</p>
-          <h2 className="mt-2 text-2xl font-bold text-white">Send to key markets today</h2>
+          <p className="section-label text-center">Destinations</p>
+          <h2 className="mt-2 text-2xl font-bold text-white">Pay suppliers in key markets</h2>
           <div className="mt-8 flex flex-wrap justify-center gap-2">
             {SUPPORTED_COUNTRIES.map((c) => (
               <span
@@ -245,8 +242,8 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-6">
           <div className="mx-auto max-w-2xl text-center">
             <p className="section-label">Pricing</p>
-            <h2 className="mt-3 text-3xl font-bold text-white">Simple, sales-friendly pricing</h2>
-            <p className="mt-4 text-slate-400">No setup fees. No monthly minimums. You only pay when you move money.</p>
+            <h2 className="mt-3 text-3xl font-bold text-white">Straightforward pricing</h2>
+            <p className="mt-4 text-slate-400">No setup fees. No monthly minimums. You pay when you send.</p>
           </div>
 
           <div className="mx-auto mt-12 max-w-lg">
@@ -255,12 +252,12 @@ export default function HomePage() {
                 {PRICING.flatFeePercent}%
                 <span className="text-lg font-normal text-slate-400"> flat</span>
               </p>
-              <p className="mt-2 text-slate-400">per cross-border send + network gas (shown upfront)</p>
+              <p className="mt-2 text-slate-400">per international payment · all-in rate shown before you confirm</p>
               <ul className="mt-8 space-y-3 text-left text-sm text-slate-300">
-                <li className="flex gap-2"><span className="text-emerald-400">✓</span> Live mid-market FX (Frankfurter + CoinGecko)</li>
+                <li className="flex gap-2"><span className="text-emerald-400">✓</span> Live exchange rates</li>
                 <li className="flex gap-2"><span className="text-emerald-400">✓</span> Interac CAD deposits</li>
-                <li className="flex gap-2"><span className="text-emerald-400">✓</span> Unlimited team seats</li>
-                <li className="flex gap-2"><span className="text-emerald-400">✓</span> Approval workflows & audit log</li>
+                <li className="flex gap-2"><span className="text-emerald-400">✓</span> Unlimited team members</li>
+                <li className="flex gap-2"><span className="text-emerald-400">✓</span> Approval workflows & payment history</li>
               </ul>
               <Link href={APP_URL} className="btn-primary mt-8 w-full">
                 Create free business account
@@ -273,12 +270,10 @@ export default function HomePage() {
       {/* Compliance */}
       <section className="py-16">
         <div className="mx-auto max-w-3xl px-6 text-center">
-          <p className="section-label">Compliance</p>
-          <h2 className="mt-3 text-2xl font-bold text-white">Enterprise-grade controls for regulated environments</h2>
+          <p className="section-label text-center">Trust & security</p>
+          <h2 className="mt-3 text-2xl font-bold text-white">Built for how Canadian finance teams work</h2>
           <p className="mt-4 text-sm leading-relaxed text-slate-400">
-            {COMPANY.brandName} is architected for Canadian B2B cross-border flows: KYC/KYB, role-based
-            approvals, immutable audit trails, and FINTRAC-ready record keeping. Regulatory registrations
-            and disclosures are published when applicable — this page is not legal or financial advice.
+            {POSITIONING.complianceLine} This page is not legal or financial advice.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {TRUST.map((t) => (
@@ -316,17 +311,15 @@ export default function HomePage() {
         <div className="mx-auto max-w-4xl px-6">
           <div className="relative overflow-hidden rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-600/20 via-virlux-card to-virlux-bg p-10 text-center md:p-14">
             <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-blue-500/20 blur-3xl" />
-            <h2 className="relative text-3xl font-bold text-white">Ready to modernize your AP stack?</h2>
+            <h2 className="relative text-3xl font-bold text-white">Ready to simplify international payments?</h2>
             <p className="relative mx-auto mt-4 max-w-lg text-slate-300">
-              Join Canadian finance teams replacing slow wires with transparent, approvable, minute-scale settlement.
+              Join Canadian businesses replacing slow wires with transparent pricing, team approvals, and fast delivery.
             </p>
             <div className="relative mt-8 flex flex-wrap justify-center gap-4">
               <Link href={APP_URL} className="btn-primary">
                 Open dashboard — free
               </Link>
-              <a href={`mailto:${COMPANY.email}?subject=VIRLUX%20demo%20request`} className="btn-secondary">
-                Book a demo
-              </a>
+              <BookDemoLink />
             </div>
           </div>
         </div>

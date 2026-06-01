@@ -2,7 +2,7 @@ name: Playwright E2E
 
 on:
   push:
-    branches: [main, cursor/virlux-v2-platform-and-todolist]
+    branches: [main, "cursor/**"]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -29,6 +29,7 @@ jobs:
       JWT_SECRET: ci-test-secret-min-32-characters-long
       TELEGRAM_MODE: polling
       AUTO_SETTLE: "true"
+      SETTLEMENT_MODE: sandbox
       NODE_ENV: development
       PLAYWRIGHT_WEB_URL: http://localhost:3100
       PLAYWRIGHT_APP_URL: http://localhost:3001
@@ -57,10 +58,29 @@ jobs:
       - name: Start stack
         run: |
           npm run dev:stack &
-          for i in $(seq 1 60); do
-            curl -sf http://localhost:3002/health && curl -sf http://localhost:3100/ && curl -sf http://localhost:3001/ && break
+          STACK_PID=$!
+          echo "STACK_PID=$STACK_PID" >> "$GITHUB_ENV"
+          for i in $(seq 1 90); do
+            if curl -sf http://localhost:3002/health >/dev/null \
+              && curl -sf http://localhost:3100/ >/dev/null \
+              && curl -sf http://localhost:3001/ >/dev/null; then
+              echo "Stack ready after ${i} attempts"
+              exit 0
+            fi
             sleep 2
           done
+          echo "Stack failed to start — port listeners:"
+          ss -tlnp || netstat -tlnp || true
+          curl -v http://localhost:3002/health || true
+          exit 1
 
       - name: Playwright
         run: npx playwright test
+
+      - name: Upload trace on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          if-no-files-found: ignore

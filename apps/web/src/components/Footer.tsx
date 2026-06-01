@@ -16,8 +16,8 @@ export function Footer() {
               <span className="text-lg font-bold">VIRLUX</span>
             </div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-400">
-              Cross-border B2B payments for Canadian businesses. Transparent FX, Interac on-ramp,
-              team controls, and audit-ready compliance workflows.
+              International business payments for Canadian companies. Transparent rates, Interac funding,
+              team approvals, and complete payment records.
             </p>
             <p className="mt-4 text-xs text-slate-500">🇨🇦 Built for Canadian SMEs · {COMPANY.address}</p>
           </div>
@@ -45,14 +45,14 @@ export function Footer() {
               <li>
                 <a href={`mailto:${COMPANY.email}`} className="hover:text-white">{COMPANY.email}</a>
               </li>
-              <li>{COMPANY.phone}</li>
+              {COMPANY.phone ? <li>{COMPANY.phone}</li> : null}
             </ul>
           </div>
         </div>
 
         <div className="mt-12 flex flex-col gap-2 border-t border-white/[0.06] pt-8 text-xs text-slate-500 sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} {COMPANY.legalName}. All rights reserved.</p>
-          <p>Not financial or legal advice. MSB disclosures published when applicable.</p>
+          <p>Not financial or legal advice. Built for Canadian business payments.</p>
         </div>
       </div>
     </footer>

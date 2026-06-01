@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { POSITIONING } from "@virlux/shared";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -9,12 +10,11 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "VIRLUX – Cross-Border B2B Payments for Canadian Business",
-  description:
-    "Canadian SMEs send CAD & USD globally with upfront FX, Interac on-ramp, team approvals, and minute-scale settlement. Built for importers, agencies, and trade.",
+  title: "VIRLUX – Cross-Border B2B Payments for Canadian SMEs",
+  description: POSITIONING.tagline,
   openGraph: {
-    title: "VIRLUX – Cross-Border B2B Payments",
-    description: "Transparent FX. Interac in. Stablecoin rails out. Built in Canada.",
+    title: "VIRLUX – Cross-Border B2B Payments for Canadian SMEs",
+    description: POSITIONING.tagline,
     type: "website",
   },
 };

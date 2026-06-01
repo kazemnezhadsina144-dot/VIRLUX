@@ -95,5 +95,7 @@ export async function transferUsdc(input: {
 }
 
 export function isCircleEnabled(): boolean {
+  if (config.isProd && config.settlementMode === "partner") return false;
+  if (config.isProd && config.settlementMode === "disabled") return false;
   return circleConfigured() && !!config.circleWalletId;
 }

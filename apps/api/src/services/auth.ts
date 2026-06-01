@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
 import { config } from "../lib/config";
 import { AppError } from "../lib/errors";
+import { isPlatformAdminEmail } from "../lib/platform";
 
 function hashToken(token: string) {
   return crypto.createHash("sha256").update(token).digest("hex");
@@ -136,5 +137,5 @@ export async function getMe(userId: string) {
     include: { wallet: true, organization: true },
   });
   if (!user) throw new AppError(404, "User not found");
-  return { ...sanitizeUser(user), wallet: user.wallet };
+  return { ...sanitizeUser(user), wallet: user.wallet, isPlatformAdmin: isPlatformAdminEmail(user.email) };
 }

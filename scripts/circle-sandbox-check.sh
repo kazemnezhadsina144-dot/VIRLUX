@@ -16,7 +16,7 @@ REACHABLE=$(echo "$HEALTH" | jq -r '.circle.reachable // false')
 
 if [[ "$CONFIGURED" != "true" ]]; then
   echo "WARN: Circle not configured — set CIRCLE_API_KEY + CIRCLE_WALLET_ID on API"
-  echo "See todolist/circle-staging-checklist.md for full E2E send test."
+  echo "Then run a manual send E2E on staging (KYC approved, funded, external USDC wallet)."
   exit 0
 fi
 
@@ -25,4 +25,4 @@ if [[ "$REACHABLE" != "true" ]]; then
   exit 1
 fi
 
-echo "Circle sandbox reachable. Run manual send E2E per todolist/circle-staging-checklist.md"
+echo "Circle sandbox reachable. Run manual send E2E on staging dashboard."

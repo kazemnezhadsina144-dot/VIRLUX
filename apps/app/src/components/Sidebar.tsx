@@ -9,21 +9,27 @@ const ICONS: Record<string, string> = {
   Overview: "◉",
   Send: "↗",
   Deposits: "↓",
-  Transactions: "≡",
+  Payments: "≡",
   Team: "👥",
-  KYC: "✓",
-  "Audit log": "📋",
+  Verification: "✓",
+  "Activity log": "📋",
+  "Platform ops": "⚡",
   Settings: "⚙",
 };
 
+function canAccessPlatform(me: ReturnType<typeof useAuth>) {
+  return Boolean(me?.isPlatformAdmin);
+}
+
 const allLinks = [
   { href: "/dashboard", label: "Overview", show: () => true },
-  { href: "/dashboard/send", label: "Send", show: canSend },
-  { href: "/dashboard/deposits", label: "Deposits", show: canSend },
-  { href: "/dashboard/transactions", label: "Transactions", show: () => true },
-  { href: "/dashboard/team", label: "Team", show: canManageTeam },
-  { href: "/dashboard/kyc", label: "KYC", show: () => true },
-  { href: "/dashboard/audit", label: "Audit log", show: canViewAudit },
+  { href: "/dashboard/send", label: "Send", show: (me: ReturnType<typeof useAuth>) => canSend(me?.role) },
+  { href: "/dashboard/deposits", label: "Deposits", show: (me: ReturnType<typeof useAuth>) => canSend(me?.role) },
+  { href: "/dashboard/transactions", label: "Payments", show: () => true },
+  { href: "/dashboard/team", label: "Team", show: (me: ReturnType<typeof useAuth>) => canManageTeam(me?.role) },
+  { href: "/dashboard/kyc", label: "Verification", show: () => true },
+  { href: "/dashboard/audit", label: "Activity log", show: (me: ReturnType<typeof useAuth>) => canViewAudit(me?.role) },
+  { href: "/dashboard/platform", label: "Platform ops", show: canAccessPlatform },
   { href: "/dashboard/settings", label: "Settings", show: () => true },
 ];
 
@@ -31,7 +37,7 @@ export function Sidebar() {
   const path = usePathname();
   const me = useAuth();
   const web = process.env.NEXT_PUBLIC_WEB_URL ?? "http://localhost:3100";
-  const links = allLinks.filter((l) => l.show(me?.role));
+  const links = allLinks.filter((l) => l.show(me));
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-white/[0.06] bg-virlux-surface">
@@ -77,7 +83,7 @@ export function Sidebar() {
 
       <div className="space-y-1 border-t border-white/[0.06] p-4 text-xs text-slate-500">
         <a href={web} className="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-white/[0.04] hover:text-slate-300">
-          ← Marketing site
+          ← virlux.com
         </a>
         <button
           type="button"

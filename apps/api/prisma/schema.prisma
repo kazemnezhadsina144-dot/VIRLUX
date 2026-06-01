@@ -25,9 +25,15 @@ enum TransactionStatus {
   pending
   awaiting_approval
   processing
+  submitted_to_partner
   confirmed
   failed
   cancelled
+}
+
+enum PilotCorridor {
+  PH
+  US
 }
 
 enum NetworkId {
@@ -49,16 +55,34 @@ enum PaymentIntentStatus {
   expired
 }
 
+model Partner {
+  id               String         @id @default(cuid())
+  legalName        String
+  fintracMsbNumber String?
+  revShareBps      Int            @default(35)
+  webhookUrl       String?
+  webhookSecret    String?
+  contactEmail     String?
+  organizations    Organization[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
 model Organization {
-  id          String   @id @default(cuid())
-  name        String
-  legalName   String?
-  country     String   @default("CA")
-  fintracMsb  Boolean  @default(false)
+  id            String         @id @default(cuid())
+  name          String
+  legalName     String?
+  country       String         @default("CA")
+  fintracMsb    Boolean        @default(false)
+  pilotCorridor PilotCorridor?
+  partnerId     String?
+  partner       Partner?       @relation(fields: [partnerId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   users       User[]
   invites     TeamInvite[]
+
+  @@index([partnerId])
 }
 
 model User {
@@ -165,9 +189,14 @@ model Transaction {
   needsApproval    Boolean           @default(false)
   approvedBy       String?
   approvedAt       DateTime?
-  settledAt        DateTime?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  settledAt            DateTime?
+  platformFeeCad       Decimal           @default(0)
+  partnerFeeCad        Decimal           @default(0)
+  partnerSettlementId  String?           @unique
+  submittedToPartnerAt DateTime?
+  settlementMode       String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
 
   @@unique([userId, idempotencyKey])
   @@index([userId, createdAt])

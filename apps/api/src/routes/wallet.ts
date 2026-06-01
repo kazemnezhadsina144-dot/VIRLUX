@@ -4,8 +4,31 @@ import { asyncHandler } from "../middleware/asyncHandler";
 import { requireAuth, requireRole, attachFreshUser } from "../middleware/auth";
 import { getWallet, listLedger } from "../services/ledger";
 import * as depositService from "../services/deposits";
+import { processDepositWebhook } from "../services/platform";
+import { verifyDepositWebhookSignature } from "../services/partner-webhooks";
 
 const router = Router();
+
+const webhookSchema = z.object({
+  reference: z.string().min(5),
+  amountCad: z.coerce.number().positive().optional(),
+  externalId: z.string().optional(),
+});
+
+router.post(
+  "/deposits/webhook",
+  asyncHandler(async (req, res) => {
+    const signature = req.headers["x-virlux-signature"] as string | undefined;
+    const raw = JSON.stringify(req.body);
+    if (!verifyDepositWebhookSignature(raw, signature)) {
+      return res.status(403).json({ error: "Invalid webhook signature", code: "FORBIDDEN" });
+    }
+    const parsed = webhookSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+    const intent = await processDepositWebhook(parsed.data);
+    res.json({ ok: true, paymentIntent: intent });
+  })
+);
 
 router.get(
   "/",

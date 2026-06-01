@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "cursor/**"]
   pull_request:
     branches: [main]
 
@@ -31,6 +31,8 @@ jobs:
       TELEGRAM_MODE: polling
       TELEGRAM_BOT_TOKEN: ""
       AUTO_SETTLE: "false"
+      SETTLEMENT_MODE: partner
+      ALLOW_ORG_DEPOSIT_CONFIRM: "false"
       NODE_ENV: test
 
     steps:
@@ -43,17 +45,49 @@ jobs:
 
       - run: npm ci
 
+      - name: CI guards
+        run: bash scripts/ci-guards.sh
+
       - run: npm run build -w @virlux/shared
 
-      - name: Prisma
+      - name: Prisma migrate
         working-directory: apps/api
         run: |
           npx prisma generate
           npx prisma migrate deploy
+          npx prisma migrate status 2>&1 | grep -qE 'Database schema is up to date|No pending migrations'
 
       - run: npm run build -w @virlux/api
       - run: npm run build -w @virlux/web
       - run: npm run build -w @virlux/app
 
-      - name: Tests
+      - name: Unit tests
         run: npm test
+
+      - name: Seed for API E2E
+        working-directory: apps/api
+        env:
+          NODE_ENV: development
+          AUTO_SETTLE: "true"
+        run: npx tsx prisma/seed.ts
+
+      - name: Start API for shell E2E
+        working-directory: apps/api
+        env:
+          NODE_ENV: development
+          AUTO_SETTLE: "true"
+        run: |
+          npm run start &
+          for i in $(seq 1 45); do
+            curl -sf http://localhost:3002/health && break
+            sleep 2
+          done
+          curl -sf http://localhost:3002/health
+
+      - name: Shell E2E
+        env:
+          STAGING_API_URL: http://localhost:3002
+          NODE_ENV: development
+        run: |
+          npm run staging:e2e
+          npm run staging:partner-e2e

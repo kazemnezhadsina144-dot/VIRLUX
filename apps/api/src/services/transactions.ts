@@ -1,14 +1,33 @@
-import crypto from "crypto";
 import { prisma } from "../lib/prisma";
 import { config } from "../lib/config";
 import { AppError } from "../lib/errors";
-import { debit, credit } from "./ledger";
+import { debit } from "./ledger";
 import { toCadEquivalent } from "./rates";
 import { logger } from "../lib/logger";
 import { notifyTransactionCreated } from "../telegram/handlers";
-import { isCircleEnabled, pollTransferComplete, transferUsdc } from "../integrations/circle/client";
+import { getSettlementExecutor, scheduleSettlement } from "./settlement";
+import { assertPilotCorridor, assertPartnerAttestedFunding } from "./transaction-guards";
+import { failTransaction } from "./transaction-failure";
+
+export { failTransaction };
 
 const SEND_ROLES = new Set(["owner", "admin", "approver"]);
+
+async function triggerSettlement(txId: string) {
+  if (config.settlementMode === "partner") {
+    try {
+      await getSettlementExecutor().submitInstruction(txId);
+    } catch (e) {
+      logger.error("Partner settlement instruction failed", { txId, err: String(e) });
+    }
+    return;
+  }
+  if (config.settlementMode === "disabled") {
+    return;
+  }
+  // sandbox + direct (Path A): Virlux executes settlement via configured rails
+  scheduleSettlement(txId);
+}
 
 export async function createTransaction(input: {
   userId: string;
@@ -26,6 +45,9 @@ export async function createTransaction(input: {
   if (!SEND_ROLES.has(user.role)) {
     throw new AppError(403, "Your role cannot initiate payments", "FORBIDDEN");
   }
+
+  await assertPartnerAttestedFunding(input.userId);
+  await assertPilotCorridor(input.userId, input.recipientCountry);
 
   const tx = await prisma.$transaction(async (db) => {
     if (input.idempotencyKey) {
@@ -85,6 +107,7 @@ export async function createTransaction(input: {
         memo: input.memo,
         status: needsApproval ? "awaiting_approval" : "processing",
         needsApproval,
+        settlementMode: config.settlementMode,
       },
     });
 
@@ -92,15 +115,15 @@ export async function createTransaction(input: {
       data: {
         userId: input.userId,
         action: "transaction.created",
-        metadata: { transactionId: created.id, amountIn, fromCurrency, amountInCad },
+        metadata: { transactionId: created.id, amountIn, fromCurrency, amountInCad, orchestration: true },
       },
     });
 
     return created;
   });
 
-  if (!tx.needsApproval && config.autoSettle) {
-    scheduleSettlement(tx.id);
+  if (!tx.needsApproval) {
+    await triggerSettlement(tx.id);
   }
 
   notifyTransactionCreated(tx).catch((e) => logger.error("Telegram notify failed", { err: String(e) }));
@@ -158,7 +181,7 @@ export async function approveTransaction(txId: string, approverId: string) {
     },
   });
 
-  if (config.autoSettle) scheduleSettlement(tx.id);
+  await triggerSettlement(tx.id);
   return result;
 }
 
@@ -213,125 +236,20 @@ export async function cancelTransaction(txId: string, userId: string) {
   return updated;
 }
 
-export function scheduleSettlement(txId: string) {
-  setTimeout(async () => {
-    try {
-      await settleTransaction(txId);
-    } catch (e) {
-      logger.error("Settlement failed", { txId, err: String(e) });
-    }
-  }, 2500);
-}
-
-export async function settleTransaction(txId: string) {
-  const tx = await prisma.transaction.findUnique({ where: { id: txId } });
-  if (!tx || tx.status !== "processing") return tx;
-
-  const amountOut = Number(tx.amountOut);
-  const isExternalRemittance = Boolean(tx.recipientWallet?.trim());
-  let txHash: string | undefined;
-  let circleTransferId: string | undefined;
-
-  if (isExternalRemittance) {
-    if (isCircleEnabled()) {
-      try {
-        const chainMap = { ethereum: "ETH", polygon: "MATIC", solana: "SOL" } as const;
-        const circle = await transferUsdc({
-          amount: amountOut.toFixed(2),
-          destinationAddress: tx.recipientWallet!,
-          idempotencyKey: `virlux-${tx.id}`,
-          network: chainMap[tx.network],
-        });
-        circleTransferId = circle.id;
-        const final =
-          circle.status === "complete" ? circle : await pollTransferComplete(circle.id);
-        if (final.status === "failed" || final.status === "cancelled") {
-          logger.error("Circle transfer failed on chain", { txId, status: final.status });
-          return failTransaction(txId, `Circle transfer ${final.status}`);
-        }
-        txHash = final.transactionHash;
-        circleTransferId = final.id;
-        logger.info("Circle transfer completed", { txId, circleTransferId, status: final.status });
-      } catch (e) {
-        logger.error("Circle transfer failed", { txId, err: String(e) });
-        return failTransaction(txId, "Circle settlement failed");
-      }
-    } else if (config.autoSettle) {
-      txHash = `0x${crypto.randomBytes(32).toString("hex")}`;
-    } else {
-      return failTransaction(txId, "Circle not configured for external settlement");
-    }
-  } else {
-    await credit(tx.userId, "USDC", amountOut, "transaction", tx.id, `USDC purchase ${tx.id}`);
-    if (config.autoSettle) {
-      txHash = `0x${crypto.randomBytes(32).toString("hex")}`;
-    }
-  }
-
-  const settled = await prisma.transaction.updateMany({
-    where: { id: txId, status: "processing" },
-    data: {
-      status: "confirmed",
-      txHash: txHash ?? null,
-      circleTransferId: circleTransferId ?? null,
-      settledAt: new Date(),
-    },
-  });
-  if (settled.count === 0) return tx;
-
-  const updated = await prisma.transaction.findUniqueOrThrow({ where: { id: txId } });
-
-  await prisma.auditLog.create({
-    data: {
-      userId: tx.userId,
-      action: "transaction.settled",
-      metadata: { transactionId: tx.id, txHash, circleTransferId, external: isExternalRemittance },
-    },
-  });
-
-  return updated;
-}
-
-export async function failTransaction(txId: string, reason: string) {
-  const tx = await prisma.transaction.findUnique({ where: { id: txId } });
-  if (!tx) throw new AppError(404, "Transaction not found");
-
-  if (!["pending", "processing", "awaiting_approval"].includes(tx.status)) {
-    throw new AppError(409, "Transaction cannot be failed in current status", "INVALID_STATUS");
-  }
-
-  const fromCurrency = tx.fromCurrency as "CAD" | "USD";
-  await credit(tx.userId, fromCurrency, Number(tx.amountIn), "transaction_refund", tx.id, `Refund ${tx.id}`);
-
-  const failed = await prisma.transaction.updateMany({
-    where: {
-      id: txId,
-      status: { in: ["pending", "processing", "awaiting_approval"] },
-    },
-    data: { status: "failed", failureReason: reason },
-  });
-  if (failed.count === 0) {
-    throw new AppError(409, "Transaction already finalized", "CONFLICT");
-  }
-
-  return prisma.transaction.findUniqueOrThrow({ where: { id: txId } });
-}
-
 export async function listTransactionsForUser(userId: string, statusFilter?: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  const whereBase =
-    user?.organizationId
-      ? {
-          userId: {
-            in: (
-              await prisma.user.findMany({
-                where: { organizationId: user.organizationId },
-                select: { id: true },
-              })
-            ).map((u) => u.id),
-          },
-        }
-      : { userId };
+  const whereBase = user?.organizationId
+    ? {
+        userId: {
+          in: (
+            await prisma.user.findMany({
+              where: { organizationId: user.organizationId },
+              select: { id: true },
+            })
+          ).map((u) => u.id),
+        },
+      }
+    : { userId };
 
   const where =
     statusFilter && statusFilter !== "all"

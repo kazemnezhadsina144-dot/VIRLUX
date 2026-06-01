@@ -19,6 +19,8 @@ import auditRoutes from "./routes/audit";
 import teamRoutes from "./routes/team";
 import accountRoutes from "./routes/account";
 import circleRoutes from "./routes/circle";
+import platformRoutes from "./routes/platform";
+import partnerRoutes from "./routes/partner";
 import { botStatus } from "./telegram/polling";
 
 const FORBIDDEN = PORTS.forbidden;
@@ -82,10 +84,17 @@ app.use("/api/meta", metaRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/team", teamRoutes);
 app.use("/api/account", accountRoutes);
+app.use("/api/platform", platformRoutes);
+app.use("/api/partner", partnerRoutes);
 
 app.use(errorHandler);
 
 app.listen(port, () => {
-  logger.info("VIRLUX API started", { port, env: config.env, autoSettle: config.autoSettle });
+  logger.info("VIRLUX API started", {
+    port,
+    env: config.env,
+    autoSettle: config.autoSettle,
+    settlementMode: config.settlementMode,
+  });
   initTelegramTransport().catch((e) => logger.error("Telegram init failed", { err: String(e) }));
 });

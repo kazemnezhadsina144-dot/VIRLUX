@@ -1,29 +1,61 @@
-/** VIRLUX — same product rules/tune as Kavodax clone spec */
+/** VIRLUX — Canadian B2B cross-border payments; product rules modeled on industry best practices. */
+
+export { PUBLIC_COPY, POSITIONING } from "./public-copy";
 
 export const COMPANY = {
   legalName: "Virlux Inc.",
   brandName: "VIRLUX",
   foundedYear: 2025,
-  address: "2 Simcoe St S Ste 300, Oshawa, ON L1H 8C1",
+  address: "Vancouver, BC, Canada",
   email: "contact@virlux.com",
-  phone: "(437) 436-0034",
+  phone: "",
   website: "https://virlux.com",
   appUrl: "https://app.virlux.com",
 } as const;
 
 export const COMPLIANCE = {
-  /** Do not claim MSB registration until legally verified and number published */
+  /** Flip to true ONLY when MSB registration is verified + counsel approves public MSB # */
   fintracMsbClaim: false,
   kycTargetBusinessDays: 2,
   roleBasedApprovals: true,
   auditTrail: true,
 } as const;
 
+/**
+ * Public compliance phrases — marketing and legal pages only.
+ * Internal messaging strategy lives in todolist/ (never shipped).
+ */
+export const COMPLIANCE_MESSAGING = {
+  publicAllowed: [
+    "Compliance built into every payment",
+    "Business verification",
+    "Role-based approvals",
+    "Complete payment history",
+    "Built for Canadian businesses",
+  ] as const,
+  publicForbiddenUntilRegistered: [
+    "FINTRAC registered",
+    "Registered MSB",
+    "Licensed MSB",
+    "Licensed money services business",
+    "We are an MSB",
+  ] as const,
+} as const;
+
+/** Public marketing copy — see public-copy.ts and todolist/PUBLIC-BLUEPRINT.md */
+
 export const PRICING = {
   flatFeePercent: 1,
   rateSources: ["frankfurter", "coingecko"] as const,
   showGasUpfront: true,
   noHiddenFxSpreads: true,
+} as const;
+
+/** MSB-sponsored channel fee split (basis points of payment amount in CAD) */
+export const PARTNER_PRICING = {
+  msbSponsoredTotalBps: 125,
+  platformDefaultBps: 90,
+  partnerDefaultRevShareBps: 35,
 } as const;
 
 export const COVERAGE = {

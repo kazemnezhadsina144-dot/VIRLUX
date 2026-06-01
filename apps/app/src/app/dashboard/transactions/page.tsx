@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { useAuth, canApprove } from "@/lib/auth-context";
+import { formatSmeTxStatus } from "@virlux/shared";
 
 type Tx = {
   id: string;
@@ -46,8 +47,8 @@ export default function TransactionsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white">Transactions</h1>
-      <p className="mt-1 text-sm text-slate-400">Organization-wide payment history and approvals</p>
+      <h1 className="text-2xl font-bold text-white">Payments</h1>
+      <p className="mt-1 text-sm text-slate-400">History and approvals for your organization</p>
 
       <div className="mt-4 flex gap-2">
         <FilterBtn active={filter === "all"} onClick={() => setFilter("all")}>
@@ -60,7 +61,7 @@ export default function TransactionsPage() {
 
       {approver && filter === "awaiting_approval" && txs.length > 0 && (
         <div className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-200">
-          {txs.length} payment(s) need approver action (maker-checker applies)
+          {txs.length} payment(s) awaiting your approval
         </div>
       )}
 
@@ -70,8 +71,7 @@ export default function TransactionsPage() {
             <tr>
               <th className="py-2 pr-4">Date</th>
               <th className="py-2 pr-4">Amount</th>
-              <th className="py-2 pr-4">Out</th>
-              <th className="py-2 pr-4">Network</th>
+              <th className="py-2 pr-4">Recipient gets</th>
               <th className="py-2 pr-4">Status</th>
               <th className="py-2">Actions</th>
             </tr>
@@ -84,9 +84,8 @@ export default function TransactionsPage() {
                   {tx.amountIn} {tx.fromCurrency}
                 </td>
                 <td className="py-3 pr-4">
-                  {tx.amountOut} {tx.toStablecoin}
+                  ≈ {tx.amountOut}
                 </td>
-                <td className="py-3 pr-4 capitalize">{tx.network}</td>
                 <td className="py-3 pr-4">
                   <span
                     className={
@@ -97,7 +96,7 @@ export default function TransactionsPage() {
                           : "badge-slate"
                     }
                   >
-                    {tx.status.replace("_", " ")}
+                    {formatSmeTxStatus(tx.status)}
                   </span>
                 </td>
                 <td className="py-3">

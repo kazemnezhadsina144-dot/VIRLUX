@@ -31,5 +31,5 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAb23qg+D2netWi2ShE3d0GZjIS0QaFsCXfmvo3nw54f
 ## After push
 
 1. Open PR: `cursor/virlux-v2-platform-and-todolist` → `main`
-2. Deploy staging: [`todolist/staging-deploy.md`](todolist/staging-deploy.md)
+2. Deploy staging: `RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:wire`
 3. Run GitHub Action **Staging smoke** with Railway API URL

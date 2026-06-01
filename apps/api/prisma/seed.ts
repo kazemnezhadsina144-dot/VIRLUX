@@ -21,6 +21,23 @@ async function main() {
     },
   });
 
+  const partner = await prisma.partner.upsert({
+    where: { id: "seed-partner-demo" },
+    update: {},
+    create: {
+      id: "seed-partner-demo",
+      legalName: "Demo MSB Partner Ltd.",
+      fintracMsbNumber: "M00000000",
+      revShareBps: 35,
+      contactEmail: "partner@example.com",
+    },
+  });
+
+  await prisma.organization.update({
+    where: { id: org.id },
+    data: { partnerId: partner.id },
+  });
+
   const passwordHash = await bcrypt.hash("demo12345", 12);
   const user = await prisma.user.upsert({
     where: { email: "demo@virlux.com" },
