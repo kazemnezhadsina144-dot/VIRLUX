@@ -4,8 +4,10 @@ generator client {
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
-// Supabase hosts Postgres; tables in `public` are exposed via PostgREST unless RLS is on.
-// Every new table migration MUST include: ALTER TABLE "<Model>" ENABLE ROW LEVEL SECURITY;
+// Supabase hosts Postgres; tables in `public` are exposed via PostgREST unless locked down.
+// Every new table migration MUST include:
+//   ALTER TABLE "<Model>" ENABLE ROW LEVEL SECURITY;
+//   REVOKE ALL ON TABLE "<Model>" FROM anon, authenticated;
 // (no anon/authenticated policies — API uses Prisma/DATABASE_URL only).
 datasource db {
   provider = "postgresql"

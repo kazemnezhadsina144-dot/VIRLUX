@@ -61,6 +61,8 @@ export const config = {
   rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS ?? 60_000),
   rateLimitMax: Number(process.env.RATE_LIMIT_MAX ?? 120),
   authRateLimitMax: Number(process.env.AUTH_RATE_LIMIT_MAX ?? 10),
+  quoteEstimateRateLimitMax: Number(process.env.QUOTE_ESTIMATE_RATE_LIMIT_MAX ?? 30),
+  allowOpenRegistration: isDev || process.env.ALLOW_OPEN_REGISTRATION === "true",
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
   telegramBotName: process.env.TELEGRAM_BOT_NAME ?? "VIRLUXBOT",
   telegramMode,

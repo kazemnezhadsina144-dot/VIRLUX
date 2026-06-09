@@ -56,14 +56,30 @@ fi
 
 # Supabase: new Prisma tables must enable RLS (blocks anon/authenticated PostgREST)
 RLS_BASELINE="20250608000000_enable_rls"
+REVOKE_BASELINE="20250609000000_revoke_postgrest_grants"
 for mig in "$ROOT"/apps/api/prisma/migrations/*/migration.sql; do
   dir=$(basename "$(dirname "$mig")")
-  [[ "$dir" == "$RLS_BASELINE" ]] && continue
+  [[ "$dir" == "$RLS_BASELINE" || "$dir" == "$REVOKE_BASELINE" ]] && continue
   [[ "$dir" < "$RLS_BASELINE" ]] && continue
-  if grep -qiE 'CREATE TABLE' "$mig" && ! grep -qi 'ENABLE ROW LEVEL SECURITY' "$mig"; then
-    fail "Migration $dir creates table(s) without ENABLE ROW LEVEL SECURITY (Supabase exposure)"
+  if grep -qiE 'CREATE TABLE' "$mig"; then
+    if ! grep -qi 'ENABLE ROW LEVEL SECURITY' "$mig"; then
+      fail "Migration $dir creates table(s) without ENABLE ROW LEVEL SECURITY (Supabase exposure)"
+    fi
+    if [[ "$dir" > "$REVOKE_BASELINE" || "$dir" == "$REVOKE_BASELINE" ]] && ! grep -qi 'REVOKE ALL' "$mig"; then
+      fail "Migration $dir creates table(s) without REVOKE ALL FROM anon, authenticated"
+    fi
   fi
 done
+
+# Never ship Supabase secret/service_role keys or browser Supabase client env vars
+if git grep -nE 'NEXT_PUBLIC_SUPABASE_|SUPABASE_SERVICE_ROLE|service_role' -- apps/web apps/app packages/shared api 2>/dev/null; then
+  fail "Supabase client or service_role keys must not appear in shipped frontend/API code"
+fi
+
+if git grep -nE 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' -- apps apps/api packages api \
+  ':!scripts/ci-guards.sh' 2>/dev/null; then
+  fail "Possible committed JWT/API key in source — use env vars only"
+fi
 
 if [ "$FAILED" -ne 0 ]; then
   exit 1

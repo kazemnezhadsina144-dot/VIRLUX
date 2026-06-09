@@ -3,6 +3,7 @@ import { z } from "zod";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { requireAuth } from "../middleware/auth";
 import { clearAuthCookies, parseCookies, REFRESH_COOKIE, setAuthCookies } from "../lib/cookies";
+import { config } from "../lib/config";
 import * as authService from "../services/auth";
 
 const router = Router();
@@ -22,6 +23,9 @@ function sendAuth(res: import("express").Response, result: Awaited<ReturnType<ty
 router.post(
   "/register",
   asyncHandler(async (req, res) => {
+    if (!config.allowOpenRegistration) {
+      return res.status(403).json({ error: "Registration is disabled", code: "REGISTRATION_DISABLED" });
+    }
     const parsed = registerSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
     const result = await authService.registerUser(parsed.data);
