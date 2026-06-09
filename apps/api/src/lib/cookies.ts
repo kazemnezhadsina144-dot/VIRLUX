@@ -25,7 +25,8 @@ export function parseCookies(req: Pick<Request, "headers">): Record<string, stri
 
 function cookieFlags(maxAge: number): string {
   const secure = config.isProd ? "; Secure" : "";
-  const sameSite = config.isProd ? "SameSite=None" : "SameSite=Lax";
+  // Lax: dashboard uses same-origin /api proxy — blocks cross-site CSRF while allowing top-level login.
+  const sameSite = "SameSite=Lax";
   return `Path=/; HttpOnly; ${sameSite}${secure}; Max-Age=${maxAge}`;
 }
 
@@ -36,8 +37,7 @@ export function setAuthCookies(res: Response, accessToken: string, refreshToken:
 
 export function clearAuthCookies(res: Response) {
   const secure = config.isProd ? "; Secure" : "";
-  const sameSite = config.isProd ? "SameSite=None" : "SameSite=Lax";
-  const flags = `Path=/; HttpOnly; ${sameSite}${secure}; Max-Age=0`;
+  const flags = `Path=/; HttpOnly; SameSite=Lax${secure}; Max-Age=0`;
   res.append("Set-Cookie", `${ACCESS_COOKIE}=; ${flags}`);
   res.append("Set-Cookie", `${REFRESH_COOKIE}=; ${flags}`);
 }

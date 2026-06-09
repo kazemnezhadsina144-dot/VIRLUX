@@ -6,6 +6,7 @@ import rateLimit from "express-rate-limit";
 import { PORTS } from "@virlux/shared";
 import { config, circleConfigured } from "./lib/config";
 import { errorHandler } from "./middleware/errorHandler";
+import { originGuard } from "./middleware/originGuard";
 import telegramRoutes from "./telegram/webhook";
 import { pingCircle } from "./integrations/circle/client";
 import authRoutes from "./routes/auth";
@@ -38,13 +39,20 @@ if (process.env.VERCEL || process.env.TRUST_PROXY === "1") {
   app.set("trust proxy", 1);
 }
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    hsts: { maxAge: 31_536_000, includeSubDomains: true },
+  })
+);
 app.use(cors({ origin: config.corsOrigins, credentials: true }));
 
 app.use("/api/telegram", telegramRoutes);
 app.use("/api/circle", circleRoutes);
 
 app.use(express.json({ limit: "1mb" }));
+app.use(originGuard);
 
 const authLimiter = rateLimit({
   windowMs: config.rateLimitWindowMs,

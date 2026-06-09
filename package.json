@@ -22,6 +22,7 @@
     "verify:analytics": "bash scripts/verify-analytics.sh",
     "verify:book-demo": "bash scripts/verify-book-demo.sh",
     "verify:supabase-security": "bash scripts/verify-supabase-security.sh",
+    "verify:security-headers": "bash scripts/verify-security-headers.sh",
     "verify:full": "bash scripts/verify-full.sh",
     "agent:self-audit": "bash scripts/agent-self-audit.sh",
     "plan:virlux-1000:generate": "python3 scripts/generate-virlux-1000-prompts.py",

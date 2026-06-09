@@ -8,6 +8,7 @@ cd "$ROOT"
 echo "== verify:full =="
 npm run verify:live
 npm run verify:supabase-security
+npm run verify:security-headers
 npm run verify:analytics
 
 echo ""

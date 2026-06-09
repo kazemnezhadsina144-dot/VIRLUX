@@ -150,7 +150,7 @@ export function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={8}
+                minLength={mode === "register" ? 12 : 8}
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
               />
             </label>

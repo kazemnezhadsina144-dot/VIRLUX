@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { COMPANY } from "@virlux/shared";
+import { COMPANY, CLIENT_COPY } from "@virlux/shared";
 
 export default function PrivacyPage() {
   return (
@@ -76,6 +76,24 @@ export default function PrivacyPage() {
           </section>
 
           <section>
+            <h2 className="text-lg font-semibold text-white">Security safeguards</h2>
+            <p className="mt-2">
+              We apply safeguards proportionate to the sensitivity of financial and identity data,
+              including encryption in transit (TLS), hashed credentials, role-based access,
+              httpOnly session cookies, rate limiting, audit logging, and restricted database access.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-white">Breach notification</h2>
+            <p className="mt-2">
+              If a breach of security safeguards creates a real risk of significant harm, we will
+              notify affected individuals and the Office of the Privacy Commissioner of Canada as
+              required by PIPEDA, and document our assessment and response.
+            </p>
+          </section>
+
+          <section>
             <h2 className="text-lg font-semibold text-white">Contact</h2>
             <p className="mt-2">
               Privacy inquiries:{" "}
@@ -94,6 +112,9 @@ export default function PrivacyPage() {
               ) : null}
             </p>
           </section>
+          <p className="mt-10 border-t border-white/[0.06] pt-6 text-xs text-slate-500">
+            {CLIENT_COPY.legalFooterDisclaimer} Draft for counsel review — not legal advice.
+          </p>
         </div>
       </main>
       <Footer />

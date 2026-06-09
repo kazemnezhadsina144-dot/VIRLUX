@@ -35,6 +35,10 @@ if git ls-files 'test-results/' 'playwright-report/' 2>/dev/null | grep -q .; th
   fail "Playwright test-results/ or playwright-report/ is tracked — add to .gitignore and git rm --cached"
 fi
 
+if ! git ls-files --error-unmatch apps/web/public/.well-known/security.txt >/dev/null 2>&1; then
+  fail "Missing apps/web/public/.well-known/security.txt (responsible disclosure)"
+fi
+
 # MSB public claims while fintracMsbClaim is false
 if grep -q 'fintracMsbClaim: false' packages/shared/src/constants.ts; then
   for phrase in "FINTRAC registered" "Registered MSB" "Licensed MSB" "We are an MSB"; do

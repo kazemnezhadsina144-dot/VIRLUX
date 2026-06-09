@@ -25,7 +25,7 @@ npm run db:migrate && npm run db:seed
 npm run dev                 # web:3100, app:3001, api:3002
 ```
 
-**Demo login (dev seed only):** `demo@virlux.com` / `demo12345`
+**Demo login (local/staging seed only):** see founder runbook — credentials are not published in this repo.
 
 If ports are stuck: `npm run dev` runs preflight and kills stale listeners on 3100/3001/3002.
 

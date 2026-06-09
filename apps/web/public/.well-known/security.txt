@@ -1,0 +1,7 @@
+Contact: mailto:contact@virlux.com
+Contact: https://virlux.com/privacy
+Preferred-Languages: en
+Canonical: https://virlux.com/.well-known/security.txt
+Policy: https://virlux.com/privacy
+Acknowledgments: We appreciate responsible disclosure from the Canadian security community.
+Expires: 2027-06-01T00:00:00.000Z
