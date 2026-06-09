@@ -46,6 +46,25 @@ if git grep -ni 'kavodax' -- apps/web apps/app packages/shared \
   fail "Competitor name must not appear in shipped code"
 fi
 
+# Identity copy framing — forbidden competitor-imitation wording on public surfaces
+COPY_WORD=$(printf '%s%s' 'cl' 'one')
+if git grep -niE "\\b${COPY_WORD}\\b|\\b${COPY_WORD}ing\\b" -- apps/web apps/app packages/shared \
+  ':!packages/shared/src/drift-prevention.ts' \
+  ':!packages/shared/src/drift-prevention.test.ts' 2>/dev/null; then
+  fail "Public surfaces must not use competitor-imitation wording"
+fi
+
+# Supabase: new Prisma tables must enable RLS (blocks anon/authenticated PostgREST)
+RLS_BASELINE="20250608000000_enable_rls"
+for mig in "$ROOT"/apps/api/prisma/migrations/*/migration.sql; do
+  dir=$(basename "$(dirname "$mig")")
+  [[ "$dir" == "$RLS_BASELINE" ]] && continue
+  [[ "$dir" < "$RLS_BASELINE" ]] && continue
+  if grep -qiE 'CREATE TABLE' "$mig" && ! grep -qi 'ENABLE ROW LEVEL SECURITY' "$mig"; then
+    fail "Migration $dir creates table(s) without ENABLE ROW LEVEL SECURITY (Supabase exposure)"
+  fi
+done
+
 if [ "$FAILED" -ne 0 ]; then
   exit 1
 fi
