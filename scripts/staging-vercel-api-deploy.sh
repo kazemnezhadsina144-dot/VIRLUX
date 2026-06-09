@@ -53,9 +53,9 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     fi
     echo "  $key"
     if [[ ${#TOKEN_ARGS[@]} -gt 0 ]]; then
-      echo "$val" | $VERCEL env add "$key" production "${TOKEN_ARGS[@]}" --scope "$SCOPE" -p virlux-api --force 2>/dev/null || true
+      (cd "$ROOT" && echo "$val" | $VERCEL env add "$key" production "${TOKEN_ARGS[@]}" --scope "$SCOPE" --force 2>/dev/null) || true
     else
-      echo "$val" | $VERCEL env add "$key" production --scope "$SCOPE" -p virlux-api --force 2>/dev/null || true
+      (cd "$ROOT" && echo "$val" | $VERCEL env add "$key" production --scope "$SCOPE" --force 2>/dev/null) || true
     fi
     break
   done
