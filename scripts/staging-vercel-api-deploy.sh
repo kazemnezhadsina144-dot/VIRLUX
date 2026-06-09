@@ -69,9 +69,9 @@ cp "$ROOT/vercel.api.json" "$ROOT/vercel.json"
 trap 'mv "$ROOT/vercel.json.web.bak" "$ROOT/vercel.json"' EXIT
 
 if [[ ${#TOKEN_ARGS[@]} -gt 0 ]]; then
-  $VERCEL "${TOKEN_ARGS[@]}" deploy --yes --scope "$SCOPE" --project virlux-api --cwd "$ROOT" --prod 2>&1 | tee /tmp/vercel-virlux-api.log | tail -25
+  $VERCEL "${TOKEN_ARGS[@]}" deploy --yes --archive=tgz --scope "$SCOPE" --project virlux-api --cwd "$ROOT" --prod 2>&1 | tee /tmp/vercel-virlux-api.log | tail -25
 else
-  $VERCEL deploy --yes --scope "$SCOPE" --project virlux-api --cwd "$ROOT" --prod 2>&1 | tee /tmp/vercel-virlux-api.log | tail -25
+  $VERCEL deploy --yes --archive=tgz --scope "$SCOPE" --project virlux-api --cwd "$ROOT" --prod 2>&1 | tee /tmp/vercel-virlux-api.log | tail -25
 fi
 
 API_URL=$(grep -oE 'https://[a-zA-Z0-9.-]+\.vercel\.app' /tmp/vercel-virlux-api.log | tail -1 || true)
