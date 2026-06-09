@@ -8,7 +8,6 @@ import {
   SUPPORTED_COUNTRIES,
   USE_CASES,
   FAQ_ITEMS,
-  PORTS,
 } from "@virlux/shared";
 
 const router = Router();
@@ -23,7 +22,6 @@ router.get("/config", (_req, res) => {
     countries: SUPPORTED_COUNTRIES,
     useCases: USE_CASES,
     faq: FAQ_ITEMS,
-    ports: PORTS,
     approvalThresholdCad: Number(process.env.APPROVAL_THRESHOLD ?? 5000),
     demoApprovalThresholdCad: process.env.DEMO_APPROVAL_THRESHOLD
       ? Number(process.env.DEMO_APPROVAL_THRESHOLD)

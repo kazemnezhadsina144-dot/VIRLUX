@@ -28,7 +28,7 @@ async function main() {
     update: { webhookSecret: "demo-webhook-secret-16" },
     create: {
       id: "seed-partner-demo",
-      legalName: "Demo MSB Partner Ltd.",
+      legalName: "Demo Settlement Partner Ltd.",
       fintracMsbNumber: "M00000000",
       revShareBps: 35,
       contactEmail: "partner@example.com",
@@ -88,7 +88,7 @@ async function main() {
     },
   });
 
-  console.log("Seeded demo accounts: demo@virlux.com, approver@virlux.demo (password: demo12345)");
+  console.log("Seeded demo accounts: demo@virlux.com, approver@virlux.demo");
 }
 
 main().finally(() => prisma.$disconnect());

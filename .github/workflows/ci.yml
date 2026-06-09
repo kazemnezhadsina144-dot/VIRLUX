@@ -27,6 +27,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://virlux:virlux@localhost:5432/virlux
+      DIRECT_URL: postgresql://virlux:virlux@localhost:5432/virlux
       JWT_SECRET: ci-test-secret-min-32-characters-long
       TELEGRAM_MODE: polling
       TELEGRAM_BOT_TOKEN: ""

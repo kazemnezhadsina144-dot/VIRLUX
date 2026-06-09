@@ -4,13 +4,13 @@ import { forwardSetCookies } from "@/lib/api-proxy";
 
 const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002").replace(/\/$/, "");
 
-/** Proxy /api/* to Railway API and forward Set-Cookie headers (auth cookies). */
+/** Proxy /api/* to live API base URL and forward Set-Cookie headers (auth cookies). */
 async function proxy(req: NextRequest, path: string) {
   if (isInvalidApiUrl(API)) {
     return NextResponse.json(
       {
         error: "API not configured",
-        hint: "Set NEXT_PUBLIC_API_URL on Vercel to your live Railway API URL, then redeploy virlux-app",
+        hint: "Set NEXT_PUBLIC_API_URL on Vercel to your live API URL, then redeploy virlux-app",
       },
       { status: 503 }
     );
@@ -32,10 +32,9 @@ async function proxy(req: NextRequest, path: string) {
   let upstream: Response;
   try {
     upstream = await fetch(url, init);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+  } catch {
     return NextResponse.json(
-      { error: "API unreachable", hint: "Check NEXT_PUBLIC_API_URL and Railway API health", detail: msg },
+      { error: "API unreachable", hint: "Check NEXT_PUBLIC_API_URL and API /health" },
       { status: 502 }
     );
   }

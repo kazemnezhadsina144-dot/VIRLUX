@@ -45,8 +45,9 @@ export async function createInvite(input: {
     },
   });
 
+  const { token: _token, ...invitePublic } = invite;
   return {
-    invite,
+    invite: invitePublic,
     acceptUrl: `${config.appPublicUrl}/?invite=${token}`,
   };
 }

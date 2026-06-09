@@ -28,6 +28,8 @@ export function LoginForm() {
     setShowDemoHint(false);
   }
 
+  const showRegister = demoMode || process.env.NODE_ENV === "development";
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setMsg("");
@@ -39,7 +41,7 @@ export function LoginForm() {
       } else {
         await api("/api/auth/register", {
           method: "POST",
-          body: JSON.stringify({ email, password, fullName, organizationName: orgName }),
+          body: JSON.stringify({ email, password, fullName, companyName: orgName }),
         });
         trackEvent("register");
         setMsgType("success");
@@ -48,7 +50,12 @@ export function LoginForm() {
       }
     } catch (err) {
       setMsgType("error");
-      setMsg(err instanceof Error ? err.message : "Something went wrong");
+      const raw = err instanceof Error ? err.message : "Something went wrong";
+      const friendly =
+        raw.includes("API unreachable") || raw.includes("Application not found") || raw.includes("502")
+          ? "Dashboard is temporarily unavailable. Try again shortly or book a demo from virlux.com."
+          : raw;
+      setMsg(friendly);
     } finally {
       setLoading(false);
     }
@@ -78,15 +85,17 @@ export function LoginForm() {
             >
               Sign in
             </button>
-            <button
-              type="button"
-              onClick={() => setMode("register")}
-              className={`flex-1 rounded-lg py-2 text-sm font-medium transition ${
-                mode === "register" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white"
-              }`}
-            >
-              Register
-            </button>
+            {showRegister && (
+              <button
+                type="button"
+                onClick={() => setMode("register")}
+                className={`flex-1 rounded-lg py-2 text-sm font-medium transition ${
+                  mode === "register" ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Register
+              </button>
+            )}
           </div>
 
           {(demoMode || process.env.NODE_ENV === "development") && (
@@ -122,8 +131,8 @@ export function LoginForm() {
                 </div>
               </>
             )}
-            <div>
-              <label className="block text-sm text-slate-400">Email</label>
+            <label className="block text-sm text-slate-400">
+              Email
               <input
                 type="email"
                 className="input-field mt-1"
@@ -132,9 +141,9 @@ export function LoginForm() {
                 required
                 autoComplete="email"
               />
-            </div>
-            <div>
-              <label className="block text-sm text-slate-400">Password</label>
+            </label>
+            <label className="block text-sm text-slate-400">
+              Password
               <input
                 type="password"
                 className="input-field mt-1"
@@ -144,7 +153,7 @@ export function LoginForm() {
                 minLength={8}
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
               />
-            </div>
+            </label>
             {msg && (
               <p className={`text-sm ${msgType === "success" ? "text-emerald-400" : "text-red-400"}`}>{msg}</p>
             )}

@@ -11,7 +11,12 @@ todolist/
 .DS_Store
 .cursor/
 .vercel/
+.vercel-api-link/
+.vercel-link-*/
 apps/api/prisma/*.db
 apps/api/prisma/**/*.db
 apps/api/prisma/*.db-journal
-.vercel
+test-results/
+playwright-report/
+reports/
+.sina-agent/

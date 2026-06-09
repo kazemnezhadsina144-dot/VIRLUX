@@ -30,6 +30,11 @@ if git ls-files 'todolist/' 2>/dev/null | grep -q .; then
   fail "todolist/ is tracked — run: git rm -r --cached todolist/"
 fi
 
+# Playwright artifacts may contain page dumps — never commit
+if git ls-files 'test-results/' 'playwright-report/' 2>/dev/null | grep -q .; then
+  fail "Playwright test-results/ or playwright-report/ is tracked — add to .gitignore and git rm --cached"
+fi
+
 # MSB public claims while fintracMsbClaim is false
 if grep -q 'fintracMsbClaim: false' packages/shared/src/constants.ts; then
   for phrase in "FINTRAC registered" "Registered MSB" "Licensed MSB" "We are an MSB"; do
