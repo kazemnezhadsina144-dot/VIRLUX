@@ -18,5 +18,7 @@ apps/api/prisma/**/*.db
 apps/api/prisma/*.db-journal
 test-results/
 playwright-report/
+e2e/.auth/
 reports/
 .sina-agent/
+.vercel

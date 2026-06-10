@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { resolveE2eDemoPassword } from "@virlux/shared";
-import { asideNav, loginAsDemo, loginFromNextRedirect, tryAddDemoFunds } from "./helpers";
+import { loginAsDemo, loginFromNextRedirect, tryAddDemoFunds, goToSend } from "./helpers";
 
 const DEMO_PASSWORD = resolveE2eDemoPassword();
 
@@ -11,13 +11,8 @@ test.describe("send payment flow", () => {
   test("quote and send payment", async ({ page }) => {
     test.skip(!process.env.E2E_DEMO_LOGIN, "Set E2E_DEMO_LOGIN=1 with local seed");
 
-    await loginAsDemo(page);
     await tryAddDemoFunds(page);
-
-    const send = asideNav(page).getByRole("link", { name: /Send/i });
-    await expect(send).toBeVisible({ timeout: 10000 });
-    await send.click();
-    await expect(page.getByRole("heading", { name: /Send payment/i })).toBeVisible();
+    await goToSend(page);
 
     await page.getByRole("button", { name: "Confirm rate" }).click();
     await expect(page.getByText(/Recipient receives/i)).toBeVisible({ timeout: 10000 });
@@ -28,16 +23,20 @@ test.describe("send payment flow", () => {
     await page.getByRole("button", { name: "Send payment" }).click();
 
     await expect(
-      page.getByText(/Payment sent|awaiting approval|status:|deposit is required/i)
+      page.getByText(/Payment sent|awaiting approval|Pending approval|deposit is required/i)
     ).toBeVisible({ timeout: 15000 });
   });
 
-  test("middleware preserves next after login", async ({ page }) => {
-    test.skip(!process.env.E2E_DEMO_LOGIN, "Set E2E_DEMO_LOGIN=1 with local seed");
+  test.describe("unauthenticated redirect", () => {
+    test.use({ storageState: { cookies: [], origins: [] } });
 
-    await loginFromNextRedirect(page, "/dashboard/send", "demo@virlux.com", DEMO_PASSWORD);
-    await expect(page.getByRole("heading", { name: /Send payment/i })).toBeVisible({
-      timeout: 10000,
+    test("middleware preserves next after login", async ({ page }) => {
+      test.skip(!process.env.E2E_DEMO_LOGIN, "Set E2E_DEMO_LOGIN=1 with local seed");
+
+      await loginFromNextRedirect(page, "/dashboard/send", "demo@virlux.com", DEMO_PASSWORD);
+      await expect(page.getByRole("heading", { name: /Send payment/i })).toBeVisible({
+        timeout: 15000,
+      });
     });
   });
 });

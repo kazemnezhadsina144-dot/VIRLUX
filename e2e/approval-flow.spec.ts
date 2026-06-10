@@ -1,8 +1,10 @@
 import { test, expect } from "@playwright/test";
+import path from "node:path";
 import { resolveE2eDemoPassword } from "@virlux/shared";
-import { asideNav, loginAsDemo, loginAsUser, tryAddDemoFunds, goToSend } from "./helpers";
+import { asideNav, loginAsUser, tryAddDemoFunds, goToSend } from "./helpers";
 
 const DEMO_PASSWORD = resolveE2eDemoPassword();
+const AUTH_FILE = path.join(__dirname, ".auth", "demo-user.json");
 
 test.describe("approval flow", () => {
   test.use({ baseURL: process.env.PLAYWRIGHT_APP_URL ?? "http://localhost:3001" });
@@ -11,8 +13,8 @@ test.describe("approval flow", () => {
     test.skip(!process.env.E2E_DEMO_LOGIN, "Set E2E_DEMO_LOGIN=1 with seeded demo + approver accounts");
     test.setTimeout(120_000);
 
-    const sender = await browser.newPage();
-    await loginAsDemo(sender);
+    const senderContext = await browser.newContext({ storageState: AUTH_FILE });
+    const sender = await senderContext.newPage();
     await tryAddDemoFunds(sender);
     await goToSend(sender);
 
@@ -29,13 +31,14 @@ test.describe("approval flow", () => {
 
     const pending = sender.getByText(/Pending approval/i);
     if (!(await pending.isVisible())) {
-      await sender.close();
+      await senderContext.close();
       return;
     }
 
     await sender.waitForTimeout(2000);
 
-    const approver = await browser.newPage();
+    const approverContext = await browser.newContext({ storageState: { cookies: [], origins: [] } });
+    const approver = await approverContext.newPage();
     await loginAsUser(approver, "approver@virlux.demo", DEMO_PASSWORD);
     await asideNav(approver).getByRole("link", { name: /Approvals/i }).click();
     await expect(approver.getByRole("heading", { name: /Approvals/i })).toBeVisible();
@@ -43,7 +46,7 @@ test.describe("approval flow", () => {
     await approver.getByRole("button", { name: "Approve" }).click();
     await expect(approver.getByText(/Payment approved|approved/i)).toBeVisible({ timeout: 15000 });
 
-    await sender.close();
-    await approver.close();
+    await senderContext.close();
+    await approverContext.close();
   });
 });

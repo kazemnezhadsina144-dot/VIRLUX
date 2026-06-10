@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      live_urls:
+        description: "Run against live Vercel/custom URLs (requires repo vars PLAYWRIGHT_WEB_URL + PLAYWRIGHT_APP_URL)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 jobs:
   e2e:
@@ -26,15 +35,21 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql://virlux:virlux@localhost:5432/virlux
+      DIRECT_URL: postgresql://virlux:virlux@localhost:5432/virlux
       JWT_SECRET: ci-test-secret-min-32-characters-long
       TELEGRAM_MODE: polling
       AUTO_SETTLE: "true"
       SETTLEMENT_MODE: sandbox
       DEMO_APPROVAL_THRESHOLD: "100"
       NODE_ENV: development
-      PLAYWRIGHT_WEB_URL: http://localhost:3100
-      PLAYWRIGHT_APP_URL: http://localhost:3001
+      # Live/staging: set repo Settings → Variables → PLAYWRIGHT_WEB_URL (e.g. https://virlux.com)
+      # and PLAYWRIGHT_APP_URL (e.g. https://virlux-app.vercel.app), then workflow_dispatch live_urls=true
+      PLAYWRIGHT_WEB_URL: ${{ vars.PLAYWRIGHT_WEB_URL || 'http://localhost:3100' }}
+      PLAYWRIGHT_APP_URL: ${{ vars.PLAYWRIGHT_APP_URL || 'http://localhost:3001' }}
       E2E_DEMO_LOGIN: "1"
+      DEMO_SEED_PASSWORD: "VirluxLocalDev!12"
+      E2E_DEMO_PASSWORD: "VirluxLocalDev!12"
+      AUTH_RATE_LIMIT_MAX: "30"
     steps:
       - uses: actions/checkout@v4
 
@@ -54,9 +69,11 @@ jobs:
           npx tsx prisma/seed.ts
 
       - name: Build
+        if: github.event.inputs.live_urls != 'true'
         run: npm run build
 
       - name: Start stack
+        if: github.event.inputs.live_urls != 'true'
         run: |
           npm run dev:stack &
           STACK_PID=$!
@@ -75,8 +92,16 @@ jobs:
           curl -v http://localhost:3002/health || true
           exit 1
 
-      - name: Playwright
+      - name: Playwright (local stack)
+        if: github.event.inputs.live_urls != 'true'
         run: npx playwright test
+
+      - name: Playwright (live URLs)
+        if: github.event.inputs.live_urls == 'true'
+        run: |
+          test -n "${{ vars.PLAYWRIGHT_WEB_URL }}" && test -n "${{ vars.PLAYWRIGHT_APP_URL }}" || \
+            (echo "Set PLAYWRIGHT_WEB_URL and PLAYWRIGHT_APP_URL repo variables" && exit 1)
+          npx playwright test
 
       - name: Upload trace on failure
         if: failure()

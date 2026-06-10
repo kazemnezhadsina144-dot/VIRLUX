@@ -23,18 +23,18 @@ export async function loginAsDemo(page: Page) {
 }
 
 export async function loginAsUser(page: Page, email: string, password: string) {
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < 4; attempt++) {
     await page.goto("/");
     await page.locator('form input[type="email"]').fill(email);
     await page.locator('form input[type="password"]').fill(password);
     await submitSignIn(page);
     try {
-      await expect(page).toHaveURL(/dashboard/, { timeout: 20000 });
+      await expect(page).toHaveURL(/dashboard/, { timeout: 25000 });
       return;
     } catch (err) {
       const rateLimited = await page.getByText(/too many|rate limit|try again/i).isVisible().catch(() => false);
-      if (attempt === 2 || !rateLimited) throw err;
-      await page.waitForTimeout(3000 * (attempt + 1));
+      if (attempt === 3 || !rateLimited) throw err;
+      await page.waitForTimeout(5000 * (attempt + 1));
     }
   }
 }
@@ -58,7 +58,7 @@ export async function loginFromNextRedirect(
   email: string,
   password: string
 ) {
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < 4; attempt++) {
     await page.goto(protectedPath, { waitUntil: "domcontentloaded" });
     await expect(page.locator('form input[type="email"]')).toBeVisible({ timeout: 15000 });
     await expect(page).toHaveURL(/\?next=/, { timeout: 15000 });
@@ -69,13 +69,13 @@ export async function loginFromNextRedirect(
 
     try {
       await expect(page).toHaveURL(new RegExp(`${protectedPath.replace(/\//g, "\\/")}$`), {
-        timeout: 20000,
+        timeout: 25000,
       });
       return;
     } catch (err) {
       const rateLimited = await page.getByText(/too many|rate limit|try again/i).isVisible().catch(() => false);
-      if (attempt === 2 || !rateLimited) throw err;
-      await page.waitForTimeout(3000 * (attempt + 1));
+      if (attempt === 3 || !rateLimited) throw err;
+      await page.waitForTimeout(5000 * (attempt + 1));
     }
   }
 }
@@ -92,6 +92,11 @@ export async function tryAddDemoFunds(page: Page) {
 
 /** Navigate to Send — direct URL avoids flaky sidebar animation (INC-005). */
 export async function goToSend(page: Page) {
-  await page.goto("/dashboard/send");
-  await expect(page.getByRole("heading", { name: /Send payment/i })).toBeVisible({ timeout: 15000 });
+  await goToPage(page, "/dashboard/send", /Send payment/i);
+}
+
+/** Direct navigation + wait for primary heading (stable vs sidebar clicks). */
+export async function goToPage(page: Page, path: string, heading: RegExp) {
+  await page.goto(path);
+  await expect(page.getByRole("heading", { name: heading }).first()).toBeVisible({ timeout: 20000 });
 }
