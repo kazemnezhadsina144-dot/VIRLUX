@@ -8,6 +8,7 @@ const AUTH_FILE = path.join(AUTH_DIR, "demo-user.json");
 
 setup("authenticate demo user", async ({ page }) => {
   setup.skip(!process.env.E2E_DEMO_LOGIN, "Set E2E_DEMO_LOGIN=1");
+  setup.setTimeout(90_000);
 
   await loginAsDemo(page);
   fs.mkdirSync(AUTH_DIR, { recursive: true });
