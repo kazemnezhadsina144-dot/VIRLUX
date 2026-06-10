@@ -8,9 +8,10 @@ cd "$ROOT"
 # shellcheck source=/dev/null
 source "$ROOT/scripts/load-tier3-secrets.sh"
 
-export NEXT_PUBLIC_API_URL="${NEXT_PUBLIC_API_URL:-https://virlux-api.vercel.app}"
-export STAGING_WEB_URL="${STAGING_WEB_URL:-https://virlux-web.vercel.app}"
-export STAGING_APP_URL="${STAGING_APP_URL:-https://virlux-app.vercel.app}"
+# Live verify always targets Vercel staging — ignore local .env overrides
+export NEXT_PUBLIC_API_URL="https://virlux-api.vercel.app"
+export STAGING_WEB_URL="https://virlux-web.vercel.app"
+export STAGING_APP_URL="https://virlux-app.vercel.app"
 export PLAYWRIGHT_WEB_URL="${PLAYWRIGHT_WEB_URL:-$STAGING_WEB_URL}"
 export PLAYWRIGHT_APP_URL="${PLAYWRIGHT_APP_URL:-$STAGING_APP_URL}"
 export E2E_DEMO_LOGIN=1

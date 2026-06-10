@@ -1,7 +1,7 @@
 {
   "version": 2,
   "installCommand": "npm ci && npm run db:generate -w @virlux/api",
-  "buildCommand": "npm run build -w @virlux/shared",
+  "buildCommand": "npm run build -w @virlux/shared && npm run build -w @virlux/api",
   "builds": [
     { "src": "api/health.ts", "use": "@vercel/node" },
     {

@@ -37,10 +37,10 @@ router.post(
     if (user.totpSecret) {
       throw new AppError(409, "Two-factor authentication is already enabled", "MFA_ALREADY_ENABLED");
     }
-    const secret = generateTotpSecret();
+    const secret = await generateTotpSecret();
     res.json({
       secret,
-      uri: totpKeyUri(user.email, secret),
+      uri: await totpKeyUri(user.email, secret),
     });
   })
 );
@@ -56,7 +56,7 @@ router.post(
     if (user.totpSecret) {
       throw new AppError(409, "Two-factor authentication is already enabled", "MFA_ALREADY_ENABLED");
     }
-    if (!verifyTotp(parsed.data.secret, parsed.data.code)) {
+    if (!(await verifyTotp(parsed.data.secret, parsed.data.code))) {
       throw new AppError(400, "Invalid verification code", "INVALID_MFA");
     }
 

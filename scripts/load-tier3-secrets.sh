@@ -4,6 +4,7 @@ set -euo pipefail
 
 SECRETS="${SINA_SECRETS_FILE:-$HOME/.sina/secrets.env}"
 if [[ -f "$SECRETS" ]]; then
+  set +H
   set -a
   # shellcheck disable=SC1090
   source "$SECRETS"

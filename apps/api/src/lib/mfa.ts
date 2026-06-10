@@ -1,14 +1,24 @@
-import { generateSecret, generateURI, verifySync } from "otplib";
+type OtpLib = typeof import("otplib");
 
-export function generateTotpSecret(): string {
+let otp: OtpLib | null = null;
+
+async function loadOtp(): Promise<OtpLib> {
+  if (!otp) otp = await import("otplib");
+  return otp;
+}
+
+export async function generateTotpSecret(): Promise<string> {
+  const { generateSecret } = await loadOtp();
   return generateSecret();
 }
 
-export function totpKeyUri(email: string, secret: string): string {
+export async function totpKeyUri(email: string, secret: string): Promise<string> {
+  const { generateURI } = await loadOtp();
   return generateURI({ issuer: "VIRLUX", label: email, secret });
 }
 
-export function verifyTotp(secret: string, code: string): boolean {
+export async function verifyTotp(secret: string, code: string): Promise<boolean> {
+  const { verifySync } = await loadOtp();
   const result = verifySync({ secret, token: code });
   return result.valid === true;
 }

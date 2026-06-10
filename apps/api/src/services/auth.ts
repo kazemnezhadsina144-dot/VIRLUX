@@ -121,7 +121,7 @@ export async function loginUser(email: string, password: string, totpCode?: stri
     if (!totpCode) {
       throw new AppError(401, "Two-factor code required", "MFA_REQUIRED");
     }
-    if (!verifyTotp(user.totpSecret, totpCode)) {
+    if (!(await verifyTotp(user.totpSecret, totpCode))) {
       throw new AppError(401, "Invalid two-factor code", "INVALID_MFA");
     }
   }

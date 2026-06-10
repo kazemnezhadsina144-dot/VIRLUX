@@ -10,9 +10,8 @@ generator client {
 //   REVOKE ALL ON TABLE "<Model>" FROM anon, authenticated;
 // (no anon/authenticated policies — API uses Prisma/DATABASE_URL only).
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
