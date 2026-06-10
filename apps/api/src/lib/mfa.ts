@@ -1,10 +1,5 @@
-type OtpLib = typeof import("otplib");
-
-let otp: OtpLib | null = null;
-
-async function loadOtp(): Promise<OtpLib> {
-  if (!otp) otp = await import("otplib");
-  return otp;
+async function loadOtp() {
+  return import("otplib");
 }
 
 export async function generateTotpSecret(): Promise<string> {

@@ -91,7 +91,23 @@ async function main() {
     },
   });
 
-  console.log("Seeded demo accounts: demo@virlux.com, approver@virlux.demo (password from DEMO_SEED_PASSWORD)");
+  const founderPassword = process.env.FOUNDER_SEED_PASSWORD?.trim() || demoPassword;
+  const founderHash = await bcrypt.hash(founderPassword, 12);
+  await prisma.user.upsert({
+    where: { email: "contact@virlux.com" },
+    update: { passwordHash: founderHash, fullName: "Virlux Founder", kycStatus: "approved" },
+    create: {
+      email: "contact@virlux.com",
+      passwordHash: founderHash,
+      fullName: "Virlux Founder",
+      kycStatus: "approved",
+      role: "owner",
+    },
+  });
+
+  console.log(
+    "Seeded: demo@virlux.com, approver@virlux.demo, contact@virlux.com (passwords from DEMO_SEED_PASSWORD / FOUNDER_SEED_PASSWORD)"
+  );
 }
 
 main().finally(() => prisma.$disconnect());

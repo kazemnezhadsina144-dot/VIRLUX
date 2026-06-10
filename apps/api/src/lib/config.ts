@@ -20,6 +20,14 @@ if (isProd && process.env.AUTO_SETTLE === "true") {
   throw new Error("AUTO_SETTLE must not be enabled in production");
 }
 
+if (isProd && process.env.ALLOW_OPEN_REGISTRATION === "true") {
+  throw new Error("ALLOW_OPEN_REGISTRATION must not be enabled in production");
+}
+
+if (isProd && process.env.DEMO_FUND_ENABLED === "true") {
+  throw new Error("DEMO_FUND_ENABLED must not be enabled in production");
+}
+
 export type SettlementMode = "sandbox" | "direct" | "partner" | "disabled";
 
 function resolveSettlementMode(): SettlementMode {
@@ -62,7 +70,8 @@ export const config = {
   rateLimitMax: Number(process.env.RATE_LIMIT_MAX ?? 120),
   authRateLimitMax: Number(process.env.AUTH_RATE_LIMIT_MAX ?? 10),
   quoteEstimateRateLimitMax: Number(process.env.QUOTE_ESTIMATE_RATE_LIMIT_MAX ?? 30),
-  allowOpenRegistration: isDev || process.env.ALLOW_OPEN_REGISTRATION === "true",
+  /** Never open in production — staging uses seeded accounts only */
+  allowOpenRegistration: isDev && process.env.ALLOW_OPEN_REGISTRATION !== "false",
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? "",
   telegramBotName: process.env.TELEGRAM_BOT_NAME ?? "VIRLUXBOT",
   telegramMode,

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { api } from "@/lib/api";
+import { api, ApiRequestError } from "@/lib/api";
 import { isPublicDemoMode, DEMO_LOGIN_EMAIL } from "@virlux/shared";
 import { trackEvent } from "@/lib/analytics";
 
@@ -14,6 +14,8 @@ export function LoginForm() {
   const demoMode = isPublicDemoMode();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [totpCode, setTotpCode] = useState("");
+  const [needsMfa, setNeedsMfa] = useState(false);
   const [mode, setMode] = useState<"login" | "register">("login");
   const [fullName, setFullName] = useState("");
   const [orgName, setOrgName] = useState("");
@@ -36,7 +38,9 @@ export function LoginForm() {
     setLoading(true);
     try {
       if (mode === "login") {
-        await api("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+        const body: { email: string; password: string; totpCode?: string } = { email, password };
+        if (totpCode.trim()) body.totpCode = totpCode.trim();
+        await api("/api/auth/login", { method: "POST", body: JSON.stringify(body) });
         router.push(nextPath.startsWith("/") ? nextPath : "/dashboard");
       } else {
         await api("/api/auth/register", {
@@ -50,6 +54,9 @@ export function LoginForm() {
       }
     } catch (err) {
       setMsgType("error");
+      if (err instanceof ApiRequestError && err.code === "MFA_REQUIRED") {
+        setNeedsMfa(true);
+      }
       const raw = err instanceof Error ? err.message : "Something went wrong";
       const friendly =
         raw.includes("API unreachable") || raw.includes("Application not found") || raw.includes("502")
@@ -156,6 +163,23 @@ export function LoginForm() {
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
               />
             </label>
+            {needsMfa && (
+              <label className="block text-sm text-slate-400">
+                Authentication code
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="\d{6}"
+                  maxLength={6}
+                  className="input-field mt-1 tracking-widest"
+                  value={totpCode}
+                  onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  required
+                  placeholder="6-digit code"
+                />
+              </label>
+            )}
             {msg && (
               <p className={`text-sm ${msgType === "success" ? "text-emerald-400" : "text-red-400"}`}>{msg}</p>
             )}

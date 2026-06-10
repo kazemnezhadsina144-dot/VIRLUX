@@ -98,6 +98,10 @@ if git grep -nE 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[A-Za-z0-9_-]+\.[A-Za-z0-
   fail "Possible committed JWT/API key in source — use env vars only"
 fi
 
+if git grep -nE 'allowOpenRegistration.*\|\|.*ALLOW_OPEN_REGISTRATION' -- apps/api/src/lib/config.ts 2>/dev/null; then
+  fail "allowOpenRegistration must not be bypassable in production via env"
+fi
+
 if [ "$FAILED" -ne 0 ]; then
   exit 1
 fi

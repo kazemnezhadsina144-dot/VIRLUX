@@ -23,7 +23,7 @@ ENV_KEYS=(
   AUTO_SETTLE SETTLEMENT_MODE ALLOW_ORG_DEPOSIT_CONFIRM APPROVAL_THRESHOLD
   DEMO_APPROVAL_THRESHOLD DEMO_FUND_ENABLED RATE_LIMIT_MAX AUTH_RATE_LIMIT_MAX
   QUOTE_ESTIMATE_RATE_LIMIT_MAX ALLOW_OPEN_REGISTRATION
-  CORS_ORIGINS PLATFORM_ADMIN_EMAILS DEPOSIT_WEBHOOK_SECRET
+  CORS_ORIGINS PLATFORM_ADMIN_EMAILS PLATFORM_ADMIN_MFA_REQUIRED DEPOSIT_WEBHOOK_SECRET
   TELEGRAM_BOT_TOKEN TELEGRAM_BOT_NAME TELEGRAM_MODE TELEGRAM_WEBHOOK_URL
   TELEGRAM_WEBHOOK_SECRET TELEGRAM_ADMIN_CHAT_IDS
   CIRCLE_API_KEY CIRCLE_SANDBOX CIRCLE_WALLET_ID CIRCLE_WEBHOOK_SECRET
@@ -51,6 +51,18 @@ while IFS= read -r line || [[ -n "$line" ]]; do
       echo "  SKIP DATABASE_URL (set VIRLUX_STAGING_DB_PASSWORD + bash scripts/staging-supabase-db-url.sh)"
       continue
     fi
+    if [[ "$key" == "ALLOW_OPEN_REGISTRATION" && "$val" == "true" ]]; then
+      echo "  SKIP $key=true (forbidden in production)"
+      continue
+    fi
+    if [[ "$key" == "DEMO_FUND_ENABLED" && "$val" == "true" ]]; then
+      echo "  SKIP $key=true (forbidden when NODE_ENV=production on Vercel)"
+      continue
+    fi
+    if [[ "$key" == "AUTO_SETTLE" && "$val" == "true" ]]; then
+      echo "  SKIP $key=true (forbidden in production)"
+      continue
+    fi
     echo "  $key"
     if [[ ${#TOKEN_ARGS[@]} -gt 0 ]]; then
       (cd "$ROOT" && echo "$val" | $VERCEL env add "$key" production "${TOKEN_ARGS[@]}" --scope "$SCOPE" --force 2>/dev/null) || true
@@ -61,6 +73,18 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   done
   [[ "$skip" -eq 0 ]] && true
 done < "$ROOT/.env.staging"
+
+echo "== Vercel: production-safe defaults =="
+for pair in "DEMO_FUND_ENABLED=false" "ALLOW_OPEN_REGISTRATION=false" "AUTO_SETTLE=false" "PLATFORM_ADMIN_EMAILS=contact@virlux.com" "PLATFORM_ADMIN_MFA_REQUIRED=true"; do
+  key="${pair%%=*}"
+  val="${pair#*=}"
+  echo "  $key=$val"
+  if [[ ${#TOKEN_ARGS[@]} -gt 0 ]]; then
+    (cd "$ROOT" && echo "$val" | $VERCEL env add "$key" production "${TOKEN_ARGS[@]}" --scope "$SCOPE" --force 2>/dev/null) || true
+  else
+    (cd "$ROOT" && echo "$val" | $VERCEL env add "$key" production --scope "$SCOPE" --force 2>/dev/null) || true
+  fi
+done
 
 echo "== Vercel: deploy API (production) =="
 # Project dashboard may ignore --local-config; swap root vercel.json for API build for this deploy only

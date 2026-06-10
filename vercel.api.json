@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "installCommand": "npm ci && npm run db:generate -w @virlux/api",
-  "buildCommand": "npm run build -w @virlux/shared && npm run build -w @virlux/api",
+  "installCommand": "npm ci && npm run db:generate -w @virlux/api && npm run build -w @virlux/shared",
+  "buildCommand": "npm run db:generate -w @virlux/api && npm run build -w @virlux/shared && npm run build -w @virlux/api",
   "builds": [
     { "src": "api/health.ts", "use": "@vercel/node" },
     {
@@ -11,7 +11,8 @@
         "includeFiles": [
           "apps/api/prisma/**",
           "node_modules/.prisma/**",
-          "node_modules/@prisma/client/**"
+          "node_modules/@prisma/client/**",
+          "packages/shared/dist/**"
         ]
       }
     }

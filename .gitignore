@@ -22,3 +22,5 @@ e2e/.auth/
 reports/
 .sina-agent/
 .vercel
+vercel.json.*.bak
+*.env.bak

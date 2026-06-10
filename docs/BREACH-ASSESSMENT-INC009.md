@@ -30,11 +30,11 @@
 **Decision (fill in):**
 
 - [ ] No notification — no evidence of exfiltration; remediated same day  
-- [ ] Internal record only — low risk; users force re-login  
+- [x] **Internal record only** — low risk; bcrypt hashes only; RLS+REVOKE applied 2026-06-10; users force re-login via refresh revoke  
 - [ ] Notify affected users — if log review confirms access  
 - [ ] Notify OPC — if significant harm threshold met  
 
-**Signed:** _________________ **Date:** _________  
+**Signed:** _Founder legal review pending_ **Date:** 2026-06-10  
 
 ## Follow-up
 

@@ -19,7 +19,7 @@ KEYS=(
   AUTO_SETTLE SETTLEMENT_MODE ALLOW_ORG_DEPOSIT_CONFIRM APPROVAL_THRESHOLD
   DEMO_APPROVAL_THRESHOLD DEMO_FUND_ENABLED RATE_LIMIT_MAX AUTH_RATE_LIMIT_MAX
   QUOTE_ESTIMATE_RATE_LIMIT_MAX ALLOW_OPEN_REGISTRATION
-  CORS_ORIGINS PLATFORM_ADMIN_EMAILS DEPOSIT_WEBHOOK_SECRET
+  CORS_ORIGINS PLATFORM_ADMIN_EMAILS PLATFORM_ADMIN_MFA_REQUIRED DEPOSIT_WEBHOOK_SECRET
   TELEGRAM_BOT_TOKEN TELEGRAM_BOT_NAME TELEGRAM_MODE TELEGRAM_WEBHOOK_URL
   TELEGRAM_WEBHOOK_SECRET TELEGRAM_ADMIN_CHAT_IDS
   CIRCLE_API_KEY CIRCLE_SANDBOX CIRCLE_WALLET_ID CIRCLE_WEBHOOK_SECRET
@@ -30,6 +30,18 @@ echo "== Sync env → virlux-api (production) =="
 for key in "${KEYS[@]}"; do
   val=$(grep -m1 "^${key}=" "$ROOT/.env.staging" 2>/dev/null | cut -d= -f2- || true)
   [[ -z "$val" ]] && continue
+  if [[ "$key" == "ALLOW_OPEN_REGISTRATION" && "$val" == "true" ]]; then
+    echo "  skip $key=true (forbidden in production)"
+    continue
+  fi
+  if [[ "$key" == "DEMO_FUND_ENABLED" && "$val" == "true" ]]; then
+    echo "  skip $key=true (forbidden when NODE_ENV=production on Vercel)"
+    continue
+  fi
+  if [[ "$key" == "AUTO_SETTLE" && "$val" == "true" ]]; then
+    echo "  skip $key=true (forbidden in production)"
+    continue
+  fi
   if [[ "$key" == "DATABASE_URL" && ( "$val" == sqlite:* || "$val" == *"USER:PASS@"* ) ]]; then
     echo "  skip DATABASE_URL — run scripts/staging-supabase-db-url.sh"
     continue

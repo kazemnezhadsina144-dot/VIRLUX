@@ -25,10 +25,14 @@ echo "  curl -sI https://virlux.com/ | head -5"
 echo ""
 
 if command -v npx >/dev/null 2>&1 && npx vercel whoami >/dev/null 2>&1; then
-  echo "-- Current Vercel domains (if linked) --"
+  echo "-- Vercel DNS records (from inspect) --"
+  echo "  A  virlux.com      → 76.76.21.21  (virlux-web)"
+  echo "  A  app.virlux.com  → 76.76.21.21  (virlux-app)"
+  echo "  Or use Vercel nameservers: ns1.vercel-dns.com, ns2.vercel-dns.com"
+  echo ""
   for proj in "$WEB_PROJECT" "$APP_PROJECT"; do
     echo "[$proj]"
-    npx vercel domains ls "$proj" --scope "$SCOPE" 2>/dev/null || echo "  (link project or check scope)"
+    npx vercel domains ls "$proj" --scope "$SCOPE" 2>/dev/null || echo "  (link: cd apps/${proj#virlux-} && npx vercel link --project $proj)"
   done
 else
   echo "CLI: npx vercel login && bash scripts/wire-vercel-domains.sh"

@@ -7,6 +7,9 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: root,
+  outputFileTracingIncludes: {
+    "/**": ["./packages/shared/dist/**"],
+  },
   transpilePackages: ["@virlux/shared"],
   async headers() {
     return [{ source: "/:path*", headers: [...WEB_SECURITY_HEADERS] }];

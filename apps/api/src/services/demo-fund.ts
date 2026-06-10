@@ -1,9 +1,10 @@
 import { prisma } from "../lib/prisma";
 import { AppError } from "../lib/errors";
+import { config } from "../lib/config";
 import { credit } from "./ledger";
 
 export function isDemoFundEnabled(): boolean {
-  return process.env.NODE_ENV !== "production" && process.env.DEMO_FUND_ENABLED === "true";
+  return !config.isProd && process.env.DEMO_FUND_ENABLED === "true";
 }
 
 export async function fundDemoWallet(userId: string) {

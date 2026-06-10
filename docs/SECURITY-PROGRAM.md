@@ -35,8 +35,17 @@
 ## Verification commands
 
 ```bash
+npm run security:clean
 npm run verify:security-headers
 npm run verify:supabase-security   # requires VIRLUX_SUPABASE_ANON_KEY
 npm run verify:live
 bash scripts/founder-security-checklist.sh
 ```
+
+## Production env (must never be true on Vercel API)
+
+- `ALLOW_OPEN_REGISTRATION`
+- `DEMO_FUND_ENABLED`
+- `AUTO_SETTLE`
+
+`npm run staging:validate-env` fails fast if these are set with `NODE_ENV=production`.

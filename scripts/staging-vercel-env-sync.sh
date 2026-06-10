@@ -47,16 +47,42 @@ sync_project() {
   done
 }
 
-sync_project virlux-web \
-  "NEXT_PUBLIC_API_URL=$API" \
-  "NEXT_PUBLIC_WEB_URL=$WEB" \
+WEB_PAIRS=(
+  "NEXT_PUBLIC_API_URL=$API"
+  "NEXT_PUBLIC_WEB_URL=$WEB"
   "NEXT_PUBLIC_APP_URL=$APP"
-
-sync_project virlux-app \
-  "NEXT_PUBLIC_API_URL=$API" \
-  "NEXT_PUBLIC_WEB_URL=$WEB" \
-  "NEXT_PUBLIC_APP_URL=$APP" \
+)
+APP_PAIRS=(
+  "NEXT_PUBLIC_API_URL=$API"
+  "NEXT_PUBLIC_WEB_URL=$WEB"
+  "NEXT_PUBLIC_APP_URL=$APP"
   "NEXT_PUBLIC_DEMO_MODE=true"
+)
+[[ -n "${NEXT_PUBLIC_BOOK_DEMO_URL:-}" ]] && WEB_PAIRS+=("NEXT_PUBLIC_BOOK_DEMO_URL=$NEXT_PUBLIC_BOOK_DEMO_URL")
+[[ -n "${NEXT_PUBLIC_DEMO_LOOM_URL:-}" ]] && WEB_PAIRS+=("NEXT_PUBLIC_DEMO_LOOM_URL=$NEXT_PUBLIC_DEMO_LOOM_URL")
+[[ -n "${NEXT_PUBLIC_ANALYTICS_DOMAIN:-}" ]] && WEB_PAIRS+=("NEXT_PUBLIC_ANALYTICS_DOMAIN=$NEXT_PUBLIC_ANALYTICS_DOMAIN")
+[[ -n "${NEXT_PUBLIC_BOOK_DEMO_URL:-}" ]] && APP_PAIRS+=("NEXT_PUBLIC_BOOK_DEMO_URL=$NEXT_PUBLIC_BOOK_DEMO_URL")
+
+sync_project virlux-web "${WEB_PAIRS[@]}"
+sync_project virlux-app "${APP_PAIRS[@]}"
 
 echo ""
-echo "Done. Redeploy: npm run staging:vercel"
+echo "== Production-safe API defaults (virlux-api) =="
+LINK_DIR="$ROOT/.vercel-api-link"
+mkdir -p "$LINK_DIR"
+if [[ ! -f "$LINK_DIR/.vercel/project.json" ]]; then
+  (cd "$LINK_DIR" && npx vercel link --yes --scope "$SCOPE" --project virlux-api >/dev/null)
+fi
+for pair in "DEMO_FUND_ENABLED=false" "ALLOW_OPEN_REGISTRATION=false" "AUTO_SETTLE=false"; do
+  key="${pair%%=*}"
+  val="${pair#*=}"
+  echo "  $key"
+  if [[ ${#TOKEN_ARGS[@]} -gt 0 ]]; then
+    (cd "$LINK_DIR" && npx vercel env add "$key" production --value "$val" --yes --force "${TOKEN_ARGS[@]}" --scope "$SCOPE")
+  else
+    (cd "$LINK_DIR" && npx vercel env add "$key" production --value "$val" --yes --force --scope "$SCOPE")
+  fi
+done
+
+echo ""
+echo "Done. Redeploy: npm run staging:vercel-api"

@@ -8,6 +8,15 @@ export function apiBase(): string {
 
 export type ApiError = { error: string; code?: string };
 
+export class ApiRequestError extends Error {
+  code?: string;
+  constructor(message: string, code?: string) {
+    super(message);
+    this.name = "ApiRequestError";
+    this.code = code;
+  }
+}
+
 export function setSession(_accessToken: string, _refreshToken: string) {
   // Tokens live in httpOnly cookies set by API; keep for backward compat during migration
   if (typeof window === "undefined") return;
@@ -56,7 +65,8 @@ export async function api<T>(path: string, options?: RequestInit): Promise<T> {
 
   const data = await res.json();
   if (!res.ok) {
-    throw new Error((data as ApiError).error ?? "Request failed");
+    const err = data as ApiError;
+    throw new ApiRequestError(err.error ?? "Request failed", err.code);
   }
   return data as T;
 }

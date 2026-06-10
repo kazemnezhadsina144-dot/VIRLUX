@@ -32,3 +32,34 @@ if [[ "$fail" -ne 0 ]]; then
 fi
 
 echo "All staging URLs look valid."
+
+echo ""
+echo "== Security env checks =="
+SEC_FAIL=0
+
+if [[ "${NODE_ENV:-}" == "production" ]]; then
+  for bad in ALLOW_OPEN_REGISTRATION AUTO_SETTLE; do
+    val="${!bad:-}"
+    if [[ "$val" == "true" ]]; then
+      echo "FORBIDDEN $bad=true with NODE_ENV=production"
+      SEC_FAIL=1
+    fi
+  done
+  if [[ "${DEMO_FUND_ENABLED:-}" == "true" ]]; then
+    echo "FORBIDDEN DEMO_FUND_ENABLED=true with NODE_ENV=production"
+    SEC_FAIL=1
+  fi
+fi
+
+if [[ -n "${JWT_SECRET:-}" && ${#JWT_SECRET} -lt 32 ]]; then
+  echo "WEAK JWT_SECRET (min 32 chars)"
+  SEC_FAIL=1
+fi
+
+if [[ "$SEC_FAIL" -ne 0 ]]; then
+  echo ""
+  echo "Fix .env.staging security flags before deploy."
+  exit 1
+fi
+
+echo "Security env checks passed."
