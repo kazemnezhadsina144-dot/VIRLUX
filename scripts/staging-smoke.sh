@@ -41,6 +41,12 @@ check "Telegram status" "$API/api/telegram/status" || fail=1
 
 if [[ -n "$WEB" ]]; then
   check "Marketing" "$WEB/" || fail=1
+  if ! curl -sf --max-time 15 "$WEB/" | grep -q 'id="product"'; then
+    echo "FAIL Marketing #product section missing $WEB/"
+    fail=1
+  else
+    echo "OK  Marketing #product $WEB/"
+  fi
 fi
 if [[ -n "$APP" ]]; then
   check "Dashboard" "$APP/" || fail=1

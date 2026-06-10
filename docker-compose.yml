@@ -21,6 +21,7 @@ services:
       dockerfile: apps/api/Dockerfile
     environment:
       DATABASE_URL: postgresql://virlux:virlux@postgres:5432/virlux
+      DIRECT_URL: postgresql://virlux:virlux@postgres:5432/virlux
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-prod}
       PORT: "3002"
       NODE_ENV: production

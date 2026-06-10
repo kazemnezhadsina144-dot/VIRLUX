@@ -1,6 +1,12 @@
 /** VIRLUX — Canadian B2B cross-border payments; product rules modeled on industry best practices. */
 
-export { PUBLIC_COPY, POSITIONING } from "./public-copy";
+export {
+  PUBLIC_COPY,
+  POSITIONING,
+  CLIENT_COPY,
+  formatClientCopy,
+  metaDescription,
+} from "./public-copy";
 
 export const COMPANY = {
   legalName: "Virlux Inc.",
@@ -46,7 +52,7 @@ export const COMPLIANCE_MESSAGING = {
 
 export const PRICING = {
   flatFeePercent: 1,
-  rateSources: ["frankfurter", "coingecko"] as const,
+  rateProviders: ["frankfurter", "coingecko"] as const,
   showGasUpfront: true,
   noHiddenFxSpreads: true,
 } as const;

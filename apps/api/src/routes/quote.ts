@@ -38,7 +38,7 @@ router.post(
 );
 
 router.get("/health", (_req, res) => {
-  res.json({ ok: true, sources: ["frankfurter", "coingecko"] });
+  res.json({ ok: true, rateProviders: ["frankfurter", "coingecko"] });
 });
 
 export default router;

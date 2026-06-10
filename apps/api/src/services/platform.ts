@@ -299,7 +299,7 @@ export async function markTransactionSettledPlatform(
 
   const partnerId = tx.user.organization?.partnerId;
   if (!partnerId) {
-    throw new AppError(400, "Organization has no MSB partner assigned", "NO_PARTNER");
+    throw new AppError(400, "Organization has no settlement partner assigned", "NO_PARTNER");
   }
 
   const confirmed = await applyPartnerSettlement({

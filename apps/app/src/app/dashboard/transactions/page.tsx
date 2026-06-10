@@ -6,6 +6,8 @@ import { api } from "@/lib/api";
 import { parseTransactionsResponse, toDisplayTransaction } from "@/lib/transactions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingRows } from "@/components/ui/LoadingRows";
+import { CLIENT_COPY } from "@virlux/shared";
 
 export default function TransactionsPage() {
   const router = useRouter();
@@ -25,21 +27,19 @@ export default function TransactionsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white">Payments</h1>
-      <p className="mt-1 text-slate-400">Track status and history for every international payment.</p>
+      <h1 className="text-2xl font-bold text-white">{CLIENT_COPY.payments.title}</h1>
+      <p className="mt-1 text-slate-400">{CLIENT_COPY.payments.subtitle}</p>
 
       {loading ? (
-        <div className="mt-8 space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-14 animate-pulse rounded-xl bg-white/[0.04]" />
-          ))}
+        <div className="mt-8">
+          <LoadingRows count={3} />
         </div>
       ) : txs.length === 0 ? (
         <div className="mt-8">
           <EmptyState
-            title="No payments yet"
-            description="Send your first international payment from the Send page."
-            actionLabel="Send payment"
+            title={CLIENT_COPY.payments.emptyTitle}
+            description={CLIENT_COPY.payments.emptyDescription}
+            actionLabel={CLIENT_COPY.payments.emptyAction}
             actionHref="/dashboard/send"
           />
         </div>

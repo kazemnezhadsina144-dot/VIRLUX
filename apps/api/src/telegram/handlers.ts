@@ -72,7 +72,7 @@ export async function notifyTransactionCreated(tx: {
     `<b>VIRLUX Payment</b>\n` +
     `Ref: <code>${esc(tx.id.slice(0, 12))}</code>\n` +
     `Send: ${tx.amountIn} ${esc(tx.fromCurrency)}\n` +
-    `Receive: ${tx.amountOut} ${esc(tx.toStablecoin)}\n` +
+    `Recipient receives: ≈ ${tx.amountOut}\n` +
     `Status: ${esc(tx.status)}\n` +
     (user ? `User: ${esc(user.email)}` : "");
 
@@ -121,7 +121,7 @@ export async function handleMessage(msg: TelegramMessage) {
           `<b>Commands</b>\n` +
           `/app — Open dashboard\n` +
           `/link &lt;code&gt; — Link chat (code from Settings)\n` +
-          `/balance — Wallet balances (linked accounts)\n` +
+          `/balance — Account balances (linked accounts)\n` +
           `/help — Help\n\n` +
           `Dashboard: ${config.appPublicUrl}`
       );
@@ -171,15 +171,14 @@ export async function handleMessage(msg: TelegramMessage) {
       }
       const wallet = await prisma.wallet.findUnique({ where: { userId: link.userId } });
       if (!wallet) {
-        await sendMessage(chatId, "No wallet found.");
+        await sendMessage(chatId, "No balance record found for this account.");
         return;
       }
       await sendMessage(
         chatId,
         `<b>Your balances</b>\n` +
           `CAD: ${wallet.cadBalance}\n` +
-          `USD: ${wallet.usdBalance}\n` +
-          `USDC: ${wallet.usdcBalance}`
+          `USD: ${wallet.usdBalance}`
       );
       break;
     }

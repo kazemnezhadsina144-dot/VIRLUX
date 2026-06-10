@@ -1,6 +1,6 @@
 const API_INTERNAL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002";
 
-/** Browser uses same-origin /api proxy; SSR uses direct API URL */
+/** Browser uses the app /api proxy; SSR calls the API URL directly */
 export function apiBase(): string {
   if (typeof window !== "undefined") return "";
   return API_INTERNAL;
@@ -55,7 +55,9 @@ export async function api<T>(path: string, options?: RequestInit): Promise<T> {
   }
 
   const data = await res.json();
-  if (!res.ok) throw new Error((data as ApiError).error ?? "Request failed");
+  if (!res.ok) {
+    throw new Error((data as ApiError).error ?? "Request failed");
+  }
   return data as T;
 }
 

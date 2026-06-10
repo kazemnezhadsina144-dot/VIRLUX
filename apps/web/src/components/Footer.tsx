@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { COMPANY } from "@virlux/shared";
+import { COMPANY, POSITIONING, CLIENT_COPY } from "@virlux/shared";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001";
 
@@ -19,10 +19,7 @@ export function Footer() {
               </span>
               <span className="text-lg font-bold">VIRLUX</span>
             </div>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-400">
-              International business payments for Canadian companies. Transparent rates, Interac funding,
-              team approvals, and complete payment records.
-            </p>
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-400">{POSITIONING.oneLiner}</p>
             <p className="mt-4 text-xs text-slate-500">Built for Canadian SMEs · {COMPANY.address}</p>
           </div>
 
@@ -57,7 +54,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col gap-2 border-t border-white/[0.06] pt-8 text-xs text-slate-500 sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} {COMPANY.legalName}. All rights reserved.</p>
-          <p>Not financial or legal advice. Built for Canadian business payments.</p>
+          <p>{CLIENT_COPY.legalFooterDisclaimer}</p>
         </div>
       </div>
     </footer>

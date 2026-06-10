@@ -31,6 +31,12 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   key="${line%%=*}"
   val="${line#*=}"
   [[ -z "$key" ]] && continue
+  if [[ "$key" == "DATABASE_URL" ]]; then
+    if [[ "$val" == sqlite:* ]] || [[ "$val" == *"USER:PASS@"* ]]; then
+      echo "Skip DATABASE_URL (invalid for Railway — use Railway Postgres reference)"
+      continue
+    fi
+  fi
   $RAILWAY variables set "$key=$val" 2>/dev/null || true
 done < "$ROOT/.env.staging"
 

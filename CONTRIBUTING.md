@@ -35,7 +35,7 @@ E2E_DEMO_LOGIN=1 npm run test:e2e   # optional locally; required in CI
 - Public copy must follow `packages/shared/src/public-copy.ts` — no stablecoin/rails jargon in SME UI
 - Do not set `fintracMsbClaim: true` without verified MSB registration and counsel approval
 - Do not reference competitor names in shipped code or marketing
-- TrustField Technologies code is out of scope unless explicitly requested
+- Cross-brand or sibling-repo code is out of scope unless explicitly requested
 
 ## Architecture notes
 

@@ -2,14 +2,19 @@
 
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
-import { isPublicDemoMode } from "@virlux/shared";
+import { CLIENT_COPY, formatClientCopy, isPublicDemoMode } from "@virlux/shared";
 
-const STEPS = [
-  { key: "kyc", label: "Verify your business", href: "/dashboard/kyc", check: (kyc: string) => kyc === "approved" },
-  { key: "deposit", label: "Add funds via Interac", href: "/dashboard/deposits", check: (_k: string, bal: number) => bal > 0 },
-  { key: "send", label: "Send your first payment", href: "/dashboard/send", check: (_k: string, _b: number, txCount: number) => txCount > 0 },
-  { key: "track", label: "Track payment status", href: "/dashboard/transactions", check: (_k: string, _b: number, txCount: number) => txCount > 0 },
-] as const;
+const STEPS = CLIENT_COPY.gettingStarted.steps.map((step, i) => ({
+  key: `step-${i}`,
+  label: step.label,
+  href: step.href,
+  check:
+    i === 0
+      ? (kyc: string) => kyc === "approved"
+      : i === 1
+        ? (_k: string, bal: number) => bal > 0
+        : (_k: string, _b: number, txCount: number) => txCount > 0,
+}));
 
 type Props = {
   kycStatus: string;
@@ -29,9 +34,14 @@ export function GettingStartedChecklist({ kycStatus, cadBalance, txCount }: Prop
     <section className="mt-8 glass-panel p-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-blue-400">Getting started</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-blue-400">
+            {CLIENT_COPY.gettingStarted.label}
+          </p>
           <h2 className="mt-1 font-semibold text-white">
-            {doneCount} of {STEPS.length} complete
+            {formatClientCopy(CLIENT_COPY.gettingStarted.progress, {
+              done: doneCount,
+              total: STEPS.length,
+            })}
           </h2>
         </div>
         {me?.organization?.name && (

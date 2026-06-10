@@ -9,7 +9,7 @@ const router = Router();
 
 const walletAddress = z
   .string()
-  .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid EVM wallet address")
+  .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid payout reference format")
   .optional();
 
 const createSchema = z.object({

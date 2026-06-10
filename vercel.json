@@ -1,7 +1,23 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "npm ci",
-  "buildCommand": "npm run build -w @virlux/shared && npm run build -w @virlux/web",
-  "outputDirectory": "apps/web/.next",
-  "framework": "nextjs"
+  "version": 2,
+  "installCommand": "npm ci && npm run db:generate -w @virlux/api",
+  "buildCommand": "npm run build -w @virlux/shared",
+  "builds": [
+    { "src": "api/health.ts", "use": "@vercel/node" },
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "apps/api/prisma/**",
+          "node_modules/.prisma/**",
+          "node_modules/@prisma/client/**"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    { "src": "/health", "dest": "/api/health.ts" },
+    { "src": "/(.*)", "dest": "/api/index.ts" }
+  ]
 }

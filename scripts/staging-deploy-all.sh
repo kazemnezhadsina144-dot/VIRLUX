@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Full Kavodax-path deploy: Railway → Vercel → smoke → E2E
+# Full staging deploy: Railway → Vercel → smoke → E2E
 # Requires: RAILWAY_TOKEN, VERCEL_TOKEN, .env.staging
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth, canManageTeam } from "@/lib/auth-context";
-import { formatKycStatus } from "@virlux/shared";
+import { CLIENT_COPY, formatKycStatus } from "@virlux/shared";
 import { EmptyState } from "@/components/ui/EmptyState";
 
 type Kyc = {
@@ -98,8 +98,8 @@ export default function KycPage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-2xl font-bold text-white">Business verification</h1>
-      <p className="mt-1 text-sm text-slate-400">Required before you can send payments or add funds</p>
+      <h1 className="text-2xl font-bold text-white">{CLIENT_COPY.verification.title}</h1>
+      <p className="mt-1 text-sm text-slate-400">{CLIENT_COPY.verification.subtitle}</p>
 
       <div className="mt-6 glass-panel p-6">
         <p className="text-sm">
@@ -123,11 +123,16 @@ export default function KycPage() {
               className="input-field text-sm"
             />
             <label className="block text-xs text-slate-500">
-              Document upload (pilot): attach via email to support if counsel requires originals.
-              <input type="file" className="mt-2 block w-full text-sm text-slate-400" disabled title="Upload coming with counsel review" />
+              {CLIENT_COPY.verification.documentUploadHint}
+              <input
+                type="file"
+                className="mt-2 block w-full text-sm text-slate-400"
+                disabled
+                title={CLIENT_COPY.verification.documentUploadDisabled}
+              />
             </label>
             <button type="button" onClick={submit} className="btn-primary">
-              Submit documents
+              {CLIENT_COPY.verification.submitDocuments}
             </button>
           </div>
         )}
@@ -136,7 +141,7 @@ export default function KycPage() {
 
       {status?.submissions && status.submissions.length > 0 && (
         <>
-          <h2 className="mt-8 font-semibold text-white">Your submission history</h2>
+          <h2 className="mt-8 font-semibold text-white">{CLIENT_COPY.verification.submissionHistory}</h2>
           <ul className="mt-3 space-y-2 text-sm">
             {status.submissions.map((s) => (
               <li key={s.id} className="flex justify-between rounded-xl border border-white/[0.06] px-4 py-2">

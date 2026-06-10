@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { COMPANY } from "@virlux/shared";
+import { COMPANY, CLIENT_COPY } from "@virlux/shared";
 
 export default function TermsPage() {
   return (
@@ -93,6 +93,9 @@ export default function TermsPage() {
               </a>
             </p>
           </section>
+          <p className="mt-10 border-t border-white/[0.06] pt-6 text-xs text-slate-500">
+            {CLIENT_COPY.legalFooterDisclaimer} Draft for counsel review — not legal advice.
+          </p>
         </div>
       </main>
       <Footer />

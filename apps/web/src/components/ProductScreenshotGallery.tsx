@@ -1,72 +1,72 @@
 "use client";
 
+import Image, { type StaticImageData } from "next/image";
 import { useState } from "react";
-import Image from "next/image";
-import { ProductPreview } from "./ProductPreview";
+import { CLIENT_COPY } from "@virlux/shared";
+import overviewPng from "../../public/screenshots/overview.png";
+import sendPng from "../../public/screenshots/send.png";
+import paymentsPng from "../../public/screenshots/payments.png";
+import overviewSvg from "../../public/screenshots/overview.svg";
+import sendSvg from "../../public/screenshots/send.svg";
+import paymentsSvg from "../../public/screenshots/payments.svg";
 
-const SHOTS = [
-  {
-    png: "/screenshots/overview.png",
-    svg: "/screenshots/overview.svg",
-    alt: "VIRLUX dashboard overview with balance and recent payments",
-  },
-  {
-    png: "/screenshots/send.png",
-    svg: "/screenshots/send.svg",
-    alt: "Send payment flow with upfront rate and fee",
-  },
-  {
-    png: "/screenshots/payments.png",
-    svg: "/screenshots/payments.svg",
-    alt: "Payments list with status tracking",
-  },
-];
+const SLIDES = [
+  { png: overviewPng, svg: overviewSvg, alt: "Dashboard overview" },
+  { png: sendPng, svg: sendSvg, alt: "Send payment" },
+  { png: paymentsPng, svg: paymentsSvg, alt: "Payments list" },
+] as const;
 
-function ShotImage({ png, svg, alt }: { png: string; svg: string; alt: string }) {
-  const [src, setSrc] = useState(png);
+function ScreenshotSlide({
+  png,
+  svg,
+  alt,
+  priority,
+  className,
+}: {
+  png: StaticImageData;
+  svg: StaticImageData;
+  alt: string;
+  priority?: boolean;
+  className?: string;
+}) {
+  const [src, setSrc] = useState<StaticImageData>(png);
+
   return (
-    <Image
-      src={src}
-      alt={alt}
-      width={400}
-      height={260}
-      className="h-auto w-full"
-      unoptimized
-      onError={() => {
-        if (src !== svg) setSrc(svg);
-      }}
-    />
-  );
-}
-
-export function ProductScreenshotGallery() {
-  return (
-    <div className="grid gap-4 sm:grid-cols-3">
-      {SHOTS.map((shot) => (
-        <div key={shot.svg} className="glass-card overflow-hidden">
-          <ShotImage png={shot.png} svg={shot.svg} alt={shot.alt} />
-        </div>
-      ))}
-      <p className="sm:col-span-3 text-center text-xs text-slate-500">
-        Drop live PNGs as <code className="text-blue-400">overview.png</code>,{" "}
-        <code className="text-blue-400">send.png</code>, <code className="text-blue-400">payments.png</code> in{" "}
-        <code className="text-blue-400">public/screenshots/</code> — SVG placeholders show until then.
-      </p>
+    <div
+      className={`relative overflow-hidden rounded-2xl border border-white/[0.08] bg-virlux-surface shadow-2xl ${className ?? ""}`}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        width={1200}
+        height={720}
+        className="h-auto w-full"
+        priority={priority}
+        onError={() => {
+          if (src !== svg) setSrc(svg);
+        }}
+      />
     </div>
   );
 }
 
-/** Gallery when assets exist; otherwise CSS preview fallback */
+/** Product section — bundled PNGs from capture script, SVG fallback on load error */
 export function ProductShowcase() {
   return (
-    <div className="space-y-6">
-      <ProductScreenshotGallery />
-      <details className="text-sm text-slate-500">
-        <summary className="cursor-pointer text-slate-400">Preview mock (fallback)</summary>
-        <div className="mt-4 max-w-md">
-          <ProductPreview />
+    <div className="space-y-4">
+      <div className="space-y-4">
+        <ScreenshotSlide {...SLIDES[0]} priority />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <ScreenshotSlide {...SLIDES[1]} />
+          <ScreenshotSlide {...SLIDES[2]} />
         </div>
-      </details>
+      </div>
+      <p className="text-center text-xs text-slate-500">{CLIENT_COPY.productPreviewCaption}</p>
     </div>
   );
+}
+
+/** @deprecated Use ProductShowcase */
+export function ProductScreenshotGallery() {
+  return <ProductShowcase />;
 }

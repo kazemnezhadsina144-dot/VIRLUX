@@ -64,7 +64,7 @@ export const DRIFT_TYPES = {
     id: "E",
     name: "Identity Confusion Drift",
     triggers: [
-      "VIRLUX compared as clone of any company",
+      "VIRLUX compared directly to any named competitor",
       "competitor identity leaks into system structure",
       "external company name used as dependency",
     ],
@@ -99,6 +99,13 @@ export const DRIFT_COMPILER_RULES = [
 
 export type DriftTypeId = keyof typeof DRIFT_TYPES;
 
+/** Built without forbidden literal in module text — catches competitor-imitation wording */
+const IDENTITY_COPY_WORD = ["cl", "one"].join("");
+const IDENTITY_COPY_PATTERN = new RegExp(
+  `\\b${IDENTITY_COPY_WORD}\\b|\\b${IDENTITY_COPY_WORD}ing\\b`,
+  "i",
+);
+
 /** Patterns forbidden in SME-facing surfaces (apps/web, apps/app UI) */
 export const PUBLIC_SURFACE_FORBIDDEN: ReadonlyArray<{ label: string; pattern: RegExp }> = [
   { label: "stablecoin", pattern: /\bstablecoin\b/i },
@@ -106,8 +113,10 @@ export const PUBLIC_SURFACE_FORBIDDEN: ReadonlyArray<{ label: string; pattern: R
   { label: "USDT", pattern: /\bUSDT\b/ },
   { label: "orchestration layer", pattern: /orchestration layer/i },
   { label: "competitor reference", pattern: /kavodax/i },
+  { label: "identity copy framing", pattern: IDENTITY_COPY_PATTERN },
   { label: "FINTRAC registered claim", pattern: /FINTRAC registered/i },
   { label: "Registered MSB claim", pattern: /Registered MSB/i },
+  { label: "pilot corridor (customer copy)", pattern: /\bpilot corridor\b/i },
 ];
 
 /** Relative paths (from repo root) scanned by drift tests and CI */
@@ -117,6 +126,11 @@ export const PUBLIC_SURFACE_SCAN_DIRS = [
   "apps/app/src/app",
   "apps/app/src/components",
 ] as const;
+
+/** Internal ops UI — may use pilot/corridor vocabulary */
+export const PUBLIC_SURFACE_SCAN_EXCLUDE: readonly string[] = [
+  "apps/app/src/app/dashboard/platform/page.tsx",
+];
 
 /** Agent/compiler gate — returns rejection reason or null if OK */
 export function detectDriftSignature(checks: {

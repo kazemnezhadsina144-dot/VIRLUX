@@ -5,6 +5,10 @@ set -euo pipefail
 WEB="${STAGING_WEB_URL:-https://virlux-web.vercel.app}"
 APP="${STAGING_APP_URL:-https://virlux-app.vercel.app}"
 API="${NEXT_PUBLIC_API_URL:-https://virlux-api.vercel.app}"
+# Prefer live API for header check when local API is not running
+if [[ "$API" == *localhost* ]]; then
+  API="https://virlux-api.vercel.app"
+fi
 
 check_header() {
   local name="$1"

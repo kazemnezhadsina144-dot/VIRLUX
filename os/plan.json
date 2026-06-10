@@ -1,0 +1,50 @@
+{
+  "repo": "VIRLUX",
+  "plane": "DELIVERY",
+  "phase": "staging_pilot",
+  "active_focus": "vx-0001_verify_live",
+  "authority": {
+    "design_alignment": "VIRELUX_REPO_ALIGNMENT.md (internal SSOT)",
+    "design_ssot": "SINA_OS_SSOT_LOCKED.md (internal SSOT)",
+    "no_asf_library": "~/.cursor/plans/no-asf-library",
+    "no_asf_repo_pointer": "os/NO-ASF-PLANS.md"
+  },
+  "next_tasks": [],
+  "done": [
+    "Repo active with marketing + dashboard + API packages",
+    "Railway deploy workflow present (optional path)",
+    "Vercel API live: https://virlux-api.vercel.app — health, meta, demo login",
+    "Supabase virlux-staging bueoakgiisvufxfbdvoa — schema + demo seed",
+    "NEXT_PUBLIC_API_URL wired on virlux-web + virlux-app",
+    "apps/api Vercel entry: app.ts + api/index.ts + api/health.ts; vercel.api.json",
+    "staging-prepare-env.sh + staging-supabase-db-url.sh (aws-1 pooler); railway sqlite guard",
+    "npm run deploy:smoke green; staging-platform-setup.sh run",
+    "docs/LIVE-DEPLOY-RUNBOOK.md — Vercel primary path",
+    "UI/copy upgrade — CLIENT_COPY, blueprint-aligned marketing + dashboard; debug ingest removed",
+    "Wire custom DNS virlux.com + app.virlux.com on Vercel (B4)",
+    "Founder media: Loom URL, Calendly, live PNG screenshots — docs/GTM-MEDIA-CHECKLIST.md",
+    "UI/copy E2E — app redeployed from repo root; Playwright dashboard+send green on virlux-app.vercel.app",
+    "Vercel web deploy — vercel.web.json swap at repo root; virlux-web.vercel.app 200",
+    "No-ASF sprint — full Playwright live, PNG screenshots, registry sync",
+    "No-ASF GTM sprint — bundled PNG gallery, smoke-custom-domains, transaction detail UX",
+    "No-ASF verify ladder — verify:live, verify:analytics, post-deploy Playwright 15/15",
+    "Real-money gates: Circle production keys, FINTRAC copy lock, approval thresholds in prod",
+    "Founder: point virlux.com DNS to virlux-web (not /lander); app.virlux.com → virlux-app",
+    "Founder: real-money gates — Circle prod, FINTRAC copy lock",
+    "vx-0001 — verify:live gate 15/15 (1 flaky capture-screenshots send, exit 0)"
+  ],
+  "blocked": [
+    "Railway virlux-api-production.up.railway.app optional — 404; use https://virlux-api.vercel.app",
+    "virlux.com serves /lander stub — marketing E2E uses virlux-web.vercel.app"
+  ],
+  "verify_last": {
+    "task": "vx-0001 — verify:live gate",
+    "at": "2026-06-07",
+    "verify_passed": true,
+    "verify_command": "npm run verify:live",
+    "evidence_url": "https://virlux-web.vercel.app",
+    "notes": "15/15 Playwright; 0 flaky (re-verify)",
+    "next_tasks_count": 0
+  },
+  "updated_at": "2026-06-07"
+}

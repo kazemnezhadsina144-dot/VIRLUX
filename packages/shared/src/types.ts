@@ -20,7 +20,7 @@ export interface QuoteResponse {
   virluxFeeAmount: number;
   estimatedGasUsd: number;
   amountOut: number;
-  rateSources: string[];
+  rateProviders: string[];
   disclaimer: string;
   expiresAt: string;
 }

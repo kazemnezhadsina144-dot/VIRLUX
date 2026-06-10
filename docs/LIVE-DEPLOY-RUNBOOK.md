@@ -107,21 +107,16 @@ RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:deploy-all
 ## 5. Seed staging (once)
 
 ```bash
-# On Railway API service or local against staging DB:
-SEED_DATABASE=true npm run db:seed -w @virlux/api
+# Against staging DB (DIRECT_URL in .env.staging):
+SEED_DATABASE=true DEMO_SEED_PASSWORD="$DEMO_SEED_PASSWORD" npm run db:seed -w @virlux/api
 ```
 
-Accounts: `demo@virlux.com`, `approver@virlux.demo` — password from `DEMO_SEED_PASSWORD` (Tier 3, not in git)
-
-```bash
-PLATFORM_ADMIN_EMAIL=demo@virlux.com PLATFORM_ADMIN_PASSWORD="$DEMO_SEED_PASSWORD" \
-  npm run staging:platform-setup
-```
+Accounts: `demo@virlux.com`, `approver@virlux.demo` — password from `DEMO_SEED_PASSWORD` (Tier 3, in `~/.sina/secrets.env`)
 
 ## 6. Platform setup
 
 ```bash
-STAGING_API_URL=https://your-api.up.railway.app \
+STAGING_API_URL=https://virlux-api.vercel.app \
 PLATFORM_ADMIN_EMAIL=demo@virlux.com PLATFORM_ADMIN_PASSWORD="$DEMO_SEED_PASSWORD" \
 ORG_ID=seed-org-demo PILOT_CORRIDOR=PH \
 bash scripts/staging-platform-setup.sh

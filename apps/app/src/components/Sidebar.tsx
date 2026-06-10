@@ -3,21 +3,22 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { CLIENT_COPY } from "@virlux/shared";
 import { logout, api } from "@/lib/api";
 import { useAuth, canSend, canManageTeam, canViewAudit, canApprove } from "@/lib/auth-context";
 import { parseTransactionsResponse } from "@/lib/transactions";
 
 const ICONS: Record<string, string> = {
-  Overview: "◉",
-  Send: "↗",
-  Deposits: "↓",
-  Payments: "≡",
-  Approvals: "✓",
-  Team: "👥",
-  Verification: "✓",
-  "Activity log": "📋",
-  "Platform ops": "⚡",
-  Settings: "⚙",
+  [CLIENT_COPY.nav.overview]: "◉",
+  [CLIENT_COPY.nav.send]: "↗",
+  [CLIENT_COPY.nav.addFunds]: "↓",
+  [CLIENT_COPY.nav.payments]: "≡",
+  [CLIENT_COPY.nav.approvals]: "✓",
+  [CLIENT_COPY.nav.team]: "👥",
+  [CLIENT_COPY.nav.verification]: "✓",
+  [CLIENT_COPY.nav.activityLog]: "📋",
+  [CLIENT_COPY.nav.platformOps]: "⚡",
+  [CLIENT_COPY.nav.settings]: "⚙",
 };
 
 function canAccessPlatform(me: ReturnType<typeof useAuth>) {
@@ -25,21 +26,29 @@ function canAccessPlatform(me: ReturnType<typeof useAuth>) {
 }
 
 const allLinks = [
-  { href: "/dashboard", label: "Overview", show: () => true },
-  { href: "/dashboard/send", label: "Send", show: (me: ReturnType<typeof useAuth>) => canSend(me?.role) },
-  { href: "/dashboard/deposits", label: "Deposits", show: (me: ReturnType<typeof useAuth>) => canSend(me?.role) },
-  { href: "/dashboard/transactions", label: "Payments", show: () => true },
+  { href: "/dashboard", label: CLIENT_COPY.nav.overview, show: () => true },
+  { href: "/dashboard/send", label: CLIENT_COPY.nav.send, show: (me: ReturnType<typeof useAuth>) => canSend(me?.role) },
+  {
+    href: "/dashboard/deposits",
+    label: CLIENT_COPY.nav.addFunds,
+    show: (me: ReturnType<typeof useAuth>) => canSend(me?.role),
+  },
+  { href: "/dashboard/transactions", label: CLIENT_COPY.nav.payments, show: () => true },
   {
     href: "/dashboard/approvals",
-    label: "Approvals",
+    label: CLIENT_COPY.nav.approvals,
     show: (me: ReturnType<typeof useAuth>) => canApprove(me?.role),
     badge: true,
   },
-  { href: "/dashboard/team", label: "Team", show: (me: ReturnType<typeof useAuth>) => canManageTeam(me?.role) },
-  { href: "/dashboard/kyc", label: "Verification", show: () => true },
-  { href: "/dashboard/audit", label: "Activity log", show: (me: ReturnType<typeof useAuth>) => canViewAudit(me?.role) },
-  { href: "/dashboard/platform", label: "Platform ops", show: canAccessPlatform },
-  { href: "/dashboard/settings", label: "Settings", show: () => true },
+  { href: "/dashboard/team", label: CLIENT_COPY.nav.team, show: (me: ReturnType<typeof useAuth>) => canManageTeam(me?.role) },
+  { href: "/dashboard/kyc", label: CLIENT_COPY.nav.verification, show: () => true },
+  {
+    href: "/dashboard/audit",
+    label: CLIENT_COPY.nav.activityLog,
+    show: (me: ReturnType<typeof useAuth>) => canViewAudit(me?.role),
+  },
+  { href: "/dashboard/platform", label: CLIENT_COPY.nav.platformOps, show: canAccessPlatform },
+  { href: "/dashboard/settings", label: CLIENT_COPY.nav.settings, show: () => true },
 ];
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {

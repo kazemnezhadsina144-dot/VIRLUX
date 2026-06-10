@@ -8,6 +8,8 @@ import { useAuth, canApprove } from "@/lib/auth-context";
 import { parseTransactionsResponse, toDisplayTransaction } from "@/lib/transactions";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingRows } from "@/components/ui/LoadingRows";
+import { CLIENT_COPY } from "@virlux/shared";
 
 export default function ApprovalsPage() {
   const me = useAuth();
@@ -29,26 +31,27 @@ export default function ApprovalsPage() {
   if (!canApprove(me?.role)) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-white">Approvals</h1>
-        <p className="mt-4 text-sm text-slate-400">Your role cannot approve payments.</p>
+        <h1 className="text-2xl font-bold text-white">{CLIENT_COPY.approvals.title}</h1>
+        <p className="mt-4 text-sm text-slate-400">{CLIENT_COPY.approvals.roleDenied}</p>
       </div>
     );
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white">Approvals</h1>
-      <p className="mt-1 text-slate-400">Payments waiting for your review before processing.</p>
+      <h1 className="text-2xl font-bold text-white">{CLIENT_COPY.approvals.title}</h1>
+      <p className="mt-1 text-slate-400">{CLIENT_COPY.approvals.subtitle}</p>
 
       {loading ? (
-        <div className="mt-8 space-y-3">
-          {[1, 2].map((i) => (
-            <div key={i} className="h-14 animate-pulse rounded-xl bg-white/[0.04]" />
-          ))}
+        <div className="mt-8">
+          <LoadingRows count={2} />
         </div>
       ) : items.length === 0 ? (
         <div className="mt-8">
-          <EmptyState title="No pending approvals" description="Payments over your threshold will appear here." />
+          <EmptyState
+            title={CLIENT_COPY.approvals.emptyTitle}
+            description={CLIENT_COPY.approvals.emptyDescription}
+          />
         </div>
       ) : (
         <ul className="mt-8 space-y-3">
@@ -61,7 +64,9 @@ export default function ApprovalsPage() {
               >
                 <div>
                   <p className="font-medium text-white">{t.amountLabel}</p>
-                  <p className="text-xs text-slate-500">{t.recipientName ?? "International payment"}</p>
+                  <p className="text-xs text-slate-500">
+                    {t.recipientName ?? CLIENT_COPY.payments.defaultRecipient}
+                  </p>
                 </div>
                 <StatusBadge status={t.status} />
               </button>
@@ -71,7 +76,7 @@ export default function ApprovalsPage() {
       )}
 
       <Link href="/dashboard/transactions" className="mt-6 inline-block text-sm text-blue-400">
-        View all payments →
+        {CLIENT_COPY.approvals.viewAllLink}
       </Link>
     </div>
   );

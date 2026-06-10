@@ -8,7 +8,7 @@ cd "$ROOT"
 if [[ -f .env.staging ]]; then
   set -a
   # shellcheck disable=SC1091
-  source .env.staging 2>/dev/null || true
+  . .env.staging 2>/dev/null || true
   set +a
 fi
 

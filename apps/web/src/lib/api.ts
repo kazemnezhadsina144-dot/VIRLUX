@@ -1,12 +1,11 @@
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002";
-
 export async function fetchQuote(body: {
   amount: number;
   fromCurrency: "CAD" | "USD";
   toStablecoin: "USDC" | "USDT";
   network: "ethereum" | "polygon" | "solana";
 }) {
-  const res = await fetch(`${API}/api/quote/estimate`, {
+  // Marketing site uses local Next.js route — no Railway dependency for first impression
+  const res = await fetch("/api/quote/estimate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

@@ -47,6 +47,8 @@
     "staging:reseed-demo": "bash scripts/staging-reseed-demo.sh",
     "staging:migrate": "bash scripts/staging-migrate-deploy.sh",
     "founder:security-checklist": "bash scripts/founder-security-checklist.sh",
+    "setup:supabase-anon-probe": "bash scripts/setup-supabase-anon-probe.sh",
+    "wire:vercel-domains": "bash scripts/wire-vercel-domains.sh",
     "live-pilot:deploy-check": "bash scripts/live-pilot-deploy-check.sh",
     "post-deploy:verify": "bash scripts/post-deploy-verify.sh",
     "gtm:capture-screenshots": "bash scripts/capture-product-screenshots.sh",

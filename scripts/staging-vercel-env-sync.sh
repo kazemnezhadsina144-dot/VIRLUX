@@ -14,7 +14,7 @@ fi
 if [[ -f "$ROOT/.env.staging" ]]; then
   set -a
   # shellcheck disable=SC1091
-  source "$ROOT/.env.staging"
+  . "$ROOT/.env.staging"
   set +a
 fi
 

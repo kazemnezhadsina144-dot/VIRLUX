@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { DetailSkeleton } from "@/components/ui/LoadingRows";
+import { CLIENT_COPY } from "@virlux/shared";
 
 type Me = {
   email: string;
@@ -44,11 +46,11 @@ export default function SettingsPage() {
     setTelegram(link);
   }
 
-  if (!me) return <p className="text-slate-400">Loading…</p>;
+  if (!me) return <DetailSkeleton />;
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-semibold text-white">Settings</h1>
+      <h1 className="text-2xl font-semibold text-white">{CLIENT_COPY.nav.settings}</h1>
       <p className="mt-1 text-sm text-slate-400">Account details and notifications</p>
 
       <dl className="mt-6 space-y-3 glass-panel p-6 text-sm">

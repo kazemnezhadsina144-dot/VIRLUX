@@ -14,6 +14,7 @@ import {
   SUPPORTED_COUNTRIES,
   POSITIONING,
   PUBLIC_COPY,
+  CLIENT_COPY,
 } from "@virlux/shared";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001";
@@ -288,7 +289,7 @@ export default function HomePage() {
           <p className="section-label text-center">Trust & security</p>
           <h2 className="mt-3 text-2xl font-bold text-white">Built for how Canadian finance teams work</h2>
           <p className="mt-4 text-sm leading-relaxed text-slate-400">
-            {POSITIONING.complianceLine} This page is not legal or financial advice.
+            {POSITIONING.complianceLine} {CLIENT_COPY.legalFooterDisclaimer}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {TRUST.map((t) => (
@@ -306,8 +307,9 @@ export default function HomePage() {
           <p className="section-label">Design partners</p>
           <h2 className="mt-3 text-2xl font-bold text-white">Seeking 3 Canadian design partners</h2>
           <p className="mt-4 text-sm leading-relaxed text-slate-400">
-            We&apos;re working with early finance teams who pay international suppliers. 90-day pilot — 1% fee,
-            $50K CAD/month cap, one corridor. Honest pre-traction; your feedback shapes the product.
+            We&apos;re working with early finance teams who pay international suppliers. 90-day design partner
+            program — 1% fee, $50K CAD/month cap, selected destinations. Honest pre-traction; your feedback shapes
+            the product.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <BookDemoLink className="btn-primary" />

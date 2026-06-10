@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { parseTransactionsResponse, toDisplayTransaction } from "@/lib/transactions";
 import { GettingStartedChecklist } from "@/components/GettingStartedChecklist";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { CLIENT_COPY, formatClientCopy, formatKycStatus } from "@virlux/shared";
 
 export default function DashboardPage() {
   const me = useAuth();
@@ -30,15 +31,23 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white">Overview</h1>
-      <p className="mt-1 text-slate-400">Welcome back{me?.fullName ? `, ${me.fullName}` : ""}</p>
+      <h1 className="text-2xl font-bold text-white">{CLIENT_COPY.overview.title}</h1>
+      <p className="mt-1 text-slate-400">
+        {CLIENT_COPY.overview.welcome}
+        {me?.fullName ? `, ${me.fullName}` : ""}
+      </p>
 
       {canApprove(me?.role) && pendingApprovals > 0 && (
         <Link
           href="/dashboard/approvals"
           className="mt-6 block rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200 hover:bg-amber-500/15"
         >
-          {pendingApprovals} payment{pendingApprovals === 1 ? "" : "s"} need your approval →
+          {formatClientCopy(
+            pendingApprovals === 1
+              ? CLIENT_COPY.overview.approvalsNeeded
+              : CLIENT_COPY.overview.approvalsNeededPlural,
+            { count: pendingApprovals }
+          )}
         </Link>
       )}
 
@@ -46,24 +55,28 @@ export default function DashboardPage() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="glass-panel p-6">
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-500">CAD balance</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+            {CLIENT_COPY.overview.cadBalance}
+          </p>
           <p className="mt-2 text-3xl font-bold text-white">${cad.toLocaleString()}</p>
           <Link href="/dashboard/deposits" className="mt-4 inline-block text-sm text-blue-400 hover:text-blue-300">
-            Add funds →
+            {CLIENT_COPY.overview.addFunds}
           </Link>
         </div>
         <div className="glass-panel p-6">
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Verification</p>
-          <p className="mt-2 text-lg font-semibold capitalize text-white">{kyc.replace(/_/g, " ")}</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+            {CLIENT_COPY.overview.verification}
+          </p>
+          <p className="mt-2 text-lg font-semibold text-white">{formatKycStatus(kyc)}</p>
           {kyc !== "approved" && (
             <Link href="/dashboard/kyc" className="mt-4 inline-block text-sm text-blue-400 hover:text-blue-300">
-              Complete verification →
+              {CLIENT_COPY.overview.completeVerification}
             </Link>
           )}
         </div>
         {volume?.capCad != null && volume.capCad > 0 && (
           <div className="glass-panel p-6 sm:col-span-2 lg:col-span-1">
-            <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Pilot volume (30 days)</p>
+            <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Account volume (30 days)</p>
             <p className="mt-2 text-lg font-semibold text-white">
               ${Math.round(volume.usedCad).toLocaleString()} / ${volume.capCad.toLocaleString()} CAD
             </p>
@@ -85,9 +98,9 @@ export default function DashboardPage() {
 
       <section className="mt-10">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-white">Recent payments</h2>
+          <h2 className="font-semibold text-white">{CLIENT_COPY.overview.recentPayments}</h2>
           <Link href="/dashboard/transactions" className="text-sm text-blue-400">
-            View all
+            {CLIENT_COPY.overview.viewAll}
           </Link>
         </div>
         {txs.length === 0 ? (

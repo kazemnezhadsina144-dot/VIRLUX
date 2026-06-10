@@ -1,18 +1,22 @@
 import { describe, it, expect } from "vitest";
 import fs from "fs";
 import path from "path";
-import { PUBLIC_SURFACE_FORBIDDEN, PUBLIC_SURFACE_SCAN_DIRS } from "./drift-prevention";
+import {
+  PUBLIC_SURFACE_FORBIDDEN,
+  PUBLIC_SURFACE_SCAN_DIRS,
+  PUBLIC_SURFACE_SCAN_EXCLUDE,
+} from "./drift-prevention";
 import { COMPLIANCE, COMPLIANCE_MESSAGING } from "./constants";
 
 const REPO_ROOT = path.resolve(__dirname, "../../..");
 
-function listSourceFiles(dir: string): string[] {
+function listTsxInTree(dir: string): string[] {
   const abs = path.join(REPO_ROOT, dir);
   if (!fs.existsSync(abs)) return [];
   const out: string[] = [];
   for (const entry of fs.readdirSync(abs, { withFileTypes: true })) {
     const full = path.join(abs, entry.name);
-    if (entry.isDirectory()) out.push(...listSourceFiles(path.join(dir, entry.name)));
+    if (entry.isDirectory()) out.push(...listTsxInTree(path.join(dir, entry.name)));
     else if (entry.name.endsWith(".tsx")) out.push(full);
   }
   return out;
@@ -31,8 +35,9 @@ describe("public surface drift scan", () => {
     const violations: string[] = [];
 
     for (const dir of PUBLIC_SURFACE_SCAN_DIRS) {
-      for (const file of listSourceFiles(dir)) {
+      for (const file of listTsxInTree(dir)) {
         const rel = path.relative(REPO_ROOT, file);
+        if (PUBLIC_SURFACE_SCAN_EXCLUDE.some((ex) => rel === ex || rel.endsWith(ex))) continue;
         const lines = fs.readFileSync(file, "utf8").split("\n");
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];

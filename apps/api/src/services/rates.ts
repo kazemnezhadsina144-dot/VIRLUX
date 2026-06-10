@@ -22,7 +22,7 @@ export async function fetchMidMarketRate(
 
 async function fetchCadUsd(): Promise<number> {
   const res = await fetch("https://api.frankfurter.app/latest?from=CAD&to=USD");
-  if (!res.ok) throw new Error("Frankfurter rate unavailable");
+  if (!res.ok) throw new Error("FX rate provider unavailable");
   const data = (await res.json()) as { rates: { USD: number } };
   return data.rates.USD;
 }
@@ -39,7 +39,7 @@ async function fetchStablecoinUsd(coin: "USDC" | "USDT"): Promise<number> {
   const res = await fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`
   );
-  if (!res.ok) throw new Error("CoinGecko rate unavailable");
+  if (!res.ok) throw new Error("Market rate provider unavailable");
   const data = (await res.json()) as Record<string, { usd: number }>;
   return data[id]?.usd ?? 1;
 }
@@ -74,9 +74,9 @@ export async function buildQuote(input: {
     virluxFeeAmount: feeAmount,
     estimatedGasUsd: gasUsd,
     amountOut,
-    rateSources: [...PRICING.rateSources],
+    rateProviders: [...PRICING.rateProviders],
     disclaimer:
-      "Rates via Frankfurter & CoinGecko. For indication only. Final rate confirmed at transaction.",
+      "Indicative rate from live market data. Final rate confirmed at transaction.",
     expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
   };
 }

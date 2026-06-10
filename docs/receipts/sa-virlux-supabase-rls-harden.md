@@ -19,10 +19,11 @@
 
 ## Founder follow-up (dashboard)
 
-- Rotate Supabase anon/publishable key
-- Set `DEMO_SEED_PASSWORD` + re-seed staging
+- Rotate Supabase anon/publishable keys after probe passes (dashboard) — then re-run `npm run verify:supabase-security`
+- Set `DEMO_SEED_PASSWORD` + re-seed staging if needed
 - Wire DNS + Calendly/Loom env vars
 - Enable `PLATFORM_ADMIN_MFA_REQUIRED` after MFA enrollment
+- Sign `docs/BREACH-ASSESSMENT-INC009.md`
 
 ## Verify
 

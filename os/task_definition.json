@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "active_task": "Run scripts/live-pilot-deploy-check.sh and fix any FAIL gates",
+  "definitions": {
+    "Run scripts/live-pilot-deploy-check.sh and fix any FAIL gates": {
+      "acceptance_criteria": [
+        "VERIFY command ran successfully",
+        "Evidence commit hash recorded",
+        "No new blocker introduced"
+      ],
+      "verify_commands": []
+    }
+  }
+}

@@ -180,7 +180,7 @@ export default function PlatformPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Platform ops</h1>
-          <p className="mt-1 text-sm text-slate-400">Cross-org KYC, deposits, and MSB partner overview</p>
+          <p className="mt-1 text-sm text-slate-400">Cross-org KYC, deposits, and settlement partner overview</p>
         </div>
         <button type="button" onClick={downloadFintrac} className="btn-primary !py-2 text-xs">
           Export FINTRAC CSV (90d)
@@ -190,7 +190,7 @@ export default function PlatformPage() {
       {msg && <p className="mt-4 text-sm text-amber-400">{msg}</p>}
 
       <section className="mt-8">
-        <h2 className="font-semibold text-white">MSB partners ({partners.length})</h2>
+        <h2 className="font-semibold text-white">Settlement partners ({partners.length})</h2>
         <form onSubmit={createPartner} className="mt-4 flex flex-wrap gap-2 glass-panel p-4">
           <input
             placeholder="Partner legal name"
@@ -221,7 +221,7 @@ export default function PlatformPage() {
                   </p>
                 </div>
                 {p.fintracMsbNumber && (
-                  <span className="text-xs text-slate-500">MSB {p.fintracMsbNumber}</span>
+                  <span className="text-xs text-slate-500">Reg. {p.fintracMsbNumber}</span>
                 )}
               </li>
             ))}
@@ -305,13 +305,13 @@ export default function PlatformPage() {
       <section className="mt-10">
         <h2 className="font-semibold text-white">Awaiting settlement confirmation ({submittedTxs.length})</h2>
         {submittedTxs.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-500">No transactions submitted to MSB partner.</p>
+          <p className="mt-2 text-sm text-slate-500">No transactions awaiting partner confirmation.</p>
         ) : (
           <ul className="mt-4 space-y-3">
             {submittedTxs.map((tx) => (
               <li key={tx.id} className="glass-panel p-4 text-sm">
                 <p className="font-medium text-white">
-                  {tx.amountIn} {tx.fromCurrency} → {tx.amountOut} {tx.toStablecoin}
+                  {tx.amountIn} {tx.fromCurrency} → ≈ {tx.amountOut} delivered
                 </p>
                 <p className="text-slate-400">{tx.user.fullName} · {tx.user.email}</p>
                 <p className="text-xs text-slate-500">

@@ -12,7 +12,7 @@ export async function fundDemoWallet(userId: string) {
   }
 
   const user = await prisma.user.findUnique({ where: { id: userId }, include: { wallet: true } });
-  if (!user?.wallet) throw new AppError(404, "Wallet not found");
+  if (!user?.wallet) throw new AppError(404, "Account balance not found");
 
   await credit(userId, "CAD", 10000, "demo_fund", `demo-${Date.now()}`, "Staging demo balance top-up");
 

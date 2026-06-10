@@ -58,13 +58,13 @@ export function MobileNav() {
               Privacy
             </Link>
             <div className="mt-auto space-y-2 pt-6">
-              <Link href={APP_URL} className="btn-secondary block w-full text-center text-sm">
-                Sign in
-              </Link>
               <Link href={APP_URL} className="btn-primary block w-full text-center text-sm">
                 {PUBLIC_COPY.ctaPrimary}
               </Link>
-              <BookDemoLink className="btn-ghost block w-full text-center text-sm !border-white/10" />
+              <BookDemoLink className="btn-secondary block w-full text-center text-sm" />
+              <Link href={APP_URL} className="btn-ghost block w-full text-center text-sm !border-white/10">
+                Sign in
+              </Link>
             </div>
           </nav>
         </>

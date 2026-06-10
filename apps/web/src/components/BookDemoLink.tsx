@@ -14,7 +14,7 @@ export function BookDemoLink({ className = "btn-secondary", children }: Props) {
   const label = children ?? PUBLIC_COPY.ctaDemo;
 
   function onClick() {
-    trackEvent("demo_booked", { source: calendly ? "calendly" : "mailto" });
+    trackEvent("demo_booked", { via: calendly ? "calendly" : "mailto" });
   }
 
   if (calendly) {

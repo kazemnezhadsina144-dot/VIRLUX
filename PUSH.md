@@ -1,7 +1,7 @@
 # Push & deploy VIRLUX
 
 Repo: **https://github.com/kazemnezhadsina144-dot/VIRLUX**  
-Branch: **`main`** (production source)
+Branch: **`main`** (production branch)
 
 ## 1. One-command deploy (founder tokens)
 

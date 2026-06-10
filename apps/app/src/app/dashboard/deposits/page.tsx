@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useAuth, canManageTeam } from "@/lib/auth-context";
-import { formatDepositStatus, isPublicDemoMode } from "@virlux/shared";
+import { CLIENT_COPY, formatDepositStatus, isPublicDemoMode } from "@virlux/shared";
+import { LoadingRows } from "@/components/ui/LoadingRows";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { useToast } from "@/components/ui/Toast";
 
@@ -98,12 +99,12 @@ export default function DepositsPage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-2xl font-bold text-white">Add funds</h1>
-      <p className="mt-1 text-sm text-slate-400">Fund your account via Interac e-Transfer</p>
+      <h1 className="text-2xl font-bold text-white">{CLIENT_COPY.deposits.title}</h1>
+      <p className="mt-1 text-sm text-slate-400">{CLIENT_COPY.deposits.subtitle}</p>
 
       <div className="mt-6 glass-panel p-6">
         <label className="block text-sm">
-          <span className="text-slate-400">Amount (CAD)</span>
+          <span className="text-slate-400">{CLIENT_COPY.deposits.amountLabel}</span>
           <input
             type="number"
             value={amount}
@@ -112,19 +113,19 @@ export default function DepositsPage() {
           />
         </label>
         <button type="button" onClick={deposit} className="btn-primary mt-4">
-          Generate Interac instructions
+          {CLIENT_COPY.deposits.generateInstructions}
         </button>
         {demoMode && (
           <button type="button" onClick={demoFund} className="btn-secondary mt-4 ml-0 sm:ml-3">
-            Add demo funds instantly
+            {CLIENT_COPY.deposits.demoFunds}
           </button>
         )}
         {lastRef && (
           <div className="mt-4 rounded-xl bg-black/30 p-4 text-sm">
-            <p className="text-slate-400">Reference (use in Interac message):</p>
+            <p className="text-slate-400">{CLIENT_COPY.deposits.referenceLabel}</p>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               <p className="font-mono text-lg text-amber-400">{lastRef}</p>
-              <CopyButton text={lastRef} label="Copy reference" />
+              <CopyButton text={lastRef} label={CLIENT_COPY.deposits.copyReference} />
             </div>
           </div>
         )}
@@ -135,8 +136,8 @@ export default function DepositsPage() {
 
       {isAdmin && pending.length > 0 && (
         <section className="mt-10">
-          <h2 className="font-semibold text-white">Pending Interac confirmations</h2>
-          <p className="mt-1 text-sm text-slate-500">Mark received after verifying bank deposit</p>
+          <h2 className="font-semibold text-white">{CLIENT_COPY.deposits.pendingTitle}</h2>
+          <p className="mt-1 text-sm text-slate-500">{CLIENT_COPY.deposits.pendingHint}</p>
           <ul className="mt-4 space-y-3">
             {pending.map((d) => (
               <li key={d.id} className="flex flex-wrap items-center justify-between gap-3 glass-panel p-4 text-sm">
@@ -148,7 +149,7 @@ export default function DepositsPage() {
                   <p className="font-mono text-xs text-amber-400/80">{d.reference}</p>
                 </div>
                 <button type="button" onClick={() => confirmDeposit(d.id)} className="btn-primary !py-2 text-xs">
-                  Confirm received
+                  {CLIENT_COPY.deposits.confirmReceived}
                 </button>
               </li>
             ))}
@@ -156,16 +157,16 @@ export default function DepositsPage() {
         </section>
       )}
 
-      <h2 className="mt-10 font-semibold text-white">Deposit history</h2>
+      <h2 className="mt-10 font-semibold text-white">{CLIENT_COPY.deposits.historyTitle}</h2>
       {loading ? (
-        <div className="mt-3 space-y-2">
-          {[1, 2].map((i) => (
-            <div key={i} className="h-12 animate-pulse rounded-xl bg-white/[0.04]" />
-          ))}
+        <div className="mt-3">
+          <LoadingRows count={2} />
         </div>
       ) : (
         <ul className="mt-3 space-y-2">
-          {deposits.length === 0 && <li className="text-sm text-slate-500">No deposits yet</li>}
+          {deposits.length === 0 && (
+            <li className="text-sm text-slate-500">{CLIENT_COPY.deposits.historyEmpty}</li>
+          )}
           {deposits.map((d) => (
             <li
               key={d.id}

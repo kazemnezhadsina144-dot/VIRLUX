@@ -66,6 +66,6 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Which countries can I pay?",
-    a: "VIRLUX supports major business corridors across the Americas, Europe, Africa, Asia, and Oceania—with more added regularly.",
+    a: "VIRLUX supports major business destinations across the Americas, Europe, Africa, Asia, and Oceania—with more added regularly.",
   },
 ] as const;

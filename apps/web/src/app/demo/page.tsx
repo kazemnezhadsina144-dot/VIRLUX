@@ -28,11 +28,11 @@ export default function DemoPage() {
         ) : (
           <div className="mt-10 rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-12 text-center">
             <p className="text-slate-400">
-              Set <code className="text-blue-400">NEXT_PUBLIC_DEMO_LOOM_URL</code> on Vercel to embed your
-              Loom walkthrough here.
+              A recorded product walkthrough will appear here soon. Book a live demo below or open the dashboard to
+              explore send, approvals, and payment history.
             </p>
             <p className="mt-4 text-sm text-slate-500">
-              Or explore the live dashboard directly — register free or use a demo account on staging.
+              Register free on the live app, or use the demo account on staging.
             </p>
           </div>
         )}
