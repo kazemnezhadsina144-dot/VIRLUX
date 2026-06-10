@@ -2,6 +2,10 @@
 # Verify Supabase Data API cannot read application tables (RLS + revoked grants).
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=/dev/null
+source "$ROOT/scripts/load-tier3-secrets.sh"
+
 REF="${VIRLUX_SUPABASE_REF:-bueoakgiisvufxfbdvoa}"
 BASE="https://${REF}.supabase.co/rest/v1"
 

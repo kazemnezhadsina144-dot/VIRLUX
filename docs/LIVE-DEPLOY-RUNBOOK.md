@@ -2,27 +2,72 @@
 
 Founder-only steps to go from `main` to live URLs. Engineering prerequisites are on `main`; this doc is the execution checklist.
 
-## Current live URLs (2026-06-01)
+## Current live URLs (2026-06-04)
 
 | Surface | URL | Status |
 |---------|-----|--------|
 | Marketing | https://virlux-web.vercel.app | Live (Live Pilot build) |
 | Dashboard | https://virlux-app.vercel.app | Live (Live Pilot build) |
-| API | `virlux-api-production.up.railway.app` | **Needs `RAILWAY_TOKEN` deploy** |
+| API | https://virlux-api.vercel.app | Live — `/health`, `/api/meta/config`, auth (Prisma `engineType = library` on Vercel) |
 
 Custom domains (`virlux.com`, `app.virlux.com`) — point DNS to Vercel projects above.
+
+## Current blockers (2026-06-04)
+
+Last verified: `npm run deploy:smoke` + demo login — all green.
+
+| # | Blocker | Impact | Owner action |
+|---|---------|--------|--------------|
+| **B1** | ~~DATABASE_URL / Prisma on Vercel~~ | **Cleared** — `engineType = library` + `DATABASE_URL` on virlux-api | Redeploy: `npm run staging:vercel-api` |
+| **B2** | **`RAILWAY_TOKEN` optional** — old `virlux-api-production.up.railway.app` is 404 | No longer required for pilot; use Vercel API URL | Optional: `RAILWAY_TOKEN=... npm run staging:railway` if you prefer Railway |
+| **B3** | **`.env.staging` not loaded** in shell | Pre-flight/smoke fail without exports | `STAGING_API_URL=https://virlux-api.vercel.app STAGING_WEB_URL=... STAGING_APP_URL=... bash scripts/staging-prepare-env.sh` |
+| **B4** | **Custom DNS not wired** | Public URLs still `*.vercel.app` | Point DNS to `virlux-web` / `virlux-app` (see §4) |
+| **B5** | **Playwright live-e2e** locally | `post-deploy:verify` needs `npx playwright install` on dev machine | Not a deploy blocker; run after browser install |
+
+**What works today (not blocked):**
+
+| Surface | URL | Status |
+|---------|-----|--------|
+| Marketing (Vercel) | https://virlux-web.vercel.app | 200 OK |
+| Dashboard UI (Vercel) | https://virlux-app.vercel.app | 200 OK |
+| Hero quote (web-only) | `POST /api/quote/estimate` on marketing | OK — Frankfurter/CoinGecko via Next.js route; no Railway required for homepage calculator |
+
+**Unblock sequence (minimum — Vercel path):**
+
+1. `npm run staging:vercel-api` — API at https://virlux-api.vercel.app
+2. `bash scripts/staging-wire-production.sh https://virlux-api.vercel.app`
+3. Add `VIRLUX_STAGING_DB_PASSWORD` to `~/.sina/secrets.env` → `bash scripts/staging-supabase-db-url.sh` → `npm run staging:vercel-api-env` → `npm run staging:vercel-api`
+4. `bash scripts/staging-platform-setup.sh` (after DB live)
+5. `npm run post-deploy:verify`
+
+**Railway (optional):** `RAILWAY_TOKEN=... npm run staging:railway` then wire that URL instead.
+
+**Ecosystem note:** Sibling repos may run their own readiness checks in parallel; VIRLUX DELIVERY ships on ports `3100/3001/3002` on this monorepo only.
 
 ## Prerequisites
 
 - [ ] Pre-flight: `npm run live-pilot:deploy-check` (tokens + `.env.staging`)
 - [ ] `RAILWAY_TOKEN` and `VERCEL_TOKEN` in your shell
 - [ ] `.env.staging` prepared: `bash scripts/staging-prepare-env.sh`
-- [ ] Real `DATABASE_URL` on Railway Postgres
+- [ ] `VIRLUX_STAGING_DB_PASSWORD` in `~/.sina/secrets.env` (Supabase `virlux-staging` project `bueoakgiisvufxfbdvoa`)
 
 ## 1. Deploy
 
+**Primary (Vercel API — no Railway token):**
+
 ```bash
 cd /path/to/Virlux
+STAGING_WEB_URL=https://virlux-web.vercel.app STAGING_APP_URL=https://virlux-app.vercel.app \
+  STAGING_API_URL=https://virlux-api.vercel.app bash scripts/staging-prepare-env.sh
+npm run staging:vercel-api
+npm run staging:vercel-api-env   # after DATABASE_URL set (see B1)
+bash scripts/staging-wire-production.sh https://virlux-api.vercel.app
+npm run staging:vercel           # redeploy web + app with NEXT_PUBLIC_API_URL
+```
+
+**Optional (Railway):**
+
+```bash
 RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:deploy-all
 ```
 
@@ -38,6 +83,11 @@ RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:deploy-all
 | `CORS_ORIGINS` | both Vercel URLs, no trailing slash |
 
 ## 3. Vercel — `virlux-web` + `virlux-app`
+
+**Monorepo deploy (2026-06-04):**
+
+- **virlux-app** — Vercel project Root Directory = `apps/app` → run deploy from **repository root** (`npx vercel deploy --cwd . --prod`). Do not `cd apps/app` (doubles path to `apps/app/apps/app`).
+- **virlux-web** — Vercel project **Root Directory** = `apps/web` (dashboard). Deploy via `npm run staging:vercel` (repo root + `vercel.web.json` swap). Do not deploy with default root `vercel.json` (API build).
 
 | Variable | Notes |
 |----------|--------|
@@ -61,13 +111,18 @@ RAILWAY_TOKEN=... VERCEL_TOKEN=... npm run staging:deploy-all
 SEED_DATABASE=true npm run db:seed -w @virlux/api
 ```
 
-Accounts: `demo@virlux.com` / `demo12345`, `approver@virlux.demo` / `demo12345`
+Accounts: `demo@virlux.com`, `approver@virlux.demo` — password from `DEMO_SEED_PASSWORD` (Tier 3, not in git)
+
+```bash
+PLATFORM_ADMIN_EMAIL=demo@virlux.com PLATFORM_ADMIN_PASSWORD="$DEMO_SEED_PASSWORD" \
+  npm run staging:platform-setup
+```
 
 ## 6. Platform setup
 
 ```bash
 STAGING_API_URL=https://your-api.up.railway.app \
-PLATFORM_ADMIN_EMAIL=demo@virlux.com PLATFORM_ADMIN_PASSWORD=demo12345 \
+PLATFORM_ADMIN_EMAIL=demo@virlux.com PLATFORM_ADMIN_PASSWORD="$DEMO_SEED_PASSWORD" \
 ORG_ID=seed-org-demo PILOT_CORRIDOR=PH \
 bash scripts/staging-platform-setup.sh
 ```

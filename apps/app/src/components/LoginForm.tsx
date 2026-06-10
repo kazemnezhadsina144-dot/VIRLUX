@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import { isPublicDemoMode, DEMO_LOGIN } from "@virlux/shared";
+import { isPublicDemoMode, DEMO_LOGIN_EMAIL } from "@virlux/shared";
 import { trackEvent } from "@/lib/analytics";
 
 export function LoginForm() {
@@ -23,8 +23,8 @@ export function LoginForm() {
   const [showDemoHint, setShowDemoHint] = useState(false);
 
   function fillDemo() {
-    setEmail(DEMO_LOGIN.email);
-    setPassword(DEMO_LOGIN.password);
+    setEmail(DEMO_LOGIN_EMAIL);
+    setPassword("");
     setShowDemoHint(false);
   }
 
@@ -109,7 +109,9 @@ export function LoginForm() {
               </button>
               {showDemoHint && (
                 <div className="mt-2">
-                  <p className="text-xs text-slate-400">Staging demo — pre-funded balance, verified business.</p>
+                  <p className="text-xs text-slate-400">
+                    Staging demo — email prefilled; password from your team runbook (not stored in git).
+                  </p>
                   <button type="button" onClick={fillDemo} className="btn-secondary mt-2 w-full text-xs">
                     Use demo credentials
                   </button>

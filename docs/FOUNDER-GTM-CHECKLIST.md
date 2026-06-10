@@ -14,7 +14,7 @@ Public product parity must be live before submissions. Audience demo scripts: [D
 
 - [ ] `NEXT_PUBLIC_DEMO_MODE=true` on staging app only (never production)
 - [ ] `DEMO_APPROVAL_THRESHOLD=100` on staging API for maker-checker demos
-- [ ] Seed includes `approver@virlux.demo` / `demo12345`
+- [ ] Seed includes `approver@virlux.demo` (password via `DEMO_SEED_PASSWORD`)
 - [ ] Optional: `NEXT_PUBLIC_DEMO_LOOM_URL` on marketing for `/demo` embed
 
 ## Manual acceptance (per audience)

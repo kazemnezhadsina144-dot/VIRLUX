@@ -28,12 +28,14 @@ for url in "$WEB/" "$APP/"; do
 done
 check_header "x-content-type-options" "$API/health" || fail=1
 
-if curl -sf --max-time 15 "$WEB/.well-known/security.txt" | grep -q "Contact:"; then
-  echo "OK  security.txt on $WEB"
-else
-  echo "FAIL security.txt missing on $WEB"
-  fail=1
-fi
+for base in "$WEB" "$APP"; do
+  if curl -sf --max-time 15 "$base/.well-known/security.txt" | grep -q "Contact:"; then
+    echo "OK  security.txt on $base"
+  else
+    echo "FAIL security.txt missing on $base"
+    fail=1
+  fi
+done
 
 if [[ "$fail" -ne 0 ]]; then
   exit 1

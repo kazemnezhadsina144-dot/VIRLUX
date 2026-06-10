@@ -22,6 +22,7 @@ import circleRoutes from "./routes/circle";
 import platformRoutes from "./routes/platform";
 import partnerRoutes from "./routes/partner";
 import demoRoutes from "./routes/demo";
+import mfaRoutes from "./routes/mfa";
 import { botStatus } from "./telegram/polling";
 
 const FORBIDDEN = PORTS.forbidden;
@@ -96,6 +97,7 @@ app.get("/health", async (_req, res) => {
 });
 
 app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth/mfa", authLimiter, mfaRoutes);
 app.use("/api/quote/estimate", quoteEstimateLimiter);
 app.use("/api/quote", quoteRoutes);
 app.use("/api/transactions", transactionRoutes);

@@ -6,6 +6,7 @@ import { config } from "../lib/config";
 import { AppError } from "../lib/errors";
 import { isPlatformAdminEmail } from "../lib/platform";
 import { getOrgVolumeUsageCad } from "./transaction-guards";
+import { verifyTotp } from "../lib/mfa";
 
 function hashToken(token: string) {
   return crypto.createHash("sha256").update(token).digest("hex");
@@ -99,7 +100,7 @@ export async function registerUser(input: {
   return { accessToken, refreshToken, user: sanitizeUser(user) };
 }
 
-export async function loginUser(email: string, password: string) {
+export async function loginUser(email: string, password: string, totpCode?: string) {
   const user = await prisma.user.findUnique({
     where: { email },
     include: { wallet: true, organization: true },
@@ -107,6 +108,24 @@ export async function loginUser(email: string, password: string) {
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
     throw new AppError(401, "Invalid credentials", "INVALID_CREDENTIALS");
   }
+
+  if (isPlatformAdminEmail(user.email) && config.platformAdminMfaRequired && !user.totpSecret) {
+    throw new AppError(
+      403,
+      "Platform admin must enroll two-factor authentication",
+      "MFA_ENROLL_REQUIRED"
+    );
+  }
+
+  if (user.totpSecret) {
+    if (!totpCode) {
+      throw new AppError(401, "Two-factor code required", "MFA_REQUIRED");
+    }
+    if (!verifyTotp(user.totpSecret, totpCode)) {
+      throw new AppError(401, "Invalid two-factor code", "INVALID_MFA");
+    }
+  }
+
   const accessToken = signAccessToken(user.id, user.email, user.role);
   const refreshToken = await createRefreshToken(user.id);
   return { accessToken, refreshToken, user: sanitizeUser(user) };

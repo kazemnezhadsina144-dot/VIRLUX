@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { resolveDemoSeedPassword } from "@virlux/shared";
 
 const prisma = new PrismaClient();
 
@@ -9,6 +10,8 @@ async function main() {
     console.log("Skipping seed in production (set SEED_DATABASE=true to override)");
     return;
   }
+
+  const demoPassword = resolveDemoSeedPassword();
 
   const org = await prisma.organization.upsert({
     where: { id: "seed-org-demo" },
@@ -41,10 +44,10 @@ async function main() {
     data: { partnerId: partner.id },
   });
 
-  const passwordHash = await bcrypt.hash("demo12345", 12);
+  const passwordHash = await bcrypt.hash(demoPassword, 12);
   const user = await prisma.user.upsert({
     where: { email: "demo@virlux.com" },
-    update: { kycStatus: "approved", organizationId: org.id },
+    update: { kycStatus: "approved", organizationId: org.id, passwordHash },
     create: {
       email: "demo@virlux.com",
       passwordHash,
@@ -77,7 +80,7 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: "approver@virlux.demo" },
-    update: { kycStatus: "approved", organizationId: org.id, role: "approver" },
+    update: { kycStatus: "approved", organizationId: org.id, role: "approver", passwordHash },
     create: {
       email: "approver@virlux.demo",
       passwordHash,
@@ -88,7 +91,7 @@ async function main() {
     },
   });
 
-  console.log("Seeded demo accounts: demo@virlux.com, approver@virlux.demo");
+  console.log("Seeded demo accounts: demo@virlux.com, approver@virlux.demo (password from DEMO_SEED_PASSWORD)");
 }
 
 main().finally(() => prisma.$disconnect());

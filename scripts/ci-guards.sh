@@ -35,9 +35,11 @@ if git ls-files 'test-results/' 'playwright-report/' 2>/dev/null | grep -q .; th
   fail "Playwright test-results/ or playwright-report/ is tracked — add to .gitignore and git rm --cached"
 fi
 
-if ! git ls-files --error-unmatch apps/web/public/.well-known/security.txt >/dev/null 2>&1; then
-  fail "Missing apps/web/public/.well-known/security.txt (responsible disclosure)"
-fi
+for secfile in apps/web/public/.well-known/security.txt apps/app/public/.well-known/security.txt; do
+  if ! git ls-files --error-unmatch "$secfile" >/dev/null 2>&1; then
+    fail "Missing $secfile (responsible disclosure)"
+  fi
+done
 
 # MSB public claims while fintracMsbClaim is false
 if grep -q 'fintracMsbClaim: false' packages/shared/src/constants.ts; then
@@ -66,9 +68,10 @@ fi
 # Supabase: new Prisma tables must enable RLS (blocks anon/authenticated PostgREST)
 RLS_BASELINE="20250608000000_enable_rls"
 REVOKE_BASELINE="20250609000000_revoke_postgrest_grants"
+DENY_BASELINE="20250610000000_deny_postgrest_policies"
 for mig in "$ROOT"/apps/api/prisma/migrations/*/migration.sql; do
   dir=$(basename "$(dirname "$mig")")
-  [[ "$dir" == "$RLS_BASELINE" || "$dir" == "$REVOKE_BASELINE" ]] && continue
+  [[ "$dir" == "$RLS_BASELINE" || "$dir" == "$REVOKE_BASELINE" || "$dir" == "$DENY_BASELINE" ]] && continue
   [[ "$dir" < "$RLS_BASELINE" ]] && continue
   if grep -qiE 'CREATE TABLE' "$mig"; then
     if ! grep -qi 'ENABLE ROW LEVEL SECURITY' "$mig"; then
@@ -83,6 +86,11 @@ done
 # Never ship Supabase secret/service_role keys or browser Supabase client env vars
 if git grep -nE 'NEXT_PUBLIC_SUPABASE_|SUPABASE_SERVICE_ROLE|service_role' -- apps/web apps/app packages/shared api 2>/dev/null; then
   fail "Supabase client or service_role keys must not appear in shipped frontend/API code"
+fi
+
+if git grep -nF 'demo12345' -- apps packages e2e scripts README.md 2>/dev/null \
+  ':!scripts/ci-guards.sh' ':!docs/receipts/' ':!os/agents/'; then
+  fail "Committed demo12345 password — use DEMO_SEED_PASSWORD / E2E_DEMO_PASSWORD env"
 fi
 
 if git grep -nE 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' -- apps apps/api packages api \

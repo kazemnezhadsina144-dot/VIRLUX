@@ -7,4 +7,5 @@ export * from "./public-copy";
 export * from "./drift-prevention";
 export * from "./api-proxy";
 export * from "./demo";
+export * from "./demo-password";
 export * from "./security-headers";

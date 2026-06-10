@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Founder dashboard actions that cannot be automated from the repo (DNS, Supabase keys, GTM URLs).
+set -euo pipefail
+
+echo "== VIRLUX founder security & launch checklist =="
+echo ""
+echo "Supabase (virlux-staging / bueoakgiisvufxfbdvoa):"
+echo "  [ ] Security Advisors → Refresh — confirm no CRITICAL"
+echo "  [ ] Settings → API → Rotate anon/publishable key → update Vercel env only"
+echo "  [ ] Set VIRLUX_SUPABASE_ANON_KEY locally → npm run verify:supabase-security"
+echo ""
+echo "DNS (Vercel):"
+echo "  [ ] virlux.com → virlux-web project"
+echo "  [ ] app.virlux.com → virlux-app project"
+echo ""
+echo "Vercel env (Tier 3 — dashboard or vercel env add):"
+echo "  [ ] DEMO_SEED_PASSWORD (min 12) — then re-seed staging: SEED_DATABASE=true npm run db:seed"
+echo "  [ ] E2E_DEMO_PASSWORD — same value for CI/live Playwright"
+echo "  [ ] NEXT_PUBLIC_BOOK_DEMO_URL — Calendly/HubSpot"
+echo "  [ ] NEXT_PUBLIC_DEMO_LOOM_URL — product demo video (web)"
+echo "  [ ] PLATFORM_ADMIN_MFA_REQUIRED=true — after admins enroll TOTP via /api/auth/mfa/*"
+echo ""
+echo "Verify after changes:"
+echo "  npm run verify:full"
+echo ""

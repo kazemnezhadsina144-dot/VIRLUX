@@ -93,6 +93,8 @@ export const config = {
     isDev && process.env.ALLOW_ORG_DEPOSIT_CONFIRM !== "false"
       ? true
       : process.env.ALLOW_ORG_DEPOSIT_CONFIRM === "true",
+  /** When true, platform admin accounts must enroll TOTP before login succeeds */
+  platformAdminMfaRequired: process.env.PLATFORM_ADMIN_MFA_REQUIRED === "true",
 };
 
 export function telegramConfigured(): boolean {

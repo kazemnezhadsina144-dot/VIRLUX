@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Partner settlement flow E2E — requires local API with SETTLEMENT_MODE=partner (or staging)
 set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=/dev/null
+source "$ROOT/scripts/load-tier3-secrets.sh"
 
 API="${STAGING_API_URL:-${NEXT_PUBLIC_API_URL:-http://localhost:3002}}"
 API="${API%/}"
@@ -13,19 +16,17 @@ if ! curl -fsS "$API/health" >/dev/null; then
   exit 1
 fi
 
-# Uses demo seed user when available
 EMAIL="${E2E_EMAIL:-demo@virlux.com}"
-PASS="${E2E_PASSWORD:-demo12345}"
-
-echo "1. Login..."
-LOGIN=$(curl -sS -X POST "$API/api/auth/login" \
-  -H "Content-Type: application/json" \
-  -d "{\"email\":\"$EMAIL\",\"password\":\"$PASS\"}")
-TOKEN=$(echo "$LOGIN" | jq -r '.accessToken // empty')
-if [ -z "$TOKEN" ]; then
-  echo "Login failed (set E2E_EMAIL/E2E_PASSWORD or run db:seed): $LOGIN"
+PASS="${E2E_PASSWORD:-${E2E_DEMO_PASSWORD:-${DEMO_SEED_PASSWORD:-}}}"
+if [[ -z "$PASS" ]]; then
+  echo "Set E2E_PASSWORD or DEMO_SEED_PASSWORD"
   exit 1
 fi
+
+echo "1. Login..."
+JAR=$(mktemp)
+trap 'rm -f "$JAR"' EXIT
+bash "$ROOT/scripts/curl-api-login.sh" "$API" "$EMAIL" "$PASS" "$JAR"
 
 echo "2. Health includes settlement mode..."
 curl -fsS "$API/health" | jq -e '.status == "ok"' >/dev/null
@@ -42,4 +43,3 @@ fi
 
 echo ""
 echo "Partner settlement E2E passed (auth + webhook signature gate)."
-echo "Full deposit→instruction→settle: npm run staging:platform-setup then exercise platform ops UI."

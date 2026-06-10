@@ -90,7 +90,9 @@ Mistakes, root cause, fix, and **prevention** so they are not repeated without m
 - **Exposure:** `User.passwordHash`, `RefreshToken.tokenHash`, KYC docs, invite tokens, partner webhook secrets, wallet/tx data — readable/writable by anyone with project URL + anon key.
 - **Fix:** Applied migration `20250608000000_enable_rls` on staging (RLS on all 13 tables, no policies). API health OK. PostgREST anon select → `[]`, insert → RLS denial.
 - **Follow-up (2026-06-09):** Migration `20250609000000_revoke_postgrest_grants` — REVOKE ALL from anon/authenticated + default privileges + revoked all refresh tokens (force re-login).
-- **Prevention:** CI guard for new migrations; comment in `schema.prisma`; always `ENABLE ROW LEVEL SECURITY` on new tables; never add anon policies unless intentional.
+- **Follow-up (2026-06-10):** Migration `20250610000000_deny_postgrest_policies` — explicit deny-all policies for advisors/audit. TOTP MFA for platform admins (`/api/auth/mfa/*`). Demo passwords moved to `DEMO_SEED_PASSWORD` env.
+- **Founder:** Rotate Supabase anon key; set `DEMO_SEED_PASSWORD` + `bash scripts/staging-reseed-demo.sh`; see `scripts/founder-security-checklist.sh`.
+- **Prevention:** CI guard for new migrations; comment in `schema.prisma`; always `ENABLE ROW LEVEL SECURITY` on new tables; never add anon policies unless intentional; never commit demo passwords.
 
 ---
 

@@ -1,4 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
+import { resolveE2eDemoPassword } from "@virlux/shared";
+
+const DEMO_PASSWORD = resolveE2eDemoPassword();
 
 /** Submit login form (avoids mode-toggle "Sign in" tab button). */
 export async function submitSignIn(page: Page) {
@@ -7,7 +10,7 @@ export async function submitSignIn(page: Page) {
 
 export async function fillDemoLogin(page: Page) {
   await page.locator('form input[type="email"]').fill("demo@virlux.com");
-  await page.locator('form input[type="password"]').fill("demo12345");
+  await page.locator('form input[type="password"]').fill(DEMO_PASSWORD);
 }
 
 /** Sidebar links include icon glyphs in accessible name — use regex, not exact. */
@@ -16,7 +19,7 @@ export function asideNav(page: Page) {
 }
 
 export async function loginAsDemo(page: Page) {
-  await loginAsUser(page, "demo@virlux.com", "demo12345");
+  await loginAsUser(page, "demo@virlux.com", DEMO_PASSWORD);
 }
 
 export async function loginAsUser(page: Page, email: string, password: string) {
@@ -85,4 +88,10 @@ export async function tryAddDemoFunds(page: Page) {
     await demoFund.click();
     await page.getByText(/Demo balance added|added/i).waitFor({ timeout: 10000 });
   }
+}
+
+/** Navigate to Send — direct URL avoids flaky sidebar animation (INC-005). */
+export async function goToSend(page: Page) {
+  await page.goto("/dashboard/send");
+  await expect(page.getByRole("heading", { name: /Send payment/i })).toBeVisible({ timeout: 15000 });
 }

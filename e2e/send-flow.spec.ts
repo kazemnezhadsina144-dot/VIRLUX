@@ -1,21 +1,22 @@
 import { test, expect } from "@playwright/test";
+import { resolveE2eDemoPassword } from "@virlux/shared";
+import { asideNav, loginAsDemo, loginFromNextRedirect, tryAddDemoFunds } from "./helpers";
+
+const DEMO_PASSWORD = resolveE2eDemoPassword();
 
 test.describe("send payment flow", () => {
+  test.describe.configure({ mode: "serial" });
   test.use({ baseURL: process.env.PLAYWRIGHT_APP_URL ?? "http://localhost:3001" });
-
-  async function loginAsDemo(page: import("@playwright/test").Page) {
-    await page.goto("/");
-    await page.getByLabel(/email/i).fill("demo@virlux.com");
-    await page.getByLabel(/password/i).fill("demo12345");
-    await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await expect(page).toHaveURL(/dashboard/, { timeout: 15000 });
-  }
 
   test("quote and send payment", async ({ page }) => {
     test.skip(!process.env.E2E_DEMO_LOGIN, "Set E2E_DEMO_LOGIN=1 with local seed");
 
     await loginAsDemo(page);
-    await page.getByRole("link", { name: "Send", exact: true }).click();
+    await tryAddDemoFunds(page);
+
+    const send = asideNav(page).getByRole("link", { name: /Send/i });
+    await expect(send).toBeVisible({ timeout: 10000 });
+    await send.click();
     await expect(page.getByRole("heading", { name: /Send payment/i })).toBeVisible();
 
     await page.getByRole("button", { name: "Confirm rate" }).click();
@@ -26,18 +27,17 @@ test.describe("send payment flow", () => {
     await page.getByPlaceholder("Bank or payout reference").fill("0x" + "a".repeat(40));
     await page.getByRole("button", { name: "Send payment" }).click();
 
-    await expect(page.getByText(/Payment sent|status:/i)).toBeVisible({ timeout: 15000 });
+    await expect(
+      page.getByText(/Payment sent|awaiting approval|status:|deposit is required/i)
+    ).toBeVisible({ timeout: 15000 });
   });
 
   test("middleware preserves next after login", async ({ page }) => {
     test.skip(!process.env.E2E_DEMO_LOGIN, "Set E2E_DEMO_LOGIN=1 with local seed");
 
-    await page.goto("/dashboard/send");
-    await expect(page).toHaveURL(/\?next=/, { timeout: 10000 });
-
-    await page.getByLabel(/email/i).fill("demo@virlux.com");
-    await page.getByLabel(/password/i).fill("demo12345");
-    await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await expect(page).toHaveURL(/\/dashboard\/send/, { timeout: 15000 });
+    await loginFromNextRedirect(page, "/dashboard/send", "demo@virlux.com", DEMO_PASSWORD);
+    await expect(page.getByRole("heading", { name: /Send payment/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

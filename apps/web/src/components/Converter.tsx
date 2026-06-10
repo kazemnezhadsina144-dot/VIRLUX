@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { PRICING } from "@virlux/shared";
+import { PRICING, CLIENT_COPY } from "@virlux/shared";
 import { fetchQuote } from "@/lib/api";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3001";
@@ -58,7 +58,7 @@ export function Converter() {
             <h3 className="mt-1 text-xl font-bold text-white">See your cost before you send</h3>
           </div>
           <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
-            Live rates
+            {quote?.indicative ? "Indicative rates" : "Live rates"}
           </span>
         </div>
 
@@ -121,7 +121,7 @@ export function Converter() {
                 </p>
               </div>
               <div className="rounded-lg bg-white/[0.03] p-3">
-                <p className="text-xs text-slate-500">Processing (est.)</p>
+                <p className="text-xs text-slate-500">Network fee (est.)</p>
                 <p className="font-semibold text-white">${quote.estimatedGasUsd.toFixed(2)} USD</p>
               </div>
             </div>
@@ -133,7 +133,12 @@ export function Converter() {
               </p>
             </div>
 
-            <p className="text-xs leading-relaxed text-slate-500">{quote.disclaimer}</p>
+            <p className="text-xs leading-relaxed text-slate-500">
+              {CLIENT_COPY.calculatorDisclaimer}
+            </p>
+            {quote.disclaimer ? (
+              <p className="mt-1 text-xs text-slate-600">{quote.disclaimer}</p>
+            ) : null}
             <Link href={APP_URL} className="btn-primary w-full text-center">
               Create free account →
             </Link>

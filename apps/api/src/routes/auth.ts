@@ -9,14 +9,26 @@ import * as authService from "../services/auth";
 const router = Router();
 
 const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(12),
-  fullName: z.string().min(2),
-  companyName: z.string().optional(),
+  email: z.string().email().max(254),
+  password: z.string().min(12).max(128),
+  fullName: z.string().min(2).max(120),
+  companyName: z.string().max(200).optional(),
+});
+
+const loginSchema = z.object({
+  email: z.string().email().max(254),
+  password: z.string().min(1).max(128),
+  totpCode: z.string().regex(/^\d{6}$/).optional(),
 });
 
 function sendAuth(res: import("express").Response, result: Awaited<ReturnType<typeof authService.loginUser>>, status = 200) {
   setAuthCookies(res, result.accessToken, result.refreshToken);
+  res.setHeader("Cache-Control", "no-store");
+  // Cookies are authoritative — never echo bearer tokens in JSON (XSS / log leakage).
+  if (config.isProd) {
+    res.status(status).json({ user: result.user });
+    return;
+  }
   res.status(status).json(result);
 }
 
@@ -36,9 +48,13 @@ router.post(
 router.post(
   "/login",
   asyncHandler(async (req, res) => {
-    const { email, password } = req.body as { email?: string; password?: string };
-    if (!email || !password) return res.status(400).json({ error: "Email and password required" });
-    const result = await authService.loginUser(email, password);
+    const parsed = loginSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Email and password required" });
+    const result = await authService.loginUser(
+      parsed.data.email,
+      parsed.data.password,
+      parsed.data.totpCode
+    );
     sendAuth(res, result);
   })
 );
@@ -47,8 +63,8 @@ router.post(
   "/refresh",
   asyncHandler(async (req, res) => {
     const cookies = parseCookies(req);
-    const refreshToken =
-      (req.body as { refreshToken?: string }).refreshToken ?? cookies[REFRESH_COOKIE];
+    const bodyToken = (req.body as { refreshToken?: string }).refreshToken;
+    const refreshToken = config.isProd ? cookies[REFRESH_COOKIE] : bodyToken ?? cookies[REFRESH_COOKIE];
     if (!refreshToken) return res.status(400).json({ error: "refreshToken required" });
     const result = await authService.rotateRefreshToken(refreshToken);
     sendAuth(res, result);

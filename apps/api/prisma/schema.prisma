@@ -10,8 +10,9 @@ generator client {
 //   REVOKE ALL ON TABLE "<Model>" FROM anon, authenticated;
 // (no anon/authenticated policies — API uses Prisma/DATABASE_URL only).
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum UserRole {
@@ -116,6 +117,7 @@ model User {
   telegramLink   TelegramLink?
   telegramLinkToken          String?
   telegramLinkTokenExpiresAt DateTime?
+  totpSecret                 String?
 
   @@index([organizationId])
 }
